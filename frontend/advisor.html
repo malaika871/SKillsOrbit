@@ -354,14 +354,14 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand text-white fw-bold fs-5" href="index.html">SkillOrbit</a>
+            <a class="navbar-brand text-white fw-bold fs-5" href="/">SkillOrbit</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav gap-4">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="advisor.html">Advisor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/advisor">Advisor</a></li>
                     <li class="nav-item"><a class="nav-link" href="#resume">Resume</a></li>
                     <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="#roadmap">Roadmap</a></li>
@@ -414,174 +414,7 @@
 
         <!-- Results Section -->
         <div id="results-container">
-            <!-- Career Matches -->
-            <div class="mb-5">
-                <h2 class="h4 fw-semibold mb-4">Your Top Career Matches</h2>
-
-                <div class="row g-4">
-                    <!-- Career Card 1: Data Scientist -->
-                    <div class="col-lg-4">
-                        <div class="glass-card rounded p-4 career-card h-100 fade-in">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h5 class="fw-semibold mb-1">Data Scientist</h5>
-                                    <span class="badge badge-strong rounded-pill">Strong Match</span>
-                                </div>
-                                <div class="progress-circle">
-                                    <svg width="80" height="80">
-                                        <circle class="progress-circle-bg" cx="40" cy="40" r="32"></circle>
-                                        <circle class="progress-circle-fill" cx="40" cy="40" r="32"
-                                                stroke="var(--secondary)"
-                                                stroke-dasharray="201"
-                                                stroke-dashoffset="16"
-                                                data-percent="92"></circle>
-                                    </svg>
-                                    <div class="progress-text" style="color: var(--secondary);">92%</div>
-                                </div>
-                            </div>
-
-                            <p class="mb-3" style="color: var(--text-secondary); font-size: 14px;">
-                                ₨80K–120K/month
-                            </p>
-
-                            <div class="mb-3">
-                                <small class="text-secondary d-block mb-2">Skills:</small>
-                                <div>
-                                    <span class="skill-chip skill-chip-match">Python</span>
-                                    <span class="skill-chip skill-chip-match">SQL</span>
-                                    <span class="skill-chip skill-chip-missing">Statistics</span>
-                                    <span class="skill-chip skill-chip-missing">Tableau</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <span class="material-symbols-outlined sm demand-high">trending_up</span>
-                                <span class="demand-high">High Demand</span>
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2">View Roadmap</button>
-                                <button class="btn btn-outline-custom rounded-pill flex-grow-1 py-2">Simulate</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Career Card 2: Web Developer -->
-                    <div class="col-lg-4">
-                        <div class="glass-card rounded p-4 career-card h-100 fade-in" style="animation-delay: 0.1s;">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h5 class="fw-semibold mb-1">Web Developer</h5>
-                                    <span class="badge badge-good rounded-pill">Good Match</span>
-                                </div>
-                                <div class="progress-circle">
-                                    <svg width="80" height="80">
-                                        <circle class="progress-circle-bg" cx="40" cy="40" r="32"></circle>
-                                        <circle class="progress-circle-fill" cx="40" cy="40" r="32"
-                                                stroke="var(--primary)"
-                                                stroke-dasharray="201"
-                                                stroke-dashoffset="30"
-                                                data-percent="85"></circle>
-                                    </svg>
-                                    <div class="progress-text" style="color: var(--primary);">85%</div>
-                                </div>
-                            </div>
-
-                            <p class="mb-3" style="color: var(--text-secondary); font-size: 14px;">
-                                ₨70K–110K/month
-                            </p>
-
-                            <div class="mb-3">
-                                <small class="text-secondary d-block mb-2">Skills:</small>
-                                <div>
-                                    <span class="skill-chip skill-chip-match">JavaScript</span>
-                                    <span class="skill-chip skill-chip-match">React</span>
-                                    <span class="skill-chip skill-chip-missing">Node.js</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <span class="material-symbols-outlined sm demand-high">trending_up</span>
-                                <span class="demand-high">High Demand</span>
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2">View Roadmap</button>
-                                <button class="btn btn-outline-custom rounded-pill flex-grow-1 py-2">Simulate</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Career Card 3: AI Engineer -->
-                    <div class="col-lg-4">
-                        <div class="glass-card rounded p-4 career-card h-100 fade-in" style="animation-delay: 0.2s;">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h5 class="fw-semibold mb-1">AI Engineer</h5>
-                                    <span class="badge badge-good rounded-pill">Good Match</span>
-                                </div>
-                                <div class="progress-circle">
-                                    <svg width="80" height="80">
-                                        <circle class="progress-circle-bg" cx="40" cy="40" r="32"></circle>
-                                        <circle class="progress-circle-fill" cx="40" cy="40" r="32"
-                                                stroke="var(--primary)"
-                                                stroke-dasharray="201"
-                                                stroke-dashoffset="44"
-                                                data-percent="78"></circle>
-                                    </svg>
-                                    <div class="progress-text" style="color: var(--primary);">78%</div>
-                                </div>
-                            </div>
-
-                            <p class="mb-3" style="color: var(--text-secondary); font-size: 14px;">
-                                ₨90K–150K/month
-                            </p>
-
-                            <div class="mb-3">
-                                <small class="text-secondary d-block mb-2">Skills:</small>
-                                <div>
-                                    <span class="skill-chip skill-chip-match">Python</span>
-                                    <span class="skill-chip skill-chip-match">ML</span>
-                                    <span class="skill-chip skill-chip-missing">PyTorch</span>
-                                    <span class="skill-chip skill-chip-missing">Cloud</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <span class="material-symbols-outlined sm demand-high">trending_up</span>
-                                <span class="demand-high">High Demand</span>
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2">View Roadmap</button>
-                                <button class="btn btn-outline-custom rounded-pill flex-grow-1 py-2">Simulate</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Skill Gap Section -->
-            <div class="glass-card rounded p-4">
-                <div class="d-flex align-items-start gap-3">
-                    <span class="material-symbols-outlined" style="color: var(--error); font-size: 32px;">warning</span>
-                    <div class="flex-grow-1">
-                        <h5 class="fw-semibold mb-2">You are missing 3 skills for your top match</h5>
-                        <p class="mb-3" style="color: var(--text-secondary);">
-                            Focusing on these will increase your match score to 98%.
-                        </p>
-                        <div class="mb-3">
-                            <span class="skill-chip skill-chip-missing">Statistics</span>
-                            <span class="skill-chip skill-chip-missing">Tableau</span>
-                            <span class="skill-chip skill-chip-missing">A/B Testing</span>
-                        </div>
-                        <a href="#" class="text-decoration-none" style="color: var(--secondary);">
-                            View Full Skill Gap Analysis
-                            <span class="material-symbols-outlined sm">arrow_forward</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <!-- Career matches will be dynamically generated here -->
         </div>
     </main>
 
@@ -660,8 +493,142 @@
             }
         });
 
+        // Render career matches dynamically
+        function renderCareerMatches(matches, userSkills) {
+            const resultsContainer = document.getElementById('results-container');
+
+            // Clear existing results
+            resultsContainer.innerHTML = '';
+
+            // Create career matches section
+            const matchesSection = document.createElement('div');
+            matchesSection.className = 'mb-5';
+            matchesSection.innerHTML = '<h2 class="h4 fw-semibold mb-4">Your Top Career Matches</h2>';
+
+            const row = document.createElement('div');
+            row.className = 'row g-4';
+
+            matches.forEach((match, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-lg-4';
+
+                // Determine badge type
+                const badgeClass = match.score >= 80 ? 'badge-strong' : 'badge-good';
+                const badgeText = match.score >= 80 ? 'Strong Match' : 'Good Match';
+                const progressColor = match.score >= 80 ? 'var(--secondary)' : 'var(--primary)';
+
+                // Calculate circle progress
+                const circumference = 2 * Math.PI * 32;
+                const offset = circumference - (match.score / 100 * circumference);
+
+                // Find matching and missing skills
+                const userSkillsLower = userSkills.map(s => s.toLowerCase());
+                const matchingSkills = match.required_skills.filter(skill =>
+                    userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+                ).slice(0, 4);
+                const missingSkills = match.required_skills.filter(skill =>
+                    !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+                ).slice(0, 4);
+
+                // Demand level indicator
+                const demandClass = match.demand_level >= 8 ? 'demand-high' : 'text-secondary';
+                const demandText = match.demand_level >= 8 ? 'High Demand' : 'Moderate Demand';
+
+                col.innerHTML = `
+                    <div class="glass-card rounded p-4 career-card h-100 fade-in" style="animation-delay: ${index * 0.1}s;">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-semibold mb-1">${match.career}</h5>
+                                <span class="badge ${badgeClass} rounded-pill">${badgeText}</span>
+                            </div>
+                            <div class="progress-circle">
+                                <svg width="80" height="80">
+                                    <circle class="progress-circle-bg" cx="40" cy="40" r="32"></circle>
+                                    <circle class="progress-circle-fill" cx="40" cy="40" r="32"
+                                            stroke="${progressColor}"
+                                            stroke-dasharray="${circumference}"
+                                            stroke-dashoffset="${circumference}"
+                                            data-percent="${match.score}"></circle>
+                                </svg>
+                                <div class="progress-text" style="color: ${progressColor};">${match.score}%</div>
+                            </div>
+                        </div>
+
+                        <p class="mb-3" style="color: var(--text-secondary); font-size: 14px;">
+                            ₨${(match.salary_min / 1000).toFixed(0)}K–${(match.salary_max / 1000).toFixed(0)}K/year
+                        </p>
+
+                        <div class="mb-3">
+                            <small class="text-secondary d-block mb-2">Matching Skills:</small>
+                            <div>
+                                ${matchingSkills.map(skill => `<span class="skill-chip skill-chip-match">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        ${missingSkills.length > 0 ? `
+                        <div class="mb-3">
+                            <small class="text-secondary d-block mb-2">Skills to Learn:</small>
+                            <div>
+                                ${missingSkills.map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div class="mb-4">
+                            <span class="material-symbols-outlined sm ${demandClass}">trending_up</span>
+                            <span class="${demandClass}">${demandText}</span>
+                            <span class="text-secondary ms-2">• ${match.job_type}</span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2">View Roadmap</button>
+                            <button class="btn btn-outline-custom rounded-pill flex-grow-1 py-2">Simulate</button>
+                        </div>
+                    </div>
+                `;
+
+                row.appendChild(col);
+            });
+
+            matchesSection.appendChild(row);
+            resultsContainer.appendChild(matchesSection);
+
+            // Add skill gap section if there's a top match
+            if (matches.length > 0) {
+                const topMatch = matches[0];
+                const userSkillsLower = userSkills.map(s => s.toLowerCase());
+                const missingSkills = topMatch.required_skills.filter(skill =>
+                    !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+                );
+
+                if (missingSkills.length > 0) {
+                    const gapSection = document.createElement('div');
+                    gapSection.className = 'glass-card rounded p-4';
+                    gapSection.innerHTML = `
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="material-symbols-outlined" style="color: var(--error); font-size: 32px;">warning</span>
+                            <div class="flex-grow-1">
+                                <h5 class="fw-semibold mb-2">You are missing ${missingSkills.length} skill${missingSkills.length > 1 ? 's' : ''} for your top match</h5>
+                                <p class="mb-3" style="color: var(--text-secondary);">
+                                    Focus on these skills to increase your match score for ${topMatch.career}.
+                                </p>
+                                <div class="mb-3">
+                                    ${missingSkills.slice(0, 5).map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
+                                </div>
+                                <a href="#" class="text-decoration-none" style="color: var(--secondary);">
+                                    View Full Skill Gap Analysis
+                                    <span class="material-symbols-outlined sm">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(gapSection);
+                }
+            }
+        }
+
         // Analyze button
-        function analyzeCareer() {
+        async function analyzeCareer() {
             const resultsContainer = document.getElementById('results-container');
 
             if (skills.length === 0) {
@@ -669,12 +636,45 @@
                 return;
             }
 
-            // Show results with animation
-            resultsContainer.classList.add('show');
-            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Show loading state
+            const analyzeBtn = document.getElementById('analyze-btn');
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
 
-            // Animate progress circles
-            animateProgressCircles();
+            try {
+                // Call backend API
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ skills: skills })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get recommendations');
+                }
+
+                const data = await response.json();
+
+                // Render career matches
+                renderCareerMatches(data.matches, data.user_skills);
+
+                // Show results with animation
+                resultsContainer.classList.add('show');
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Animate progress circles
+                setTimeout(() => animateProgressCircles(), 300);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to analyze career options. Please try again.');
+            } finally {
+                // Reset button
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = 'Analyze My Career';
+            }
         }
 
         // Animate circular progress indicators
@@ -688,12 +688,10 @@
             });
         }
 
-        // Initialize with some default skills
+        // Initialize
         window.addEventListener('load', function() {
-            addSkill('Python');
-            addSkill('JavaScript');
-            addSkill('React');
-            addSkill('SQL');
+            // Start with empty skills - user will add their own
+            renderTags();
         });
     </script>
 </body>
