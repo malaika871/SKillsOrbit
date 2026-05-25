@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillOrbit | AI-Powered Career Guidance</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #c3c0ff;
+            --primary-dark: #4f46e5;
+            --secondary: #4cd7f6;
+            --tertiary: #d0bcff;
+            --background: #0f1417;
+            --surface: #1b2023;
+            --text-primary: #dfe3e7;
+            --text-secondary: #c7c4d8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: #0A0F1E;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+
+        /* Glass Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        /* Buttons */
+        .btn-primary-gradient {
+            background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 rgba(79, 70, 229, 0);
+        }
+
+        .btn-primary-gradient:hover {
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+            transform: scale(1.02);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(76, 215, 246, 0.1);
+            color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        /* Background Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 20s infinite linear;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--primary);
+            top: -10%;
+            left: -10%;
+        }
+
+        .orb-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--secondary);
+            bottom: -10%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: var(--tertiary);
+            top: 40%;
+            right: 10%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(10vw, 15vh) scale(1.1); }
+            66% { transform: translate(-5vw, 25vh) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            position: relative;
+            padding-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--secondary) !important;
+        }
+
+        .nav-link.active {
+            font-weight: 700;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        /* Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glow Effect */
+        .glow-cyan {
+            text-shadow: 0 0 10px rgba(76, 215, 246, 0.5);
+        }
+
+        /* Feature Icons */
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+
+        .icon-primary {
+            background: rgba(195, 192, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .icon-secondary {
+            background: rgba(76, 215, 246, 0.1);
+            color: var(--secondary);
+        }
+
+        .icon-tertiary {
+            background: rgba(208, 188, 255, 0.1);
+            color: var(--tertiary);
+        }
+
+        /* Timeline */
+        .timeline-connector {
+            background: linear-gradient(90deg, #4F46E5, #06B6D4);
+            height: 2px;
+            opacity: 0.2;
+        }
+
+        .step-circle {
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Material Icons Size */
+        .material-symbols-outlined {
+            font-size: 24px;
+        }
+
+        .material-symbols-outlined.sm {
+            font-size: 18px;
+        }
+
+        /* Custom Badge */
+        .badge-custom {
+            background: rgba(195, 192, 255, 0.2);
+            border: 1px solid rgba(195, 192, 255, 0.3);
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        /* Footer */
+        footer {
+            background: #0a0f12;
+            border-top: 1px solid rgba(145, 143, 161, 0.3);
+            margin: 0;
+            padding-bottom: 1rem !important;
+        }
+
+        /* Dashboard Image Container */
+        .dashboard-preview {
+            border-radius: 2rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .dashboard-preview::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, #0A0F1E, transparent, transparent);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold fs-5" href="#">SkillOrbit</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav gap-4">
+                    <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#advisor">Advisor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#resume">Resume</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#roadmap">Roadmap</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-primary-gradient rounded-pill px-4 py-2">Get Started</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="container text-center" style="padding-top: 160px; padding-bottom: 80px;">
+        <div class="reveal">
+            <span class="badge badge-custom rounded-pill px-4 py-2 mb-4">
+                <span class="material-symbols-outlined sm align-middle">auto_awesome</span>
+                AI-Powered Career Guidance
+            </span>
+        </div>
+
+        <h1 class="reveal display-3 fw-bold mb-4">
+            Discover Your Career<br class="d-none d-md-block">
+            Path with <span class="gradient-text">Intelligence</span>
+        </h1>
+
+        <p class="reveal lead text-secondary mx-auto mb-5" style="max-width: 700px; color: var(--text-secondary) !important;">
+            Analyze your skills, match with high-growth industries, and simulate your future professional
+            growth with our advanced neural career engine.
+        </p>
+
+        <div class="reveal d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
+            <button class="btn btn-primary-gradient rounded-pill px-4 py-3 d-inline-flex align-items-center gap-2">
+                Try Career Advisor
+                <span class="material-symbols-outlined">trending_flat</span>
+            </button>
+            <button class="btn btn-outline-custom rounded-pill px-4 py-3 d-inline-flex align-items-center gap-2">
+                Upload Resume
+                <span class="material-symbols-outlined">upload_file</span>
+            </button>
+        </div>
+
+        <div class="reveal mt-5">
+            <div class="glass-card p-2 dashboard-preview" style="max-width: 900px; margin: 0 auto;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJvgqoNkUOgK1ojHlUz3GkH7jYzeOntMiAKibIcNX63gnQhQY93EQTnfyhTIzg3sDVRhhRQgTyVPv-cG2bZ8zV9BW4ukrB6aOCV6e_QabtZIEzfAXjkrj84RwumZK1LlBjSPwI-55ObmGvZ6pfS6gjhViIApRAgZD4KBq7ysWO1psKJqc46Jv0l3X2iVMyh8vIOHVmgRuRIBQXIsEn23Qu8fgh95ohKRkOTNxkjZVkDRtVNkizGJVKuhTWZxWJQDgfHrz7C0KhjjYR"
+                     alt="Dashboard Preview" class="img-fluid rounded" style="border-radius: 1.5rem;">
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Section -->
+    <section class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="reveal glass-card p-5 rounded text-center">
+                    <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--primary);" data-count="10000">0</div>
+                    <div class="text-uppercase fw-semibold" style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Careers Mapped</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="reveal glass-card p-5 rounded text-center">
+                    <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--secondary);" data-count="95">0</div>
+                    <div class="text-uppercase fw-semibold" style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Match Accuracy (%)</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="reveal glass-card p-5 rounded text-center">
+                    <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--tertiary);" data-count="500">0</div>
+                    <div class="text-uppercase fw-semibold" style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Skills Tracked</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container py-5 my-5">
+        <div class="text-center mb-5">
+            <h2 class="reveal display-6 fw-semibold mb-3">Precision Tools for Modern Careers</h2>
+            <p class="reveal" style="color: var(--text-secondary);">Our AI suite covers every aspect of your professional journey.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-md-4">
+                <div class="reveal glass-card p-4 rounded h-100">
+                    <div class="feature-icon icon-primary mb-4">
+                        <span class="material-symbols-outlined">psychology</span>
+                    </div>
+                    <h5 class="mb-3">Career Advisor</h5>
+                    <p style="color: var(--text-secondary);">Receive personalized suggestions based on your personality, values, and experience.</p>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-md-4">
+                <div class="reveal glass-card p-4 rounded h-100">
+                    <div class="feature-icon icon-secondary mb-4">
+                        <span class="material-symbols-outlined">description</span>
+                    </div>
+                    <h5 class="mb-3">Resume Analyzer</h5>
+                    <p style="color: var(--text-secondary);">Instantly scan your CV for keywords and get AI-powered improvement suggestions.</p>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-md-4">
+                <div class="reveal glass-card p-4 rounded h-100">
+                    <div class="feature-icon icon-tertiary mb-4">
+                        <span class="material-symbols-outlined">analytics</span>
+                    </div>
+                    <h5 class="mb-3">Skill Gap Finder</h5>
+                    <p style="color: var(--text-secondary);">Identify exactly what technical or soft skills you need to reach the next level.</p>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="col-md-4">
+                <div class="reveal glass-card p-4 rounded h-100">
+                    <div class="feature-icon icon-primary mb-4">
+                        <span class="material-symbols-outlined">dashboard</span>
+                    </div>
+                    <h5 class="mb-3">Simulation Dashboard</h5>
+                    <p style="color: var(--text-secondary);">Visualize different career trajectories and their potential financial outcomes.</p>
+                </div>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="col-md-4">
+                <div class="reveal glass-card p-4 rounded h-100">
+                    <div class="feature-icon icon-secondary mb-4">
+                        <span class="material-symbols-outlined">route</span>
+                    </div>
+                    <h5 class="mb-3">Career Roadmap</h5>
+                    <p style="color: var(--text-secondary);">Step-by-step guides to transitioning into entirely new industries efficiently.</p>
+                </div>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="col-md-4">
+                <div class="reveal glass-card p-4 rounded h-100">
+                    <div class="feature-icon icon-tertiary mb-4">
+                        <span class="material-symbols-outlined">insights</span>
+                    </div>
+                    <h5 class="mb-3">Market Insights</h5>
+                    <p style="color: var(--text-secondary);">Real-time data on hiring trends, salary benchmarks, and emerging roles.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="container py-5 my-5">
+        <div class="text-center mb-5">
+            <h2 class="reveal display-6 fw-semibold mb-3">Your Journey to Success</h2>
+            <p class="reveal" style="color: var(--text-secondary);">Three simple steps to transform your professional life.</p>
+        </div>
+
+        <div class="position-relative">
+            <!-- Timeline Connector (Desktop only) -->
+            <div class="timeline-connector d-none d-md-block position-absolute w-100" style="top: 40px; left: 0;"></div>
+
+            <div class="row g-4 position-relative">
+                <!-- Step 1 -->
+                <div class="col-md-4">
+                    <div class="reveal text-center">
+                        <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
+                             style="border: 1px solid rgba(195, 192, 255, 0.5); color: var(--primary);">
+                            1
+                        </div>
+                        <h5 class="mb-3">Enter Skills</h5>
+                        <p style="color: var(--text-secondary);">Input your expertise or upload your existing resume for analysis.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="col-md-4">
+                    <div class="reveal text-center">
+                        <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
+                             style="border: 1px solid rgba(76, 215, 246, 0.5); color: var(--secondary);">
+                            2
+                        </div>
+                        <h5 class="mb-3">Get Matched</h5>
+                        <p style="color: var(--text-secondary);">Our AI identifies high-compatibility roles based on your unique profile.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="col-md-4">
+                    <div class="reveal text-center">
+                        <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
+                             style="border: 1px solid rgba(208, 188, 255, 0.5); color: var(--tertiary);">
+                            3
+                        </div>
+                        <h5 class="mb-3">Explore Your Path</h5>
+                        <p style="color: var(--text-secondary);">Simulate your growth and start your personalized learning roadmap.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <section class="container py-5 mb-0">
+        <div class="reveal glass-card rounded p-5 text-center position-relative overflow-hidden">
+            <!-- Inner Glows -->
+            <div class="position-absolute top-0 end-0" style="width: 256px; height: 256px; background: rgba(195, 192, 255, 0.2); filter: blur(80px); transform: translate(50%, -50%);"></div>
+            <div class="position-absolute bottom-0 start-0" style="width: 256px; height: 256px; background: rgba(76, 215, 246, 0.2); filter: blur(80px); transform: translate(-50%, 50%);"></div>
+
+            <h2 class="display-5 fw-bold mb-4 position-relative">Ready to Find Your Perfect Career?</h2>
+            <p class="lead mx-auto mb-4 position-relative" style="max-width: 600px; color: var(--text-secondary);">
+                Join thousands of professionals who have optimized their career paths using SkillOrbit's AI engine.
+            </p>
+            <button class="btn btn-primary-gradient rounded-pill px-5 py-3 position-relative">
+                Get Started Free
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-3 mt-4">
+        <div class="container">
+            <div class="row align-items-center g-3">
+                <div class="col-md-4 text-center text-md-start">
+                    <h5 class="fw-bold mb-2">SkillOrbit</h5>
+                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2025 SkillOrbit AI. All rights reserved.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="d-flex gap-4 justify-content-center">
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Privacy Policy</a>
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Terms of Service</a>
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Contact Support</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-3 justify-content-center justify-content-md-end">
+                        <button class="glass-card border-0 rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px; color: var(--text-primary);">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">public</span>
+                        </button>
+                        <button class="glass-card border-0 rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px; color: var(--text-primary);">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">groups</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Minimal JavaScript for Animations -->
+    <script>
+        // Intersection Observer for Reveal Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+
+                    // Counter animation
+                    const counter = entry.target.querySelector('[data-count]');
+                    if (counter && !counter.classList.contains('animated')) {
+                        counter.classList.add('animated');
+                        animateCounter(counter);
+                    }
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Animated Counters
+        function animateCounter(el) {
+            const target = parseInt(el.getAttribute('data-count'));
+            const duration = 2000;
+            const start = 0;
+            let current = start;
+            const increment = target / (duration / 16);
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    el.textContent = target.toLocaleString() + (target === 95 ? '%' : '+');
+                    clearInterval(timer);
+                } else {
+                    el.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 16);
+        }
+
+        // Navbar Scroll Effect
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.navbar-custom');
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 20) {
+                nav.style.padding = '0.5rem 0';
+                nav.style.background = 'rgba(255, 255, 255, 0.1)';
+            } else {
+                nav.style.padding = '1rem 0';
+                nav.style.background = 'rgba(255, 255, 255, 0.05)';
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
