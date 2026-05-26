@@ -440,6 +440,9 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <!-- Minimal JavaScript for Skill Tags -->
     <script>
         let skills = [];
@@ -733,14 +736,30 @@
 
             // Create detailed modal content
             const modalHTML = `
-                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
-                    <div class="glass-card rounded p-4" style="max-width: 800px; max-height: 90vh; overflow-y: auto; width: 100%;" onclick="event.stopPropagation()">
+                <div id="skillGapModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="closeSkillGapModal()">
+                    <div class="glass-card rounded p-4" style="max-width: 900px; max-height: 90vh; overflow-y: auto; width: 100%;" onclick="event.stopPropagation()">
                         <div class="d-flex justify-content-between align-items-start mb-4">
                             <div>
                                 <h4 class="fw-bold mb-2">Skill Gap Analysis</h4>
                                 <p class="mb-0" style="color: var(--text-secondary);">For ${topMatch.career}</p>
                             </div>
-                            <button onclick="this.closest('[style*=fixed]').remove()" class="btn btn-outline-custom btn-sm rounded-pill">Close</button>
+                            <button onclick="closeSkillGapModal()" class="btn btn-outline-custom btn-sm rounded-pill">Close</button>
+                        </div>
+
+                        <!-- Chart Visualization -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="glass-card rounded p-3 mb-3" style="background: rgba(255, 255, 255, 0.03);">
+                                    <h6 class="fw-semibold mb-3 text-center">Overall Match</h6>
+                                    <canvas id="skillGapDoughnut" style="max-height: 250px;"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="glass-card rounded p-3 mb-3" style="background: rgba(255, 255, 255, 0.03);">
+                                    <h6 class="fw-semibold mb-3 text-center">Skill Comparison</h6>
+                                    <canvas id="skillGapBar" style="max-height: 250px;"></canvas>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Progress Overview -->
@@ -799,6 +818,171 @@
 
             // Append modal to body
             document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Wait for DOM to render, then create charts
+            setTimeout(() => {
+                createSkillGapCharts(matchingSkills.length, allMissingSkills.length, topMatch.score);
+            }, 100);
+        }
+
+        // Global variable to track chart instances
+        let skillGapChartInstances = [];
+
+        // Create skill gap visualization charts
+        function createSkillGapCharts(matchedCount, missingCount, matchScore) {
+            // Destroy previous chart instances if they exist
+            skillGapChartInstances.forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            skillGapChartInstances = [];
+
+            const totalSkills = matchedCount + missingCount;
+            const missingPercentage = ((missingCount / totalSkills) * 100).toFixed(1);
+
+            // Doughnut Chart - Overall Match
+            const doughnutCtx = document.getElementById('skillGapDoughnut');
+            if (doughnutCtx) {
+                const doughnutChart = new Chart(doughnutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Skills Matched', 'Skills Missing'],
+                        datasets: [{
+                            data: [matchedCount, missingCount],
+                            backgroundColor: [
+                                'rgba(166, 244, 197, 0.8)',  // success color
+                                'rgba(255, 180, 171, 0.8)'   // error color
+                            ],
+                            borderColor: [
+                                'rgba(166, 244, 197, 1)',
+                                'rgba(255, 180, 171, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#dfe3e7',
+                                    padding: 15,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(27, 32, 35, 0.95)',
+                                titleColor: '#dfe3e7',
+                                bodyColor: '#c7c4d8',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: true,
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const percentage = ((value / totalSkills) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                skillGapChartInstances.push(doughnutChart);
+            }
+
+            // Bar Chart - Skill Comparison
+            const barCtx = document.getElementById('skillGapBar');
+            if (barCtx) {
+                const barChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Skills You Have', 'Skills to Learn', 'Total Required'],
+                        datasets: [{
+                            label: 'Skill Count',
+                            data: [matchedCount, missingCount, totalSkills],
+                            backgroundColor: [
+                                'rgba(166, 244, 197, 0.8)',  // success
+                                'rgba(255, 180, 171, 0.8)',  // error
+                                'rgba(76, 215, 246, 0.8)'    // secondary
+                            ],
+                            borderColor: [
+                                'rgba(166, 244, 197, 1)',
+                                'rgba(255, 180, 171, 1)',
+                                'rgba(76, 215, 246, 1)'
+                            ],
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#dfe3e7',
+                                    stepSize: 1,
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)',
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#dfe3e7',
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(27, 32, 35, 0.95)',
+                                titleColor: '#dfe3e7',
+                                bodyColor: '#c7c4d8',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: false
+                            }
+                        }
+                    }
+                });
+                skillGapChartInstances.push(barChart);
+            }
+        }
+
+        // Close skill gap modal and cleanup
+        function closeSkillGapModal() {
+            const modal = document.getElementById('skillGapModal');
+            if (modal) {
+                // Destroy chart instances
+                skillGapChartInstances.forEach(chart => {
+                    if (chart) chart.destroy();
+                });
+                skillGapChartInstances = [];
+
+                // Remove modal
+                modal.remove();
+            }
         }
     </script>
 </body>
