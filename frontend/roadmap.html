@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillOrbit - Career Roadmap</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #c3c0ff;
+            --primary-dark: #4f46e5;
+            --secondary: #4cd7f6;
+            --tertiary: #d0bcff;
+            --background: #0f1417;
+            --surface: #1b2023;
+            --text-primary: #dfe3e7;
+            --text-secondary: #c7c4d8;
+            --success: #a6f4c5;
+            --warning: #ffd966;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: #0A0F1E;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+
+        /* Glass Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            position: relative;
+            padding-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--secondary) !important;
+        }
+
+        .nav-link.active {
+            font-weight: 700;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        /* Buttons */
+        .btn-primary-gradient {
+            background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-gradient:hover {
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+            transform: scale(1.02);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(76, 215, 246, 0.1);
+            color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        /* Background Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: 10%;
+            right: -10%;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--secondary);
+            bottom: 10%;
+            left: -15%;
+        }
+
+        /* Timeline Styles */
+        .roadmap-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 3rem;
+            padding-bottom: 3rem;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: -3rem;
+            width: 2px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid #0A0F1E;
+            z-index: 2;
+        }
+
+        .timeline-marker.completed {
+            background: var(--success);
+        }
+
+        .timeline-marker.current {
+            background: var(--secondary);
+            box-shadow: 0 0 20px rgba(76, 215, 246, 0.5);
+        }
+
+        /* Phase Card */
+        .phase-card {
+            position: relative;
+        }
+
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        /* Skill Badge */
+        .skill-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            font-size: 13px;
+            display: inline-block;
+            margin: 0.25rem;
+        }
+
+        .skill-badge-beginner {
+            background: rgba(166, 244, 197, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(166, 244, 197, 0.3);
+        }
+
+        .skill-badge-intermediate {
+            background: rgba(255, 217, 102, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(255, 217, 102, 0.3);
+        }
+
+        .skill-badge-advanced {
+            background: rgba(195, 192, 255, 0.2);
+            color: var(--primary);
+            border: 1px solid rgba(195, 192, 255, 0.3);
+        }
+
+        /* Progress Bar */
+        .progress-custom {
+            height: 8px;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-bar-custom {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 1rem;
+        }
+
+        /* Career Select */
+        .career-select-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .career-select-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--secondary) !important;
+        }
+
+        .career-select-card.selected {
+            border-color: var(--secondary) !important;
+            background: rgba(76, 215, 246, 0.1);
+        }
+
+        /* Material Icons */
+        .material-symbols-outlined {
+            font-size: 24px;
+            vertical-align: middle;
+        }
+
+        /* Footer */
+        footer {
+            background: #0a0f12;
+            border-top: 1px solid rgba(145, 143, 161, 0.3);
+        }
+
+        /* Hidden by default */
+        #roadmap-content {
+            display: none;
+        }
+
+        #roadmap-content.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold fs-5" href="/">SkillOrbit</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav gap-4">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/advisor">Advisor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#resume">Resume</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/roadmap">Roadmap</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-outline-custom rounded-pill px-4 py-2">Login</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 120px; padding-bottom: 80px;">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-3">Career Roadmap</h1>
+            <p class="lead" style="color: var(--text-secondary);">
+                Choose your career path and explore a structured learning roadmap
+            </p>
+        </div>
+
+        <!-- Career Selection -->
+        <div id="career-selection" class="mb-5">
+            <h3 class="h5 fw-semibold mb-4">Select a Career Path</h3>
+            <div class="row g-3" id="career-grid">
+                <!-- Career cards will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <!-- Roadmap Content -->
+        <div id="roadmap-content">
+            <!-- Roadmap Header -->
+            <div class="glass-card rounded p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h3 class="h4 fw-bold mb-2" id="roadmap-career-title">Data Scientist</h3>
+                        <p class="mb-0" style="color: var(--text-secondary);" id="roadmap-career-desc">
+                            Complete learning path with milestones and skills
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <div class="mb-2">
+                            <span style="color: var(--text-secondary); font-size: 14px;">Overall Progress</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="progress-custom" style="width: 200px;">
+                                <div class="progress-bar-custom" id="overall-progress" style="width: 0%;"></div>
+                            </div>
+                            <span class="fw-bold" id="overall-progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="roadmap-timeline" id="roadmap-timeline">
+                <!-- Timeline items will be dynamically generated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-3 mt-4">
+        <div class="container">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6 text-center text-md-start">
+                    <h5 class="fw-bold mb-2">SkillOrbit</h5>
+                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2025 SkillOrbit AI. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-flex gap-4 justify-content-center justify-content-md-end">
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Privacy Policy</a>
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Terms of Service</a>
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Contact Support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Roadmap JavaScript -->
+    <script>
+        let selectedCareer = null;
+
+        // Load careers on page load
+        window.addEventListener('load', async function() {
+            await loadCareers();
+
+            // Check if a career was selected from advisor page
+            const selectedCareer = sessionStorage.getItem('selectedCareer');
+            if (selectedCareer) {
+                // Wait a bit for careers to load
+                setTimeout(() => {
+                    selectCareerByName(selectedCareer);
+                    sessionStorage.removeItem('selectedCareer');
+                }, 500);
+            }
+        });
+
+        // Load available careers
+        async function loadCareers() {
+            try {
+                const response = await fetch('/api/careers');
+                if (!response.ok) throw new Error('Failed to load careers');
+
+                const careers = await response.json();
+                renderCareerGrid(careers);
+            } catch (error) {
+                console.error('Error loading careers:', error);
+                alert('Failed to load careers. Please try again.');
+            }
+        }
+
+        // Render career selection grid
+        function renderCareerGrid(careers) {
+            const grid = document.getElementById('career-grid');
+            grid.innerHTML = '';
+
+            careers.forEach(career => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 col-lg-3';
+                col.innerHTML = `
+                    <div class="glass-card rounded p-3 career-select-card" onclick="selectCareer('${career.career_title}')">
+                        <h6 class="fw-semibold mb-1">${career.career_title}</h6>
+                        <small style="color: var(--text-secondary);">Click to view roadmap</small>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+        }
+
+        // Select career and load roadmap
+        async function selectCareer(careerName) {
+            selectedCareer = careerName;
+
+            // Update UI to show selected
+            document.querySelectorAll('.career-select-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.career-select-card').classList.add('selected');
+
+            // Load roadmap
+            await loadRoadmap(careerName);
+        }
+
+        // Programmatically select career by name (used when coming from advisor page)
+        function selectCareerByName(careerName) {
+            selectedCareer = careerName;
+
+            // Find and mark the career card as selected
+            document.querySelectorAll('.career-select-card').forEach(card => {
+                const cardTitle = card.querySelector('h6')?.textContent;
+                if (cardTitle === careerName) {
+                    card.classList.add('selected');
+                }
+            });
+
+            // Load roadmap with user skills if available
+            const userSkillsJSON = sessionStorage.getItem('userSkills');
+            const userSkills = userSkillsJSON ? JSON.parse(userSkillsJSON) : [];
+
+            loadRoadmap(careerName, userSkills);
+
+            // Clean up
+            sessionStorage.removeItem('userSkills');
+        }
+
+        // Load roadmap for selected career
+        async function loadRoadmap(careerName, userSkills = []) {
+            try {
+                const response = await fetch('/api/roadmap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        career: careerName,
+                        user_skills: userSkills
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to load roadmap');
+
+                const roadmapData = await response.json();
+                renderRoadmap(roadmapData);
+
+                // Show roadmap content
+                document.getElementById('roadmap-content').classList.add('show');
+                document.getElementById('roadmap-content').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error loading roadmap:', error);
+                alert('Failed to load roadmap. Please try again.');
+            }
+        }
+
+        // Render roadmap timeline
+        function renderRoadmap(data) {
+            document.getElementById('roadmap-career-title').textContent = data.career;
+            document.getElementById('roadmap-career-desc').textContent = data.description || 'Complete learning path with milestones and skills';
+
+            const timeline = document.getElementById('roadmap-timeline');
+            timeline.innerHTML = '';
+
+            data.phases.forEach((phase, index) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+
+                const markerClass = phase.status === 'completed' ? 'completed' :
+                                   phase.status === 'current' ? 'current' : '';
+
+                item.innerHTML = `
+                    <div class="timeline-marker ${markerClass}"></div>
+                    <div class="glass-card rounded p-4 phase-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-semibold mb-1">${phase.phase}</h5>
+                                <p class="mb-0" style="color: var(--text-secondary); font-size: 14px;">${phase.duration}</p>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">${phase.level}</span>
+                        </div>
+
+                        <p class="mb-3" style="color: var(--text-secondary);">${phase.description}</p>
+
+                        <div class="mb-3">
+                            <h6 class="fw-semibold mb-2" style="font-size: 14px;">Skills to Learn:</h6>
+                            <div>
+                                ${phase.skills.map(skill => `<span class="skill-badge skill-badge-${phase.level.toLowerCase()}">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        ${phase.resources ? `
+                        <div class="mb-3">
+                            <h6 class="fw-semibold mb-2" style="font-size: 14px;">Resources:</h6>
+                            <ul class="mb-0" style="font-size: 14px; color: var(--text-secondary);">
+                                ${phase.resources.map(resource => `<li>${resource}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+
+                        <div class="mt-3">
+                            <button class="btn btn-outline-custom btn-sm rounded-pill">
+                                ${phase.status === 'completed' ? 'Review' : 'Start Learning'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                timeline.appendChild(item);
+            });
+
+            // Update overall progress
+            const completedPhases = data.phases.filter(p => p.status === 'completed').length;
+            const totalPhases = data.phases.length;
+            const progress = (completedPhases / totalPhases) * 100;
+
+            document.getElementById('overall-progress').style.width = `${progress}%`;
+            document.getElementById('overall-progress-text').textContent = `${Math.round(progress)}%`;
+        }
+    </script>
+</body>
+</html>

@@ -364,7 +364,7 @@
                     <li class="nav-item"><a class="nav-link active" href="/advisor">Advisor</a></li>
                     <li class="nav-item"><a class="nav-link" href="#resume">Resume</a></li>
                     <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#roadmap">Roadmap</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
                 </ul>
             </div>
             <button class="btn btn-outline-custom rounded-pill px-4 py-2">Login</button>
@@ -443,6 +443,8 @@
     <!-- Minimal JavaScript for Skill Tags -->
     <script>
         let skills = [];
+        let currentMatches = [];
+        let currentUserSkills = [];
 
         // Render skill tags
         function renderTags() {
@@ -496,6 +498,10 @@
         // Render career matches dynamically
         function renderCareerMatches(matches, userSkills) {
             const resultsContainer = document.getElementById('results-container');
+
+            // Store for later use
+            currentMatches = matches;
+            currentUserSkills = userSkills;
 
             // Clear existing results
             resultsContainer.innerHTML = '';
@@ -581,7 +587,7 @@
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2">View Roadmap</button>
+                            <button class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2" onclick="viewRoadmap('${match.career}')">View Roadmap</button>
                             <button class="btn btn-outline-custom rounded-pill flex-grow-1 py-2">Simulate</button>
                         </div>
                     </div>
@@ -615,7 +621,7 @@
                                 <div class="mb-3">
                                     ${missingSkills.slice(0, 5).map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
                                 </div>
-                                <a href="#" class="text-decoration-none" style="color: var(--secondary);">
+                                <a href="#" class="text-decoration-none" style="color: var(--secondary);" onclick="showDetailedSkillGap(event)">
                                     View Full Skill Gap Analysis
                                     <span class="material-symbols-outlined sm">arrow_forward</span>
                                 </a>
@@ -693,6 +699,107 @@
             // Start with empty skills - user will add their own
             renderTags();
         });
+
+        // Navigate to roadmap with selected career
+        function viewRoadmap(careerName) {
+            // Store career in sessionStorage for roadmap page to use
+            sessionStorage.setItem('selectedCareer', careerName);
+            sessionStorage.setItem('userSkills', JSON.stringify(currentUserSkills));
+            // Navigate to roadmap page
+            window.location.href = '/roadmap';
+        }
+
+        // Show detailed skill gap analysis
+        function showDetailedSkillGap(event) {
+            event.preventDefault();
+
+            if (currentMatches.length === 0) {
+                alert('No career matches available. Please analyze your skills first.');
+                return;
+            }
+
+            const topMatch = currentMatches[0];
+            const userSkillsLower = currentUserSkills.map(s => s.toLowerCase());
+
+            // Calculate all missing skills
+            const allMissingSkills = topMatch.required_skills.filter(skill =>
+                !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+            );
+
+            // Calculate matching skills
+            const matchingSkills = topMatch.required_skills.filter(skill =>
+                userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+            );
+
+            // Create detailed modal content
+            const modalHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
+                    <div class="glass-card rounded p-4" style="max-width: 800px; max-height: 90vh; overflow-y: auto; width: 100%;" onclick="event.stopPropagation()">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <h4 class="fw-bold mb-2">Skill Gap Analysis</h4>
+                                <p class="mb-0" style="color: var(--text-secondary);">For ${topMatch.career}</p>
+                            </div>
+                            <button onclick="this.closest('[style*=fixed]').remove()" class="btn btn-outline-custom btn-sm rounded-pill">Close</button>
+                        </div>
+
+                        <!-- Progress Overview -->
+                        <div class="glass-card rounded p-3 mb-4" style="background: rgba(255, 255, 255, 0.03);">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <h3 class="fw-bold mb-1" style="color: var(--success);">${matchingSkills.length}</h3>
+                                    <small style="color: var(--text-secondary);">Skills Matched</small>
+                                </div>
+                                <div class="col-4">
+                                    <h3 class="fw-bold mb-1" style="color: var(--error);">${allMissingSkills.length}</h3>
+                                    <small style="color: var(--text-secondary);">Skills Needed</small>
+                                </div>
+                                <div class="col-4">
+                                    <h3 class="fw-bold mb-1" style="color: var(--secondary);">${topMatch.score}%</h3>
+                                    <small style="color: var(--text-secondary);">Match Score</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Your Skills -->
+                        <div class="mb-4">
+                            <h6 class="fw-semibold mb-3">✅ Skills You Have (${matchingSkills.length})</h6>
+                            <div>
+                                ${matchingSkills.map(skill => `<span class="skill-chip skill-chip-match">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Missing Skills -->
+                        <div class="mb-4">
+                            <h6 class="fw-semibold mb-3">📚 Skills to Learn (${allMissingSkills.length})</h6>
+                            <div>
+                                ${allMissingSkills.map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Recommendations -->
+                        <div class="glass-card rounded p-3" style="background: rgba(76, 215, 246, 0.1); border-color: var(--secondary);">
+                            <h6 class="fw-semibold mb-2">💡 Recommendations</h6>
+                            <ul class="mb-0" style="color: var(--text-secondary); font-size: 14px;">
+                                <li>Focus on learning the most in-demand skills first</li>
+                                <li>Consider taking online courses or certifications</li>
+                                <li>Build projects to practice these skills</li>
+                                <li>Join communities to learn from experts</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <button onclick="viewRoadmap('${topMatch.career}')" class="btn btn-primary-gradient rounded-pill px-4 py-2">
+                                View Learning Roadmap
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Append modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
     </script>
 </body>
 </html>
