@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillOrbit - AI Career Advisor</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #c3c0ff;
+            --primary-dark: #4f46e5;
+            --secondary: #4cd7f6;
+            --tertiary: #d0bcff;
+            --background: #0f1417;
+            --surface: #1b2023;
+            --text-primary: #dfe3e7;
+            --text-secondary: #c7c4d8;
+            --error: #ffb4ab;
+            --success: #a6f4c5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: #0A0F1E;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+
+        /* Glass Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            position: relative;
+            padding-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--secondary) !important;
+        }
+
+        .nav-link.active {
+            font-weight: 700;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        /* Buttons */
+        .btn-primary-gradient {
+            background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 rgba(79, 70, 229, 0);
+        }
+
+        .btn-primary-gradient:hover {
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+            transform: scale(1.02);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(76, 215, 246, 0.1);
+            color: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        /* Background Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: 10%;
+            right: -10%;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--secondary);
+            bottom: 10%;
+            left: -15%;
+        }
+
+        /* Skill Tags */
+        .skill-tag {
+            background: rgba(195, 192, 255, 0.2);
+            border: 1px solid rgba(195, 192, 255, 0.3);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.25rem;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .skill-tag:hover {
+            background: rgba(195, 192, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .skill-tag .remove-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .skill-tag .remove-btn:hover {
+            color: var(--error);
+        }
+
+        /* Skill Input Container */
+        .skill-input-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            min-height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            cursor: text;
+        }
+
+        .skill-input-container input {
+            flex: 1;
+            min-width: 200px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            padding: 0.5rem;
+        }
+
+        .skill-input-container input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Popular Skills */
+        .popular-skill-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .popular-skill-btn:hover {
+            background: rgba(76, 215, 246, 0.2);
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        /* Career Match Cards */
+        .career-card {
+            position: relative;
+        }
+
+        .career-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        /* Progress Circle */
+        .progress-circle {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .progress-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 8;
+        }
+
+        .progress-circle-fill {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* Match Badges */
+        .badge-strong {
+            background: rgba(76, 215, 246, 0.2);
+            color: var(--secondary);
+        }
+
+        .badge-good {
+            background: rgba(195, 192, 255, 0.2);
+            color: var(--primary);
+        }
+
+        /* Skill Chips in Cards */
+        .skill-chip {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 12px;
+            display: inline-block;
+            margin: 0.25rem;
+        }
+
+        .skill-chip-match {
+            background: rgba(166, 244, 197, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(166, 244, 197, 0.3);
+        }
+
+        .skill-chip-missing {
+            background: rgba(255, 180, 171, 0.2);
+            color: var(--error);
+            border: 1px solid rgba(255, 180, 171, 0.3);
+        }
+
+        /* Demand Indicator */
+        .demand-high {
+            color: var(--success);
+            font-size: 13px;
+        }
+
+        /* Material Icons */
+        .material-symbols-outlined {
+            font-size: 24px;
+            vertical-align: middle;
+        }
+
+        .material-symbols-outlined.sm {
+            font-size: 18px;
+        }
+
+        /* Footer */
+        footer {
+            background: #0a0f12;
+            border-top: 1px solid rgba(145, 143, 161, 0.3);
+            margin: 0;
+            padding-bottom: 1rem !important;
+        }
+
+        /* Results Section */
+        #results-container {
+            display: none;
+        }
+
+        #results-container.show {
+            display: block;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold fs-5" href="/">SkillOrbit</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav gap-4">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/advisor">Advisor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#resume">Resume</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-outline-custom rounded-pill px-4 py-2">Login</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 120px; padding-bottom: 80px;">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-3">Career Advisor</h1>
+            <p class="lead" style="color: var(--text-secondary);">
+                Enter your skills and discover the best career matches for you
+            </p>
+        </div>
+
+        <!-- Skill Input Section -->
+        <div class="mb-5" style="max-width: 900px; margin: 0 auto;">
+            <label class="form-label mb-3 fw-semibold">What are your skills?</label>
+
+            <!-- Skill Tags Container -->
+            <div class="skill-input-container mb-3" id="skill-container" onclick="document.getElementById('skill-input').focus()">
+                <input type="text" id="skill-input" placeholder="e.g. Python, SQL, Machine Learning...">
+            </div>
+
+            <!-- Popular Skills -->
+            <div class="mb-4">
+                <small class="text-secondary mb-2 d-block">Popular Skills:</small>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn popular-skill-btn" onclick="addSkill('Python')">Python</button>
+                    <button class="btn popular-skill-btn" onclick="addSkill('JavaScript')">JavaScript</button>
+                    <button class="btn popular-skill-btn" onclick="addSkill('SQL')">SQL</button>
+                    <button class="btn popular-skill-btn" onclick="addSkill('Excel')">Excel</button>
+                    <button class="btn popular-skill-btn" onclick="addSkill('Figma')">Figma</button>
+                    <button class="btn popular-skill-btn" onclick="addSkill('Machine Learning')">Machine Learning</button>
+                    <button class="btn popular-skill-btn" onclick="addSkill('React')">React</button>
+                </div>
+            </div>
+
+            <!-- Analyze Button -->
+            <div class="text-center">
+                <button class="btn btn-primary-gradient rounded-pill px-5 py-3" id="analyze-btn" onclick="analyzeCareer()">
+                    Analyze My Career
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-container">
+            <!-- Career matches will be dynamically generated here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-3 mt-4">
+        <div class="container">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6 text-center text-md-start">
+                    <h5 class="fw-bold mb-2">SkillOrbit</h5>
+                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2025 SkillOrbit AI. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-flex gap-4 justify-content-center justify-content-md-end">
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Privacy Policy</a>
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Terms of Service</a>
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Contact Support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Minimal JavaScript for Skill Tags -->
+    <script>
+        let skills = [];
+        let currentMatches = [];
+        let currentUserSkills = [];
+
+        // Render skill tags
+        function renderTags() {
+            const container = document.getElementById('skill-container');
+            const input = document.getElementById('skill-input');
+
+            // Clear container except input
+            container.innerHTML = '';
+
+            // Add skill tags
+            skills.forEach((skill, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'skill-tag';
+                tag.innerHTML = `
+                    ${skill}
+                    <button class="remove-btn" onclick="removeSkill(${index})">&times;</button>
+                `;
+                container.appendChild(tag);
+            });
+
+            // Re-add input
+            container.appendChild(input);
+        }
+
+        // Add skill
+        function addSkill(skill) {
+            skill = skill.trim();
+            if (skill && !skills.includes(skill)) {
+                skills.push(skill);
+                renderTags();
+                document.getElementById('skill-input').value = '';
+            }
+        }
+
+        // Remove skill
+        function removeSkill(index) {
+            skills.splice(index, 1);
+            renderTags();
+        }
+
+        // Input event handlers
+        document.getElementById('skill-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addSkill(this.value);
+            } else if (e.key === 'Backspace' && this.value === '' && skills.length > 0) {
+                removeSkill(skills.length - 1);
+            }
+        });
+
+        // Render career matches dynamically
+        function renderCareerMatches(matches, userSkills) {
+            const resultsContainer = document.getElementById('results-container');
+
+            // Store for later use
+            currentMatches = matches;
+            currentUserSkills = userSkills;
+
+            // Clear existing results
+            resultsContainer.innerHTML = '';
+
+            // Create career matches section
+            const matchesSection = document.createElement('div');
+            matchesSection.className = 'mb-5';
+            matchesSection.innerHTML = '<h2 class="h4 fw-semibold mb-4">Your Top Career Matches</h2>';
+
+            const row = document.createElement('div');
+            row.className = 'row g-4';
+
+            matches.forEach((match, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-lg-4';
+
+                // Determine badge type
+                const badgeClass = match.score >= 80 ? 'badge-strong' : 'badge-good';
+                const badgeText = match.score >= 80 ? 'Strong Match' : 'Good Match';
+                const progressColor = match.score >= 80 ? 'var(--secondary)' : 'var(--primary)';
+
+                // Calculate circle progress
+                const circumference = 2 * Math.PI * 32;
+                const offset = circumference - (match.score / 100 * circumference);
+
+                // Find matching and missing skills
+                const userSkillsLower = userSkills.map(s => s.toLowerCase());
+                const matchingSkills = match.required_skills.filter(skill =>
+                    userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+                ).slice(0, 4);
+                const missingSkills = match.required_skills.filter(skill =>
+                    !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+                ).slice(0, 4);
+
+                // Demand level indicator
+                const demandClass = match.demand_level >= 8 ? 'demand-high' : 'text-secondary';
+                const demandText = match.demand_level >= 8 ? 'High Demand' : 'Moderate Demand';
+
+                col.innerHTML = `
+                    <div class="glass-card rounded p-4 career-card h-100 fade-in" style="animation-delay: ${index * 0.1}s;">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-semibold mb-1">${match.career}</h5>
+                                <span class="badge ${badgeClass} rounded-pill">${badgeText}</span>
+                            </div>
+                            <div class="progress-circle">
+                                <svg width="80" height="80">
+                                    <circle class="progress-circle-bg" cx="40" cy="40" r="32"></circle>
+                                    <circle class="progress-circle-fill" cx="40" cy="40" r="32"
+                                            stroke="${progressColor}"
+                                            stroke-dasharray="${circumference}"
+                                            stroke-dashoffset="${circumference}"
+                                            data-percent="${match.score}"></circle>
+                                </svg>
+                                <div class="progress-text" style="color: ${progressColor};">${match.score}%</div>
+                            </div>
+                        </div>
+
+                        <p class="mb-3" style="color: var(--text-secondary); font-size: 14px;">
+                            ₨${(match.salary_min / 1000).toFixed(0)}K–${(match.salary_max / 1000).toFixed(0)}K/year
+                        </p>
+
+                        <div class="mb-3">
+                            <small class="text-secondary d-block mb-2">Matching Skills:</small>
+                            <div>
+                                ${matchingSkills.map(skill => `<span class="skill-chip skill-chip-match">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        ${missingSkills.length > 0 ? `
+                        <div class="mb-3">
+                            <small class="text-secondary d-block mb-2">Skills to Learn:</small>
+                            <div>
+                                ${missingSkills.map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div class="mb-4">
+                            <span class="material-symbols-outlined sm ${demandClass}">trending_up</span>
+                            <span class="${demandClass}">${demandText}</span>
+                            <span class="text-secondary ms-2">• ${match.job_type}</span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2" onclick="viewRoadmap('${match.career}')">View Roadmap</button>
+                            <button class="btn btn-outline-custom rounded-pill flex-grow-1 py-2">Simulate</button>
+                        </div>
+                    </div>
+                `;
+
+                row.appendChild(col);
+            });
+
+            matchesSection.appendChild(row);
+            resultsContainer.appendChild(matchesSection);
+
+            // Add skill gap section if there's a top match
+            if (matches.length > 0) {
+                const topMatch = matches[0];
+                const userSkillsLower = userSkills.map(s => s.toLowerCase());
+                const missingSkills = topMatch.required_skills.filter(skill =>
+                    !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+                );
+
+                if (missingSkills.length > 0) {
+                    const gapSection = document.createElement('div');
+                    gapSection.className = 'glass-card rounded p-4';
+                    gapSection.innerHTML = `
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="material-symbols-outlined" style="color: var(--error); font-size: 32px;">warning</span>
+                            <div class="flex-grow-1">
+                                <h5 class="fw-semibold mb-2">You are missing ${missingSkills.length} skill${missingSkills.length > 1 ? 's' : ''} for your top match</h5>
+                                <p class="mb-3" style="color: var(--text-secondary);">
+                                    Focus on these skills to increase your match score for ${topMatch.career}.
+                                </p>
+                                <div class="mb-3">
+                                    ${missingSkills.slice(0, 5).map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
+                                </div>
+                                <a href="#" class="text-decoration-none" style="color: var(--secondary);" onclick="showDetailedSkillGap(event)">
+                                    View Full Skill Gap Analysis
+                                    <span class="material-symbols-outlined sm">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(gapSection);
+                }
+            }
+        }
+
+        // Analyze button
+        async function analyzeCareer() {
+            const resultsContainer = document.getElementById('results-container');
+
+            if (skills.length === 0) {
+                alert('Please add at least one skill to analyze your career options.');
+                return;
+            }
+
+            // Show loading state
+            const analyzeBtn = document.getElementById('analyze-btn');
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+
+            try {
+                // Call backend API
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ skills: skills })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get recommendations');
+                }
+
+                const data = await response.json();
+
+                // Render career matches
+                renderCareerMatches(data.matches, data.user_skills);
+
+                // Show results with animation
+                resultsContainer.classList.add('show');
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Animate progress circles
+                setTimeout(() => animateProgressCircles(), 300);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to analyze career options. Please try again.');
+            } finally {
+                // Reset button
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = 'Analyze My Career';
+            }
+        }
+
+        // Animate circular progress indicators
+        function animateProgressCircles() {
+            const circles = document.querySelectorAll('.progress-circle-fill');
+            circles.forEach(circle => {
+                const percent = parseInt(circle.getAttribute('data-percent'));
+                const circumference = 2 * Math.PI * 32; // radius = 32
+                const offset = circumference - (percent / 100 * circumference);
+                circle.style.strokeDashoffset = offset;
+            });
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            // Start with empty skills - user will add their own
+            renderTags();
+        });
+
+        // Navigate to roadmap with selected career
+        function viewRoadmap(careerName) {
+            // Store career in sessionStorage for roadmap page to use
+            sessionStorage.setItem('selectedCareer', careerName);
+            sessionStorage.setItem('userSkills', JSON.stringify(currentUserSkills));
+            // Navigate to roadmap page
+            window.location.href = '/roadmap';
+        }
+
+        // Show detailed skill gap analysis
+        function showDetailedSkillGap(event) {
+            event.preventDefault();
+
+            if (currentMatches.length === 0) {
+                alert('No career matches available. Please analyze your skills first.');
+                return;
+            }
+
+            const topMatch = currentMatches[0];
+            const userSkillsLower = currentUserSkills.map(s => s.toLowerCase());
+
+            // Calculate all missing skills
+            const allMissingSkills = topMatch.required_skills.filter(skill =>
+                !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+            );
+
+            // Calculate matching skills
+            const matchingSkills = topMatch.required_skills.filter(skill =>
+                userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
+            );
+
+            // Create detailed modal content
+            const modalHTML = `
+                <div id="skillGapModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="closeSkillGapModal()">
+                    <div class="glass-card rounded p-4" style="max-width: 900px; max-height: 90vh; overflow-y: auto; width: 100%;" onclick="event.stopPropagation()">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <h4 class="fw-bold mb-2">Skill Gap Analysis</h4>
+                                <p class="mb-0" style="color: var(--text-secondary);">For ${topMatch.career}</p>
+                            </div>
+                            <button onclick="closeSkillGapModal()" class="btn btn-outline-custom btn-sm rounded-pill">Close</button>
+                        </div>
+
+                        <!-- Chart Visualization -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="glass-card rounded p-3 mb-3" style="background: rgba(255, 255, 255, 0.03);">
+                                    <h6 class="fw-semibold mb-3 text-center">Overall Match</h6>
+                                    <canvas id="skillGapDoughnut" style="max-height: 250px;"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="glass-card rounded p-3 mb-3" style="background: rgba(255, 255, 255, 0.03);">
+                                    <h6 class="fw-semibold mb-3 text-center">Skill Comparison</h6>
+                                    <canvas id="skillGapBar" style="max-height: 250px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Overview -->
+                        <div class="glass-card rounded p-3 mb-4" style="background: rgba(255, 255, 255, 0.03);">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <h3 class="fw-bold mb-1" style="color: var(--success);">${matchingSkills.length}</h3>
+                                    <small style="color: var(--text-secondary);">Skills Matched</small>
+                                </div>
+                                <div class="col-4">
+                                    <h3 class="fw-bold mb-1" style="color: var(--error);">${allMissingSkills.length}</h3>
+                                    <small style="color: var(--text-secondary);">Skills Needed</small>
+                                </div>
+                                <div class="col-4">
+                                    <h3 class="fw-bold mb-1" style="color: var(--secondary);">${topMatch.score}%</h3>
+                                    <small style="color: var(--text-secondary);">Match Score</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Your Skills -->
+                        <div class="mb-4">
+                            <h6 class="fw-semibold mb-3">✅ Skills You Have (${matchingSkills.length})</h6>
+                            <div>
+                                ${matchingSkills.map(skill => `<span class="skill-chip skill-chip-match">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Missing Skills -->
+                        <div class="mb-4">
+                            <h6 class="fw-semibold mb-3">📚 Skills to Learn (${allMissingSkills.length})</h6>
+                            <div>
+                                ${allMissingSkills.map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Recommendations -->
+                        <div class="glass-card rounded p-3" style="background: rgba(76, 215, 246, 0.1); border-color: var(--secondary);">
+                            <h6 class="fw-semibold mb-2">💡 Recommendations</h6>
+                            <ul class="mb-0" style="color: var(--text-secondary); font-size: 14px;">
+                                <li>Focus on learning the most in-demand skills first</li>
+                                <li>Consider taking online courses or certifications</li>
+                                <li>Build projects to practice these skills</li>
+                                <li>Join communities to learn from experts</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-4 text-center">
+                            <button onclick="viewRoadmap('${topMatch.career}')" class="btn btn-primary-gradient rounded-pill px-4 py-2">
+                                View Learning Roadmap
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Append modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Wait for DOM to render, then create charts
+            setTimeout(() => {
+                createSkillGapCharts(matchingSkills.length, allMissingSkills.length, topMatch.score);
+            }, 100);
+        }
+
+        // Global variable to track chart instances
+        let skillGapChartInstances = [];
+
+        // Create skill gap visualization charts
+        function createSkillGapCharts(matchedCount, missingCount, matchScore) {
+            // Destroy previous chart instances if they exist
+            skillGapChartInstances.forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            skillGapChartInstances = [];
+
+            const totalSkills = matchedCount + missingCount;
+            const missingPercentage = ((missingCount / totalSkills) * 100).toFixed(1);
+
+            // Doughnut Chart - Overall Match
+            const doughnutCtx = document.getElementById('skillGapDoughnut');
+            if (doughnutCtx) {
+                const doughnutChart = new Chart(doughnutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Skills Matched', 'Skills Missing'],
+                        datasets: [{
+                            data: [matchedCount, missingCount],
+                            backgroundColor: [
+                                'rgba(166, 244, 197, 0.8)',  // success color
+                                'rgba(255, 180, 171, 0.8)'   // error color
+                            ],
+                            borderColor: [
+                                'rgba(166, 244, 197, 1)',
+                                'rgba(255, 180, 171, 1)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#dfe3e7',
+                                    padding: 15,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(27, 32, 35, 0.95)',
+                                titleColor: '#dfe3e7',
+                                bodyColor: '#c7c4d8',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: true,
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const percentage = ((value / totalSkills) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                skillGapChartInstances.push(doughnutChart);
+            }
+
+            // Bar Chart - Skill Comparison
+            const barCtx = document.getElementById('skillGapBar');
+            if (barCtx) {
+                const barChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Skills You Have', 'Skills to Learn', 'Total Required'],
+                        datasets: [{
+                            label: 'Skill Count',
+                            data: [matchedCount, missingCount, totalSkills],
+                            backgroundColor: [
+                                'rgba(166, 244, 197, 0.8)',  // success
+                                'rgba(255, 180, 171, 0.8)',  // error
+                                'rgba(76, 215, 246, 0.8)'    // secondary
+                            ],
+                            borderColor: [
+                                'rgba(166, 244, 197, 1)',
+                                'rgba(255, 180, 171, 1)',
+                                'rgba(76, 215, 246, 1)'
+                            ],
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#dfe3e7',
+                                    stepSize: 1,
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)',
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#dfe3e7',
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(27, 32, 35, 0.95)',
+                                titleColor: '#dfe3e7',
+                                bodyColor: '#c7c4d8',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: false
+                            }
+                        }
+                    }
+                });
+                skillGapChartInstances.push(barChart);
+            }
+        }
+
+        // Close skill gap modal and cleanup
+        function closeSkillGapModal() {
+            const modal = document.getElementById('skillGapModal');
+            if (modal) {
+                // Destroy chart instances
+                skillGapChartInstances.forEach(chart => {
+                    if (chart) chart.destroy();
+                });
+                skillGapChartInstances = [];
+
+                // Remove modal
+                modal.remove();
+            }
+        }
+    </script>
+</body>
+</html>
