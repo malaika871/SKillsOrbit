@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillOrbit | Resume Analyzer</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #c3c0ff;
+            --primary-dark: #4f46e5;
+            --secondary: #4cd7f6;
+            --text-primary: #dfe3e7;
+            --text-secondary: #c7c4d8;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background-color: #0A0F1E;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .navbar-custom {
+            background: rgba(10,15,30,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .nav-link { color: var(--text-secondary) !important; font-weight: 500; transition: color 0.2s; }
+        .nav-link:hover, .nav-link.active { color: var(--primary) !important; }
+        .nav-link.active { border-bottom: 2px solid var(--primary); }
+        .glass-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+        }
+        .btn-primary-gradient {
+            background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: opacity 0.2s;
+        }
+        .btn-primary-gradient:hover { opacity: 0.88; color: white; }
+        .btn-primary-gradient:disabled { opacity: 0.5; }
+
+        .upload-zone {
+            border: 2px dashed rgba(195,192,255,0.4);
+            border-radius: 14px;
+            padding: 48px 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--primary);
+            background: rgba(195,192,255,0.06);
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: rgba(79,70,229,0.22);
+            border: 1px solid rgba(79,70,229,0.45);
+            color: var(--primary);
+            border-radius: 20px;
+            padding: 3px 13px;
+            font-size: 0.81rem;
+            font-weight: 500;
+            margin: 3px;
+        }
+
+        .bar-label { font-size: 0.87rem; font-weight: 500; }
+        .bar-track {
+            background: rgba(255,255,255,0.07);
+            border-radius: 6px;
+            height: 16px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4F46E5, #06B6D4);
+            border-radius: 6px;
+            width: 0;
+            transition: width 1s ease;
+        }
+
+        .gap-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.88rem;
+        }
+        .gap-item:last-child { border-bottom: none; }
+        .dot-have  { color: #4ade80; font-size: 0.55rem; flex-shrink: 0; }
+        .dot-miss  { color: #f87171; font-size: 0.55rem; flex-shrink: 0; }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .info-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+        }
+        .info-label { color: var(--text-secondary); min-width: 78px; }
+        .info-value { color: var(--text-primary); font-weight: 500; word-break: break-all; }
+
+        #results-section { display: none; }
+
+        /* ── Petri Net SVG ── */
+        .pn-place {
+            fill: rgba(255,255,255,0.07);
+            stroke: rgba(195,192,255,0.45);
+            stroke-width: 2;
+            transition: fill 0.5s, stroke 0.5s, stroke-width 0.5s;
+        }
+        .pn-place.active {
+            fill: rgba(74,222,128,0.28);
+            stroke: #4ade80;
+            stroke-width: 3;
+        }
+        .pn-trans {
+            fill: rgba(255,255,255,0.07);
+            stroke: rgba(76,215,246,0.4);
+            stroke-width: 2;
+            transition: fill 0.5s, stroke 0.5s, stroke-width 0.5s;
+        }
+        .pn-trans.fired {
+            fill: rgba(99,102,241,0.38);
+            stroke: #818cf8;
+            stroke-width: 3;
+        }
+        .pn-lbl {
+            fill: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 10.5px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+        }
+        .pn-lbl-sm {
+            fill: rgba(199,196,216,0.7);
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+        .pn-token {
+            fill: #4ade80;
+            filter: drop-shadow(0 0 5px #4ade80);
+            transition: cx 0.7s ease, cy 0.7s ease;
+        }
+        .pn-arrow {
+            fill: none;
+            stroke: rgba(195,192,255,0.4);
+            stroke-width: 1.5;
+            marker-end: url(#arrowhead);
+        }
+
+        #simLogWrap {
+            max-height: 220px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(195,192,255,0.3) transparent;
+        }
+        .log-entry {
+            padding: 6px 12px;
+            border-left: 3px solid rgba(195,192,255,0.35);
+            margin-bottom: 5px;
+            font-size: 0.83rem;
+            color: var(--text-secondary);
+            background: rgba(255,255,255,0.03);
+            border-radius: 0 6px 6px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container">
+        <a class="navbar-brand text-white fw-bold fs-5" href="/">SkillOrbit</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="navbar-nav gap-4">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/advisor">Advisor</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/resume-analyzer">Resume Analyzer</a></li>
+                <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container" style="padding-top: 96px; padding-bottom: 64px;">
+
+    <!-- PAGE HEADER -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold" style="font-size: 2.4rem;">
+            <span style="background: linear-gradient(90deg,#c3c0ff,#4cd7f6);
+                         -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Resume Analyzer
+            </span>
+        </h1>
+        <p style="color: var(--text-secondary); max-width: 540px; margin: 0 auto; font-size: 0.96rem;">
+            Upload your resume (PDF or DOCX) to extract skills, match career paths, and simulate the analysis workflow as a Petri Net.
+        </p>
+    </div>
+
+    <!-- UPLOAD CARD -->
+    <div class="glass-card p-4 mb-4">
+        <form id="resumeForm" enctype="multipart/form-data">
+            <div class="upload-zone" id="uploadZone"
+                 onclick="document.getElementById('resumeFile').click()">
+                <span class="material-symbols-outlined mb-2 d-block"
+                      style="font-size:48px; color:var(--primary); opacity:.75;">upload_file</span>
+                <p class="mb-1 fw-semibold">Drop your resume here or click to browse</p>
+                <p class="mb-0" style="color:var(--text-secondary); font-size:0.85rem;">
+                    Supports PDF and DOCX files
+                </p>
+                <p id="fileName" class="mt-2 mb-0"
+                   style="color:var(--primary); font-size:0.88rem; font-weight:500;"></p>
+            </div>
+            <input type="file" id="resumeFile" name="resume"
+                   accept=".pdf,.docx,.doc" class="d-none">
+            <div class="text-center mt-3">
+                <button type="submit" id="analyzeBtn"
+                        class="btn btn-primary-gradient px-5 py-2">
+                    <span id="btnText">Analyze Resume</span>
+                    <span id="btnSpinner"
+                          class="spinner-border spinner-border-sm ms-2 d-none"
+                          role="status" aria-hidden="true"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results-section">
+
+        <!-- Row 1: Candidate info + Skills -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="section-title">Candidate Info</div>
+                    <div class="info-row">
+                        <span class="info-label">Name</span>
+                        <span class="info-value" id="infoName">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value" id="infoEmail">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone</span>
+                        <span class="info-value" id="infoPhone">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Education</span>
+                        <span class="info-value" id="infoEdu">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Skills</span>
+                        <span class="info-value" id="infoCount">—</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="glass-card p-4 h-100">
+                    <div class="section-title">Skills Detected</div>
+                    <div id="skillTags"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Career matches + Skill gaps -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-7">
+                <div class="glass-card p-4 h-100">
+                    <div class="section-title">Career Matches</div>
+                    <div id="careerBars"></div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="glass-card p-4 h-100">
+                    <div class="section-title">
+                        Skill Gaps —
+                        <span id="topCareerLabel"
+                              style="color:var(--secondary); font-size:0.95rem;"></span>
+                    </div>
+                    <div id="skillGapsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Petri Net -->
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                <div class="section-title mb-0">
+                    Petri Net — Resume Analysis Workflow
+                </div>
+                <button id="simulateBtn"
+                        class="btn btn-primary-gradient px-4 py-2"
+                        onclick="runSimulation()">
+                    <span class="material-symbols-outlined me-1"
+                          style="vertical-align:middle; font-size:18px;">play_arrow</span>
+                    Simulate
+                </button>
+            </div>
+            <p style="color:var(--text-secondary); font-size:0.83rem; margin-bottom:14px;">
+                Circles = places (states) &nbsp;|&nbsp; Rectangles = transitions (processes) &nbsp;|&nbsp;
+                Green dot = current token position
+            </p>
+
+            <!-- SVG Petri Net diagram -->
+            <div style="overflow-x:auto;">
+                <svg id="petriSvg" viewBox="0 0 870 195"
+                     style="width:100%; min-width:600px; display:block;">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="8" markerHeight="6"
+                                refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6"
+                                     fill="rgba(195,192,255,0.5)"/>
+                        </marker>
+                    </defs>
+
+                    <!-- ── Arcs ── -->
+                    <!-- P0 → T0 -->
+                    <line class="pn-arrow" x1="93"  y1="80" x2="114" y2="80"/>
+                    <!-- T0 → P1 -->
+                    <line class="pn-arrow" x1="154" y1="80" x2="178" y2="80"/>
+                    <!-- P1 → T1 -->
+                    <line class="pn-arrow" x1="234" y1="80" x2="254" y2="80"/>
+                    <!-- T1 → P2 -->
+                    <line class="pn-arrow" x1="294" y1="80" x2="318" y2="80"/>
+                    <!-- P2 → T2 -->
+                    <line class="pn-arrow" x1="374" y1="80" x2="394" y2="80"/>
+                    <!-- T2 → P3 -->
+                    <line class="pn-arrow" x1="434" y1="80" x2="458" y2="80"/>
+                    <!-- P3 → T3 -->
+                    <line class="pn-arrow" x1="514" y1="80" x2="534" y2="80"/>
+                    <!-- T3 → P4 -->
+                    <line class="pn-arrow" x1="574" y1="80" x2="598" y2="80"/>
+                    <!-- P4 → T4 -->
+                    <line class="pn-arrow" x1="654" y1="80" x2="674" y2="80"/>
+                    <!-- T4 → P5 -->
+                    <line class="pn-arrow" x1="714" y1="80" x2="766" y2="80"/>
+
+                    <!-- ── Places ── -->
+                    <!-- P0: cx=66 -->
+                    <circle id="pn-P0" class="pn-place" cx="66"  cy="80" r="27"/>
+                    <text class="pn-lbl" x="66"  y="80">P0</text>
+                    <text class="pn-lbl-sm" x="66"  y="122">Resume</text>
+                    <text class="pn-lbl-sm" x="66"  y="134">Uploaded</text>
+
+                    <!-- P1: cx=206 -->
+                    <circle id="pn-P1" class="pn-place" cx="206" cy="80" r="27"/>
+                    <text class="pn-lbl" x="206" y="80">P1</text>
+                    <text class="pn-lbl-sm" x="206" y="122">Text</text>
+                    <text class="pn-lbl-sm" x="206" y="134">Extracted</text>
+
+                    <!-- P2: cx=346 -->
+                    <circle id="pn-P2" class="pn-place" cx="346" cy="80" r="27"/>
+                    <text class="pn-lbl" x="346" y="80">P2</text>
+                    <text class="pn-lbl-sm" x="346" y="122">Skills</text>
+                    <text class="pn-lbl-sm" x="346" y="134">Identified</text>
+
+                    <!-- P3: cx=486 -->
+                    <circle id="pn-P3" class="pn-place" cx="486" cy="80" r="27"/>
+                    <text class="pn-lbl" x="486" y="80">P3</text>
+                    <text class="pn-lbl-sm" x="486" y="122">Career</text>
+                    <text class="pn-lbl-sm" x="486" y="134">Matched</text>
+
+                    <!-- P4: cx=626 -->
+                    <circle id="pn-P4" class="pn-place" cx="626" cy="80" r="27"/>
+                    <text class="pn-lbl" x="626" y="80">P4</text>
+                    <text class="pn-lbl-sm" x="626" y="122">Gap Analysis</text>
+                    <text class="pn-lbl-sm" x="626" y="134">Done</text>
+
+                    <!-- P5: cx=794 -->
+                    <circle id="pn-P5" class="pn-place" cx="794" cy="80" r="27"/>
+                    <text class="pn-lbl" x="794" y="80">P5</text>
+                    <text class="pn-lbl-sm" x="794" y="122">Report</text>
+                    <text class="pn-lbl-sm" x="794" y="134">Ready</text>
+
+                    <!-- ── Transitions ── -->
+                    <!-- T0: center x=134, rect x=114 -->
+                    <rect id="pn-T0" class="pn-trans" x="114" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="134" y="80">T0</text>
+                    <text class="pn-lbl-sm" x="134" y="108">extract</text>
+                    <text class="pn-lbl-sm" x="134" y="119">_text</text>
+
+                    <!-- T1: center x=274, rect x=254 -->
+                    <rect id="pn-T1" class="pn-trans" x="254" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="274" y="80">T1</text>
+                    <text class="pn-lbl-sm" x="274" y="108">identify</text>
+                    <text class="pn-lbl-sm" x="274" y="119">_skills</text>
+
+                    <!-- T2: center x=414, rect x=394 -->
+                    <rect id="pn-T2" class="pn-trans" x="394" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="414" y="80">T2</text>
+                    <text class="pn-lbl-sm" x="414" y="108">match</text>
+                    <text class="pn-lbl-sm" x="414" y="119">_careers</text>
+
+                    <!-- T3: center x=554, rect x=534 -->
+                    <rect id="pn-T3" class="pn-trans" x="534" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="554" y="80">T3</text>
+                    <text class="pn-lbl-sm" x="554" y="108">analyze</text>
+                    <text class="pn-lbl-sm" x="554" y="119">_gaps</text>
+
+                    <!-- T4: center x=694, rect x=674 -->
+                    <rect id="pn-T4" class="pn-trans" x="674" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="694" y="80">T4</text>
+                    <text class="pn-lbl-sm" x="694" y="108">generate</text>
+                    <text class="pn-lbl-sm" x="694" y="119">_report</text>
+
+                    <!-- ── Token (starts at P0) ── -->
+                    <circle id="pn-token" class="pn-token" cx="66" cy="80" r="7"/>
+                </svg>
+            </div>
+
+            <!-- Simulation log -->
+            <div id="simLogSection" style="display:none;" class="mt-3">
+                <div style="font-size:0.95rem; font-weight:600; color:var(--primary);
+                            margin-bottom:8px;">Simulation Log</div>
+                <div id="simLogWrap">
+                    <div id="simLogItems"></div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /results-section -->
+
+</div><!-- /container -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    /* ── Token positions matching SVG place cx/cy ── */
+    const PLACE_COORDS = {
+        P0: {cx: 66,  cy: 80},
+        P1: {cx: 206, cy: 80},
+        P2: {cx: 346, cy: 80},
+        P3: {cx: 486, cy: 80},
+        P4: {cx: 626, cy: 80},
+        P5: {cx: 794, cy: 80},
+    };
+
+    /* ── File selection ── */
+    const fileInput = document.getElementById('resumeFile');
+    fileInput.addEventListener('change', () => {
+        const name = fileInput.files[0]?.name || '';
+        document.getElementById('fileName').textContent = name ? `Selected: ${name}` : '';
+    });
+
+    /* ── Drag & drop ── */
+    const uploadZone = document.getElementById('uploadZone');
+    uploadZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        uploadZone.classList.add('drag-over');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            document.getElementById('fileName').textContent =
+                `Selected: ${e.dataTransfer.files[0].name}`;
+        }
+    });
+
+    /* ── Form submit ── */
+    document.getElementById('resumeForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const file = fileInput.files[0];
+        if (!file) { alert('Please select a resume file first.'); return; }
+
+        document.getElementById('btnText').textContent = 'Analyzing…';
+        document.getElementById('btnSpinner').classList.remove('d-none');
+        document.getElementById('analyzeBtn').disabled = true;
+
+        const formData = new FormData();
+        formData.append('resume', file);
+
+        try {
+            const res = await fetch('/api/analyze-resume', {method: 'POST', body: formData});
+            const data = await res.json();
+            if (!res.ok) { alert(data.error || 'Analysis failed.'); return; }
+            renderResults(data);
+        } catch (err) {
+            alert('Network error: ' + err.message);
+        } finally {
+            document.getElementById('btnText').textContent = 'Analyze Resume';
+            document.getElementById('btnSpinner').classList.add('d-none');
+            document.getElementById('analyzeBtn').disabled = false;
+        }
+    });
+
+    /* ── Render results ── */
+    function renderResults(data) {
+        const {resume_info, career_matches, skill_gaps} = data;
+
+        /* Candidate info */
+        document.getElementById('infoName').textContent  = resume_info.name      || 'Not detected';
+        document.getElementById('infoEmail').textContent = resume_info.email     || 'Not detected';
+        document.getElementById('infoPhone').textContent = resume_info.phone     || 'Not detected';
+        document.getElementById('infoEdu').textContent   = resume_info.education || 'Not detected';
+        document.getElementById('infoCount').textContent = `${resume_info.skills_count} skills found`;
+
+        /* Skill tags */
+        const tagsEl = document.getElementById('skillTags');
+        tagsEl.innerHTML = resume_info.skills_found.length
+            ? resume_info.skills_found.map(s => `<span class="skill-tag">${s}</span>`).join('')
+            : '<p style="color:var(--text-secondary); font-size:.9rem;">No skills detected.</p>';
+
+        /* Career match bars */
+        const barsEl = document.getElementById('careerBars');
+        barsEl.innerHTML = career_matches.map((m, i) => `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="bar-label">${i+1}. ${m.career}</span>
+                    <span style="font-size:.84rem; color:var(--secondary); font-weight:600;">
+                        ${m.match_score}%
+                    </span>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill" style="width:${m.match_score}%;"></div>
+                </div>
+            </div>`).join('');
+
+        /* Skill gaps */
+        document.getElementById('topCareerLabel').textContent = skill_gaps.top_career || '';
+        const gapsEl = document.getElementById('skillGapsList');
+        const haveItems  = (skill_gaps.you_have      || []).map(s =>
+            `<div class="gap-item">
+                <span class="dot-have">&#9679;</span>
+                <span>${s}</span>
+             </div>`).join('');
+        const missItems  = (skill_gaps.missing_skills || []).slice(0, 12).map(s =>
+            `<div class="gap-item">
+                <span class="dot-miss">&#9679;</span>
+                <span>${s}</span>
+             </div>`).join('');
+        gapsEl.innerHTML = (haveItems + missItems) ||
+            '<p style="color:var(--text-secondary); font-size:.88rem;">No gap data available.</p>';
+
+        /* Reset Petri Net to initial state */
+        resetPetriNet();
+
+        /* Show section */
+        const sec = document.getElementById('results-section');
+        sec.style.display = 'block';
+        setTimeout(() => sec.scrollIntoView({behavior: 'smooth', block: 'start'}), 100);
+    }
+
+    /* ── Petri Net helpers ── */
+    function resetPetriNet() {
+        document.querySelectorAll('.pn-place').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.pn-trans').forEach(el => el.classList.remove('fired'));
+        const tok = document.getElementById('pn-token');
+        tok.setAttribute('cx', PLACE_COORDS.P0.cx);
+        tok.setAttribute('cy', PLACE_COORDS.P0.cy);
+        document.getElementById('simLogSection').style.display = 'none';
+        document.getElementById('simLogItems').innerHTML = '';
+    }
+
+    async function runSimulation() {
+        const btn = document.getElementById('simulateBtn');
+        btn.disabled = true;
+
+        try {
+            const res  = await fetch('/api/petri-simulate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: '{}'
+            });
+            const data = await res.json();
+
+            resetPetriNet();
+            document.getElementById('simLogSection').style.display = 'block';
+            const logItems = document.getElementById('simLogItems');
+
+            for (const step of data.log) {
+                await sleep(800);
+
+                /* Highlight active place & move token */
+                document.querySelectorAll('.pn-place').forEach(el => el.classList.remove('active'));
+                if (step.active_place) {
+                    document.getElementById('pn-' + step.active_place)?.classList.add('active');
+                    const coord = PLACE_COORDS[step.active_place];
+                    if (coord) {
+                        const tok = document.getElementById('pn-token');
+                        tok.setAttribute('cx', coord.cx);
+                        tok.setAttribute('cy', coord.cy);
+                    }
+                }
+
+                /* Highlight fired transition */
+                document.querySelectorAll('.pn-trans').forEach(el => el.classList.remove('fired'));
+                if (step.fired_transition) {
+                    document.getElementById('pn-' + step.fired_transition)?.classList.add('fired');
+                }
+
+                /* Log entry */
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML =
+                    `<strong style="color:var(--primary)">Step ${step.step}</strong> — ${step.description}`;
+                logItems.appendChild(entry);
+                document.getElementById('simLogWrap').scrollTop = 9999;
+            }
+        } catch (err) {
+            alert('Simulation error: ' + err.message);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+</script>
+</body>
+</html>
