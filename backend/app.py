@@ -12,6 +12,9 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from ML.recommender import get_matches
 from ML.skill_gap import get_skill_gap, get_detailed_skill_gap, prioritize_skills
 from ML.roadmap_generator import get_all_careers, generate_roadmap, get_roadmap_for_skill_level
+from resume_analyzer import SkillExtractor, PetriNet
+
+_extractor = SkillExtractor()
 
 @app.route("/")
 def home():
@@ -122,6 +125,71 @@ def prioritize_skills_endpoint():
 
         return jsonify({"prioritized_skills": prioritized}), 200
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/resume-analyzer")
+def resume_analyzer_page():
+    return render_template("resume_analyzer.html")
+
+
+@app.route("/api/analyze-resume", methods=["POST"])
+def analyze_resume():
+    if "resume" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files["resume"]
+    if not file.filename:
+        return jsonify({"error": "Empty filename"}), 400
+
+    try:
+        file_bytes = file.read()
+        info = _extractor.analyze(file_bytes, file.filename)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Failed to parse resume: {str(e)}"}), 500
+
+    skills_found = info["skills_found"]
+    resume_info = {k: v for k, v in info.items() if k != "_text"}
+
+    # Career matching via existing TF-IDF logic
+    if skills_found:
+        skills_string = ", ".join(skills_found)
+        raw_matches = get_matches(skills_string, top_n=5)
+    else:
+        raw_matches = []
+
+    career_matches = [
+        {"career": m["career"], "match_score": m["score"], "rank": i + 1}
+        for i, m in enumerate(raw_matches)
+    ]
+
+    # Skill gap for top career
+    skill_gaps = {"top_career": "", "missing_skills": [], "you_have": []}
+    if raw_matches:
+        top = raw_matches[0]
+        gap = get_detailed_skill_gap(skills_found, top)
+        skill_gaps = {
+            "top_career": top["career"],
+            "missing_skills": gap["missing_skills"],
+            "you_have": gap["exact_matches"],
+        }
+
+    return jsonify({
+        "resume_info": resume_info,
+        "career_matches": career_matches,
+        "skill_gaps": skill_gaps,
+    }), 200
+
+
+@app.route("/api/petri-simulate", methods=["POST"])
+def petri_simulate():
+    try:
+        net = PetriNet()
+        result = net.simulate_all()
+        return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
