@@ -129,6 +129,11 @@ def prioritize_skills_endpoint():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/skill-gap")
+def skill_gap_page():
+    return render_template("skill_gap.html")
+
+
 @app.route("/resume-analyzer")
 def resume_analyzer_page():
     return render_template("resume_analyzer.html")
