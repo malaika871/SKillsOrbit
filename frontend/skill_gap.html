@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillOrbit - Skill Gap Analysis</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #c3c0ff;
+            --primary-dark: #4f46e5;
+            --secondary: #4cd7f6;
+            --tertiary: #d0bcff;
+            --background: #0f1417;
+            --surface: #1b2023;
+            --text-primary: #dfe3e7;
+            --text-secondary: #c7c4d8;
+            --error: #ffb4ab;
+            --success: #a6f4c5;
+            --warning: #ffd966;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: #0A0F1E;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+
+        /* Background orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+        .orb-1 { width: 500px; height: 500px; background: #4f46e5; top: -150px; left: -100px; }
+        .orb-2 { width: 400px; height: 400px; background: #06b6d4; bottom: -100px; right: -100px; }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15, 20, 30, 0.85) !important;
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-link { color: var(--text-secondary) !important; transition: color 0.2s; }
+        .nav-link:hover, .nav-link.active { color: var(--secondary) !important; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        /* Step indicator */
+        .step-bar {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 2.5rem;
+        }
+        .step-item {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        .step-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+        }
+        .step-circle.active {
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 0 16px rgba(79,70,229,0.5);
+        }
+        .step-circle.done {
+            background: var(--success);
+            border-color: transparent;
+            color: #0A0F1E;
+        }
+        .step-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            text-align: center;
+        }
+        .step-label.active { color: var(--primary); font-weight: 600; }
+        .step-connector {
+            height: 2px;
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            margin: 0 4px;
+            margin-bottom: 18px;
+            transition: background 0.3s;
+        }
+        .step-connector.done { background: var(--success); }
+
+        /* Skill input */
+        .skill-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            cursor: text;
+            min-height: 54px;
+            transition: border-color 0.2s;
+        }
+        .skill-input-container:focus-within {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(76,215,246,0.1);
+        }
+        .skill-input-container input {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            flex: 1;
+            min-width: 140px;
+        }
+        .skill-input-container input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .skill-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(79,70,229,0.25);
+            border: 1px solid rgba(79,70,229,0.5);
+            color: var(--primary);
+            padding: 4px 10px 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .skill-tag .remove-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .skill-tag .remove-btn:hover { opacity: 1; }
+
+        .popular-skill-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: var(--text-secondary);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .popular-skill-btn:hover {
+            background: rgba(79,70,229,0.2);
+            border-color: var(--primary-dark);
+            color: var(--primary);
+        }
+
+        /* Career selector */
+        .career-option {
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.09);
+            background: rgba(255,255,255,0.03);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .career-option:hover {
+            border-color: rgba(76,215,246,0.4);
+            background: rgba(76,215,246,0.06);
+        }
+        .career-option.selected {
+            border-color: var(--secondary);
+            background: rgba(76,215,246,0.1);
+        }
+        .career-option .career-name { font-weight: 600; font-size: 15px; }
+        .career-option .career-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* Match badges */
+        .badge-score {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+        .badge-strong { background: rgba(166,244,197,0.2); color: var(--success); border: 1px solid rgba(166,244,197,0.3); }
+        .badge-good   { background: rgba(195,192,255,0.15); color: var(--primary); border: 1px solid rgba(195,192,255,0.25); }
+        .badge-fair   { background: rgba(255,217,102,0.15); color: var(--warning); border: 1px solid rgba(255,217,102,0.25); }
+
+        /* Skill chips */
+        .skill-chip {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin: 3px;
+        }
+        .chip-match   { background: rgba(166,244,197,0.15); border: 1px solid rgba(166,244,197,0.3); color: var(--success); }
+        .chip-partial { background: rgba(255,217,102,0.12); border: 1px solid rgba(255,217,102,0.25); color: var(--warning); }
+        .chip-missing { background: rgba(255,180,171,0.12); border: 1px solid rgba(255,180,171,0.25); color: var(--error); }
+        .chip-priority{ background: rgba(79,70,229,0.2);    border: 1px solid rgba(79,70,229,0.4);    color: var(--primary); }
+
+        /* Priority skill card */
+        .priority-skill-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        .priority-skill-card:hover { background: rgba(255,255,255,0.06); }
+        .priority-rank {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #0A0F1E; }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a9a9a9); color: #0A0F1E; }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); color: white; }
+        .rank-other { background: rgba(79,70,229,0.3); color: var(--primary); }
+
+        /* Buttons */
+        .btn-primary-gradient {
+            background: linear-gradient(90deg, #4f46e5 0%, #06b6d4 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary-gradient:hover {
+            box-shadow: 0 0 20px rgba(79,70,229,0.45);
+            transform: scale(1.02);
+            color: white;
+        }
+        .btn-primary-gradient:disabled {
+            opacity: 0.5;
+            transform: none;
+        }
+        .btn-outline-custom {
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            background: transparent;
+            transition: all 0.3s;
+        }
+        .btn-outline-custom:hover {
+            background: rgba(76,215,246,0.1);
+            color: var(--secondary);
+        }
+
+        /* Sections fade in */
+        .fade-in { animation: fadeInUp 0.5s ease both; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stat card */
+        .stat-card {
+            text-align: center;
+            padding: 20px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .stat-value { font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: var(--text-secondary); }
+
+        /* Radial progress */
+        .radial-wrap { position: relative; display: inline-block; }
+        .radial-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        /* Recommendation card */
+        .rec-card {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 10px;
+        }
+        .rec-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,15,30,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            backdrop-filter: blur(4px);
+        }
+        .loading-overlay.active { display: flex; }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Comparison career cards in Step 2 */
+        .career-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+
+        /* Section headers */
+        .section-panel { padding: 0 0 32px; }
+        .step-section { display: none; }
+        .step-section.active { display: block; }
+
+        /* Toast */
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(27,32,35,0.95);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: var(--text-primary);
+            font-size: 14px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            animation: slideIn 0.3s ease;
+            max-width: 320px;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Error state */
+        .error-banner {
+            background: rgba(255,180,171,0.1);
+            border: 1px solid rgba(255,180,171,0.3);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: var(--error);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 576px) {
+            .career-grid { grid-template-columns: 1fr; }
+        }
+
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        .material-symbols-outlined.sm { font-size: 18px; }
+        .material-symbols-outlined.lg { font-size: 32px; }
+    </style>
+</head>
+<body>
+    <!-- Background orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p style="color: var(--text-secondary); font-size: 14px;" id="loadingText">Analyzing your skills...</p>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold fs-5" href="/">
+                <span style="color: var(--secondary);">Skill</span>Orbit
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto gap-3">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/advisor">Advisor</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/skill-gap">Skill Gap</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/resume-analyzer">Resume Analyzer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="container py-5" style="position: relative; z-index: 1; max-width: 900px;">
+
+        <!-- Header -->
+        <div class="text-center mb-5 fade-in">
+            <div class="d-inline-flex align-items-center gap-2 mb-3" style="background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.3); border-radius: 20px; padding: 6px 16px;">
+                <span class="material-symbols-outlined sm" style="color: var(--primary);">analytics</span>
+                <span style="font-size: 13px; color: var(--primary);">AI-Powered Analysis</span>
+            </div>
+            <h1 class="fw-bold mb-2" style="font-size: clamp(1.8rem, 4vw, 2.6rem);">
+                Skill Gap <span style="background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Analysis</span>
+            </h1>
+            <p style="color: var(--text-secondary); max-width: 520px; margin: 0 auto;">
+                Discover exactly which skills you need to land your dream career. Get a prioritized action plan to close the gap.
+            </p>
+        </div>
+
+        <!-- Step bar -->
+        <div class="step-bar fade-in" id="stepBar">
+            <div class="d-flex flex-column align-items-center">
+                <div class="step-circle active" id="circle-1">1</div>
+                <div class="step-label active" id="label-1">Your Skills</div>
+            </div>
+            <div class="step-connector" id="conn-1"></div>
+            <div class="d-flex flex-column align-items-center">
+                <div class="step-circle" id="circle-2">2</div>
+                <div class="step-label" id="label-2">Target Career</div>
+            </div>
+            <div class="step-connector" id="conn-2"></div>
+            <div class="d-flex flex-column align-items-center">
+                <div class="step-circle" id="circle-3">3</div>
+                <div class="step-label" id="label-3">Analysis</div>
+            </div>
+        </div>
+
+        <!-- STEP 1: Enter Skills -->
+        <div class="step-section active fade-in" id="step-1">
+            <div class="glass-card p-4 p-md-5">
+                <h4 class="fw-bold mb-1">What skills do you have?</h4>
+                <p style="color: var(--text-secondary); font-size: 14px;" class="mb-4">Add your current technical and soft skills. Be specific for best results.</p>
+
+                <!-- Skill input -->
+                <label class="form-label fw-semibold mb-2" style="font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary);">Your Skills</label>
+                <div class="skill-input-container mb-3" id="skillContainer" onclick="document.getElementById('skillInput').focus()">
+                    <input type="text" id="skillInput" placeholder="Type a skill and press Enter or comma..." autocomplete="off">
+                </div>
+
+                <!-- Popular skills -->
+                <div class="mb-4">
+                    <small class="text-secondary mb-2 d-block">Quick add popular skills:</small>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('Python')">Python</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('JavaScript')">JavaScript</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('SQL')">SQL</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('React')">React</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('Machine Learning')">Machine Learning</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('Excel')">Excel</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('Figma')">Figma</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('Data Analysis')">Data Analysis</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('Project Management')">Project Management</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('AWS')">AWS</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('Docker')">Docker</button>
+                        <button class="btn popular-skill-btn btn-sm" onclick="addSkill('Node.js')">Node.js</button>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <small id="skillCount" style="color: var(--text-secondary);">0 skills added</small>
+                    <button class="btn btn-primary-gradient rounded-pill px-4 py-2" onclick="goToStep2()" id="nextBtn1" disabled>
+                        Find Careers
+                        <span class="material-symbols-outlined sm ms-1">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: Select Career -->
+        <div class="step-section" id="step-2">
+            <div class="glass-card p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <button class="btn btn-outline-custom btn-sm rounded-pill" onclick="goToStep(1)">
+                        <span class="material-symbols-outlined sm">arrow_back</span> Back
+                    </button>
+                    <div>
+                        <h4 class="fw-bold mb-0">Select your target career</h4>
+                        <p style="color: var(--text-secondary); font-size: 13px; margin: 2px 0 0;">Based on your skills, here are your top matches</p>
+                    </div>
+                </div>
+
+                <div id="careerLoadingState" class="text-center py-5">
+                    <div class="loading-spinner mx-auto mb-3"></div>
+                    <p style="color: var(--text-secondary);">Finding your best career matches...</p>
+                </div>
+
+                <div id="careerErrorState" class="error-banner d-none">
+                    <span class="material-symbols-outlined">error</span>
+                    <span id="careerErrorText">Failed to load careers. Please try again.</span>
+                </div>
+
+                <div id="careerList" class="career-grid d-none"></div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    <button class="btn btn-primary-gradient rounded-pill px-4 py-2" onclick="runAnalysis()" id="analyzeBtn" disabled>
+                        <span class="material-symbols-outlined sm me-1">insights</span>
+                        Analyze Gap
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: Results -->
+        <div class="step-section" id="step-3">
+
+            <!-- Back button -->
+            <div class="mb-4">
+                <button class="btn btn-outline-custom btn-sm rounded-pill" onclick="goToStep(2)">
+                    <span class="material-symbols-outlined sm">arrow_back</span> Change Career
+                </button>
+            </div>
+
+            <!-- Header stats -->
+            <div class="glass-card p-4 mb-4 fade-in" id="resultsHeader"></div>
+
+            <!-- Charts -->
+            <div class="row g-4 mb-4 fade-in" style="animation-delay: 0.1s;">
+                <div class="col-md-5">
+                    <div class="glass-card p-4 h-100">
+                        <h6 class="fw-semibold mb-3 text-center">Match Overview</h6>
+                        <div style="max-height: 220px; position: relative;">
+                            <canvas id="doughnutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="glass-card p-4 h-100">
+                        <h6 class="fw-semibold mb-3 text-center">Skills Breakdown</h6>
+                        <div style="max-height: 220px; position: relative;">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills breakdown -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 fade-in" style="animation-delay: 0.2s;">
+                    <div class="glass-card p-4 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="material-symbols-outlined sm" style="color: var(--success);">check_circle</span>
+                            <h6 class="fw-semibold mb-0">Skills You Have</h6>
+                            <span id="matchCount" class="badge badge-strong ms-auto">0</span>
+                        </div>
+                        <div id="matchedSkills"></div>
+                        <div id="partialSkillsSection" class="mt-3 d-none">
+                            <small style="color: var(--text-secondary); font-size: 12px;" class="d-block mb-2">Partial matches (related skills):</small>
+                            <div id="partialSkills"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 fade-in" style="animation-delay: 0.25s;">
+                    <div class="glass-card p-4 h-100">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="material-symbols-outlined sm" style="color: var(--error);">close</span>
+                            <h6 class="fw-semibold mb-0">Skills to Learn</h6>
+                            <span id="missingCount" class="badge badge-fair ms-auto">0</span>
+                        </div>
+                        <div id="missingSkills"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Priority skills -->
+            <div class="glass-card p-4 mb-4 fade-in" style="animation-delay: 0.3s;" id="prioritySection">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <span class="material-symbols-outlined" style="color: var(--warning);">emoji_events</span>
+                    <div>
+                        <h6 class="fw-bold mb-0">Your Learning Roadmap</h6>
+                        <small style="color: var(--text-secondary);">Skills ranked by importance across top career matches</small>
+                    </div>
+                </div>
+                <div id="prioritySkillsList"></div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="glass-card p-4 fade-in" style="animation-delay: 0.35s;" id="recommendationsSection">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <span class="material-symbols-outlined" style="color: var(--secondary);">lightbulb</span>
+                    <h6 class="fw-bold mb-0">Personalized Recommendations</h6>
+                </div>
+                <div id="recommendationsList"></div>
+                <div class="mt-4 d-flex flex-wrap gap-3">
+                    <button class="btn btn-primary-gradient rounded-pill px-4 py-2" id="viewRoadmapBtn">
+                        <span class="material-symbols-outlined sm me-1">map</span>
+                        View Full Roadmap
+                    </button>
+                    <button class="btn btn-outline-custom rounded-pill px-4 py-2" onclick="goToStep(1)">
+                        <span class="material-symbols-outlined sm me-1">refresh</span>
+                        Analyze Different Skills
+                    </button>
+                    <button class="btn btn-outline-custom rounded-pill px-4 py-2" onclick="exportResults()">
+                        <span class="material-symbols-outlined sm me-1">download</span>
+                        Export Report
+                    </button>
+                </div>
+            </div>
+
+        </div><!-- end step-3 -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-5" style="border-top: 1px solid rgba(255,255,255,0.07); position: relative; z-index: 1;">
+        <div class="container text-center">
+            <p style="color: var(--text-secondary); font-size: 13px; margin: 0;">
+                © 2025 <span style="color: var(--secondary);">Skill</span>Orbit AI. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // ───────────────────────────────────────────────
+    // State
+    // ───────────────────────────────────────────────
+    let userSkills = [];
+    let careerMatches = [];
+    let selectedCareer = null;
+    let analysisResult = null;
+    let allCareerMatches = [];
+    let chartInstances = [];
+    let currentStep = 1;
+
+    // ───────────────────────────────────────────────
+    // Toast notification
+    // ───────────────────────────────────────────────
+    function showToast(message, type = 'info') {
+        const existing = document.querySelector('.toast-msg');
+        if (existing) existing.remove();
+
+        const icons = { info: 'info', success: 'check_circle', error: 'error', warning: 'warning' };
+        const colors = { info: 'var(--secondary)', success: 'var(--success)', error: 'var(--error)', warning: 'var(--warning)' };
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.innerHTML = `
+            <span class="material-symbols-outlined sm" style="color: ${colors[type]};">${icons[type]}</span>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    // ───────────────────────────────────────────────
+    // Loading overlay
+    // ───────────────────────────────────────────────
+    function showLoading(text = 'Analyzing your skills...') {
+        document.getElementById('loadingText').textContent = text;
+        document.getElementById('loadingOverlay').classList.add('active');
+    }
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+    }
+
+    // ───────────────────────────────────────────────
+    // Step navigation
+    // ───────────────────────────────────────────────
+    function goToStep(n) {
+        document.querySelectorAll('.step-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`step-${n}`).classList.add('active');
+        currentStep = n;
+
+        // Update step indicator
+        [1, 2, 3].forEach(i => {
+            const circle = document.getElementById(`circle-${i}`);
+            const label  = document.getElementById(`label-${i}`);
+            circle.classList.remove('active', 'done');
+            label.classList.remove('active');
+            if (i < n) { circle.classList.add('done'); circle.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">check</span>'; }
+            if (i === n) { circle.classList.add('active'); if(!circle.textContent.trim().includes('check')) circle.textContent = i; label.classList.add('active'); }
+            if (i > n)   { circle.textContent = i; }
+        });
+
+        [1, 2].forEach(i => {
+            const conn = document.getElementById(`conn-${i}`);
+            conn.classList.toggle('done', i < n);
+        });
+
+        // Scroll to top of content
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ───────────────────────────────────────────────
+    // Skill input management
+    // ───────────────────────────────────────────────
+    function renderTags() {
+        const container = document.getElementById('skillContainer');
+        const input = document.getElementById('skillInput');
+        // remove old tags
+        container.querySelectorAll('.skill-tag').forEach(t => t.remove());
+        userSkills.forEach((skill, idx) => {
+            const tag = document.createElement('span');
+            tag.className = 'skill-tag';
+            tag.innerHTML = `${skill} <button class="remove-btn" onclick="removeSkill(${idx})">&times;</button>`;
+            container.insertBefore(tag, input);
+        });
+        const count = document.getElementById('skillCount');
+        count.textContent = `${userSkills.length} skill${userSkills.length !== 1 ? 's' : ''} added`;
+        document.getElementById('nextBtn1').disabled = userSkills.length === 0;
+    }
+
+    function addSkill(skill) {
+        skill = skill.trim();
+        if (!skill) return;
+        if (userSkills.some(s => s.toLowerCase() === skill.toLowerCase())) {
+            showToast(`"${skill}" is already in your list`, 'warning');
+            return;
+        }
+        userSkills.push(skill);
+        document.getElementById('skillInput').value = '';
+        renderTags();
+    }
+
+    function removeSkill(idx) {
+        userSkills.splice(idx, 1);
+        renderTags();
+    }
+
+    document.getElementById('skillInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const val = e.target.value.replace(',', '').trim();
+            if (val) addSkill(val);
+        }
+        if (e.key === 'Backspace' && !e.target.value && userSkills.length > 0) {
+            userSkills.pop();
+            renderTags();
+        }
+    });
+
+    // ───────────────────────────────────────────────
+    // Step 1 → 2: Fetch career matches
+    // ───────────────────────────────────────────────
+    async function goToStep2() {
+        if (userSkills.length === 0) {
+            showToast('Please add at least one skill first.', 'warning');
+            return;
+        }
+
+        goToStep(2);
+
+        // Reset UI
+        document.getElementById('careerLoadingState').style.display = 'block';
+        document.getElementById('careerList').classList.add('d-none');
+        document.getElementById('careerErrorState').classList.add('d-none');
+        document.getElementById('analyzeBtn').disabled = true;
+        selectedCareer = null;
+
+        try {
+            const res = await fetch('/api/recommend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ skills: userSkills })
+            });
+
+            if (!res.ok) throw new Error(`Server error ${res.status}`);
+            const data = await res.json();
+
+            allCareerMatches = data.matches || [];
+            careerMatches = data.matches || [];
+
+            renderCareerOptions(careerMatches);
+            document.getElementById('careerLoadingState').style.display = 'none';
+            document.getElementById('careerList').classList.remove('d-none');
+
+            // Pre-select top match
+            if (careerMatches.length > 0) selectCareer(careerMatches[0]);
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('careerLoadingState').style.display = 'none';
+            document.getElementById('careerErrorState').classList.remove('d-none');
+            document.getElementById('careerErrorText').textContent = `Failed to load careers: ${err.message}`;
+            showToast('Could not fetch career matches. Is the backend running?', 'error');
+        }
+    }
+
+    function renderCareerOptions(matches) {
+        const list = document.getElementById('careerList');
+        list.innerHTML = '';
+
+        if (matches.length === 0) {
+            list.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 24px;">No career matches found. Try adding more skills.</p>';
+            return;
+        }
+
+        matches.forEach((match, idx) => {
+            const badgeClass = match.score >= 75 ? 'badge-strong' : match.score >= 50 ? 'badge-good' : 'badge-fair';
+            const badgeText  = match.score >= 75 ? 'Strong Match' : match.score >= 50 ? 'Good Match' : 'Fair Match';
+
+            const card = document.createElement('div');
+            card.className = 'career-option';
+            card.id = `career-card-${idx}`;
+            card.onclick = () => selectCareer(match, idx);
+            card.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <span class="career-name">${match.career}</span>
+                    <span class="badge badge-score ${badgeClass}">${badgeText}</span>
+                </div>
+                <div class="career-meta d-flex gap-3 flex-wrap">
+                    <span><span class="material-symbols-outlined sm" style="font-size:14px; color: var(--secondary);">attach_money</span> ₨${(match.salary_min/1000).toFixed(0)}K–${(match.salary_max/1000).toFixed(0)}K</span>
+                    <span><span class="material-symbols-outlined sm" style="font-size:14px; color: var(--primary);">trending_up</span> ${match.demand_level >= 8 ? 'High' : match.demand_level >= 5 ? 'Moderate' : 'Low'} Demand</span>
+                    <span><span class="material-symbols-outlined sm" style="font-size:14px;">match_score</span> ${match.score}% match</span>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    let selectedIdx = null;
+    function selectCareer(match, idx = 0) {
+        selectedCareer = match;
+        selectedIdx = idx;
+        document.querySelectorAll('.career-option').forEach(c => c.classList.remove('selected'));
+        const card = document.getElementById(`career-card-${idx}`);
+        if (card) card.classList.add('selected');
+        document.getElementById('analyzeBtn').disabled = false;
+    }
+
+    // ───────────────────────────────────────────────
+    // Step 2 → 3: Run analysis
+    // ───────────────────────────────────────────────
+    async function runAnalysis() {
+        if (!selectedCareer) {
+            showToast('Please select a career first.', 'warning');
+            return;
+        }
+
+        showLoading('Calculating your skill gap...');
+
+        try {
+            // 1. Detailed gap analysis from backend
+            const gapRes = await fetch('/api/skill-gap', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_skills: userSkills,
+                    career_match: selectedCareer
+                })
+            });
+            if (!gapRes.ok) throw new Error(`Skill gap API error ${gapRes.status}`);
+            const gapData = await gapRes.json();
+
+            // 2. Prioritize missing skills using backend
+            let prioritizedSkills = [];
+            if (gapData.missing_skills && gapData.missing_skills.length > 0) {
+                try {
+                    const prioRes = await fetch('/api/prioritize-skills', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            missing_skills: gapData.missing_skills,
+                            career_matches: allCareerMatches
+                        })
+                    });
+                    if (prioRes.ok) {
+                        const prioData = await prioRes.json();
+                        prioritizedSkills = prioData.prioritized_skills || [];
+                    }
+                } catch (e) {
+                    console.warn('Priority endpoint failed, falling back.', e);
+                    prioritizedSkills = gapData.missing_skills.map(s => ({ skill: s, frequency: 1 }));
+                }
+            }
+
+            analysisResult = { gapData, prioritizedSkills };
+            hideLoading();
+            goToStep(3);
+            renderResults(gapData, prioritizedSkills);
+
+        } catch (err) {
+            hideLoading();
+            console.error(err);
+            showToast(`Analysis failed: ${err.message}. Is the backend running?`, 'error');
+        }
+    }
+
+    // ───────────────────────────────────────────────
+    // Render analysis results
+    // ───────────────────────────────────────────────
+    function renderResults(gapData, prioritizedSkills) {
+        destroyCharts();
+
+        const { exact_matches, partial_matches, missing_skills, match_percentage, total_required, matched_count, career } = gapData;
+
+        // ── Header stats ──────────────────────────────
+        const scoreColor = match_percentage >= 75 ? 'var(--success)' : match_percentage >= 50 ? 'var(--secondary)' : 'var(--warning)';
+        document.getElementById('resultsHeader').innerHTML = `
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="material-symbols-outlined sm" style="color: var(--secondary);">work</span>
+                        <span style="color: var(--text-secondary); font-size: 13px;">Target Career</span>
+                    </div>
+                    <h4 class="fw-bold mb-0">${career}</h4>
+                </div>
+                <div class="d-flex gap-3">
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: var(--success);">${exact_matches.length}</div>
+                        <div class="stat-label">Matched</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: var(--warning);">${partial_matches.length}</div>
+                        <div class="stat-label">Partial</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: var(--error);">${missing_skills.length}</div>
+                        <div class="stat-label">Missing</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: ${scoreColor};">${match_percentage}%</div>
+                        <div class="stat-label">Match</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // ── Charts ────────────────────────────────────
+        setTimeout(() => {
+            buildDoughnutChart(exact_matches.length, partial_matches.length, missing_skills.length);
+            buildRadarChart(exact_matches.length, partial_matches.length, missing_skills.length, total_required, match_percentage);
+        }, 100);
+
+        // ── Matched skills ────────────────────────────
+        const matchedDiv = document.getElementById('matchedSkills');
+        document.getElementById('matchCount').textContent = exact_matches.length;
+        if (exact_matches.length > 0) {
+            matchedDiv.innerHTML = exact_matches.map(s => `<span class="skill-chip chip-match">${s}</span>`).join('');
+        } else {
+            matchedDiv.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">No exact skill matches found.</p>';
+        }
+
+        // ── Partial matches ───────────────────────────
+        const partialSection = document.getElementById('partialSkillsSection');
+        const partialDiv = document.getElementById('partialSkills');
+        if (partial_matches.length > 0) {
+            partialSection.classList.remove('d-none');
+            partialDiv.innerHTML = partial_matches.map(s => `<span class="skill-chip chip-partial">${s}</span>`).join('');
+        } else {
+            partialSection.classList.add('d-none');
+        }
+
+        // ── Missing skills ────────────────────────────
+        const missingDiv = document.getElementById('missingSkills');
+        document.getElementById('missingCount').textContent = missing_skills.length;
+        if (missing_skills.length > 0) {
+            missingDiv.innerHTML = missing_skills.map(s => `<span class="skill-chip chip-missing">${s}</span>`).join('');
+        } else {
+            missingDiv.innerHTML = '<p style="color: var(--success); font-size: 13px;">🎉 You have all the required skills!</p>';
+        }
+
+        // ── Priority skills ───────────────────────────
+        const prioList = document.getElementById('prioritySkillsList');
+        if (prioritizedSkills.length > 0) {
+            prioList.innerHTML = '';
+            prioritizedSkills.slice(0, 8).forEach((item, idx) => {
+                const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other';
+                const urgency = item.frequency >= 4 ? 'Critical' : item.frequency >= 2 ? 'Important' : 'Useful';
+                const urgencyColor = item.frequency >= 4 ? 'var(--error)' : item.frequency >= 2 ? 'var(--warning)' : 'var(--text-secondary)';
+                prioList.innerHTML += `
+                    <div class="priority-skill-card">
+                        <div class="priority-rank ${rankClass}">${idx + 1}</div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold" style="font-size: 14px;">${item.skill}</div>
+                            <div style="font-size: 12px; color: ${urgencyColor};">${urgency} — needed in ${item.frequency} career path${item.frequency !== 1 ? 's' : ''}</div>
+                        </div>
+                        <span class="skill-chip chip-priority" style="font-size: 11px;">#${idx + 1} Priority</span>
+                    </div>
+                `;
+            });
+        } else {
+            document.getElementById('prioritySection').innerHTML += '<p style="color: var(--text-secondary); font-size: 13px;">No additional skills to prioritize.</p>';
+        }
+
+        // ── Personalized recommendations ──────────────
+        const recList = document.getElementById('recommendationsList');
+        const recs = generateRecommendations(gapData, prioritizedSkills);
+        recList.innerHTML = recs.map(r => `
+            <div class="rec-card">
+                <div class="rec-icon" style="background: ${r.bg};">${r.icon}</div>
+                <div>
+                    <div class="fw-semibold" style="font-size: 14px; margin-bottom: 2px;">${r.title}</div>
+                    <div style="font-size: 13px; color: var(--text-secondary);">${r.body}</div>
+                </div>
+            </div>
+        `).join('');
+
+        // ── Roadmap button ────────────────────────────
+        document.getElementById('viewRoadmapBtn').onclick = () => {
+            sessionStorage.setItem('selectedCareer', career);
+            sessionStorage.setItem('userSkills', JSON.stringify(userSkills));
+            window.location.href = '/roadmap';
+        };
+    }
+
+    // Generate contextual recommendations based on the analysis
+    function generateRecommendations(gapData, prioritizedSkills) {
+        const { match_percentage, missing_skills, exact_matches, career } = gapData;
+        const recs = [];
+
+        if (match_percentage >= 75) {
+            recs.push({ icon: '🚀', bg: 'rgba(166,244,197,0.15)', title: 'You\'re almost ready!', body: `With a ${match_percentage}% match, you can start applying for ${career} roles. Polish your portfolio to stand out.` });
+        } else if (match_percentage >= 50) {
+            recs.push({ icon: '📈', bg: 'rgba(195,192,255,0.15)', title: 'Strong foundation detected', body: `You have solid skills. Closing ${missing_skills.length} skill gap${missing_skills.length !== 1 ? 's' : ''} could significantly boost your employability for ${career}.` });
+        } else {
+            recs.push({ icon: '🎯', bg: 'rgba(255,217,102,0.15)', title: 'Focus your learning', body: `Start with the top-priority skills above. Dedicate 2-3 months to the most critical ones before applying for ${career} positions.` });
+        }
+
+        if (prioritizedSkills.length > 0) {
+            const topSkill = prioritizedSkills[0].skill;
+            recs.push({ icon: '📚', bg: 'rgba(76,215,246,0.1)', title: `Start with: ${topSkill}`, body: `This is the most cross-career relevant skill to learn next. Look for free courses on Coursera, Udemy, or YouTube to get started quickly.` });
+        }
+
+        if (exact_matches.length > 0) {
+            recs.push({ icon: '💼', bg: 'rgba(79,70,229,0.15)', title: 'Showcase what you have', body: `Build 1-2 projects using your existing skills (${exact_matches.slice(0, 3).join(', ')}) and publish them on GitHub to demonstrate real-world ability.` });
+        }
+
+        recs.push({ icon: '🤝', bg: 'rgba(255,255,255,0.05)', title: 'Network in your target field', body: `Join LinkedIn groups and communities relevant to ${career}. Informational interviews can reveal which skills are truly valued day-to-day.` });
+
+        if (missing_skills.length > 3) {
+            recs.push({ icon: '🗓️', bg: 'rgba(255,180,171,0.08)', title: 'Create a 90-day plan', body: `You have ${missing_skills.length} skills to learn. Don't try all at once — pick the top 2-3 priorities and set a realistic weekly study schedule.` });
+        }
+
+        return recs;
+    }
+
+    // ───────────────────────────────────────────────
+    // Chart builders
+    // ───────────────────────────────────────────────
+    function destroyCharts() {
+        chartInstances.forEach(c => { if (c) c.destroy(); });
+        chartInstances = [];
+    }
+
+    function buildDoughnutChart(matched, partial, missing) {
+        const ctx = document.getElementById('doughnutChart');
+        if (!ctx) return;
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Exact Match', 'Partial Match', 'Missing'],
+                datasets: [{
+                    data: [matched, partial, missing],
+                    backgroundColor: [
+                        'rgba(166,244,197,0.8)',
+                        'rgba(255,217,102,0.7)',
+                        'rgba(255,180,171,0.8)'
+                    ],
+                    borderColor: ['rgba(166,244,197,1)', 'rgba(255,217,102,1)', 'rgba(255,180,171,1)'],
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#dfe3e7', padding: 14, font: { size: 11 } } },
+                    tooltip: {
+                        backgroundColor: 'rgba(27,32,35,0.95)',
+                        titleColor: '#dfe3e7',
+                        bodyColor: '#c7c4d8',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: ctx => {
+                                const total = matched + partial + missing;
+                                const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                                return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        chartInstances.push(chart);
+    }
+
+    function buildRadarChart(matched, partial, missing, total, matchPct) {
+        const ctx = document.getElementById('radarChart');
+        if (!ctx) return;
+        const readiness = Math.min(100, matchPct + (partial * 5));
+        const breadth   = total > 0 ? Math.round((matched / total) * 100) : 0;
+        const depth     = matched > 0 ? Math.round(Math.min(100, (matched / (matched + partial)) * 100)) : 0;
+        const learning  = 100 - Math.round((missing / Math.max(1, total)) * 100);
+        const relevance = Math.round(matchPct);
+
+        const chart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Readiness', 'Breadth', 'Depth', 'Learnability', 'Relevance'],
+                datasets: [{
+                    label: 'Your Profile',
+                    data: [readiness, breadth, depth, learning, relevance],
+                    backgroundColor: 'rgba(79,70,229,0.2)',
+                    borderColor: 'rgba(195,192,255,0.8)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(195,192,255,1)',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { color: '#c7c4d8', font: { size: 10 }, stepSize: 25, backdropColor: 'transparent' },
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        angleLines: { color: 'rgba(255,255,255,0.1)' },
+                        pointLabels: { color: '#dfe3e7', font: { size: 11 } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(27,32,35,0.95)',
+                        titleColor: '#dfe3e7',
+                        bodyColor: '#c7c4d8',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+        chartInstances.push(chart);
+    }
+
+    // ───────────────────────────────────────────────
+    // Export report as text
+    // ───────────────────────────────────────────────
+    function exportResults() {
+        if (!analysisResult) { showToast('No results to export yet.', 'warning'); return; }
+        const { gapData, prioritizedSkills } = analysisResult;
+        const lines = [
+            'SkillOrbit — Skill Gap Analysis Report',
+            '=======================================',
+            `Career: ${gapData.career}`,
+            `Match Score: ${gapData.match_percentage}%`,
+            `Date: ${new Date().toLocaleDateString()}`,
+            '',
+            `YOUR SKILLS (${userSkills.length}): ${userSkills.join(', ')}`,
+            '',
+            `MATCHED SKILLS (${gapData.exact_matches.length}): ${gapData.exact_matches.join(', ')}`,
+            `PARTIAL MATCHES (${gapData.partial_matches.length}): ${gapData.partial_matches.join(', ')}`,
+            `MISSING SKILLS (${gapData.missing_skills.length}): ${gapData.missing_skills.join(', ')}`,
+            '',
+            'TOP PRIORITY SKILLS TO LEARN:',
+            ...prioritizedSkills.slice(0, 8).map((s, i) => `  ${i+1}. ${s.skill} (needed in ${s.frequency} career paths)`),
+            '',
+            'Generated by SkillOrbit AI — skillorbit.app'
+        ];
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `skillorbit-gap-report-${gapData.career.replace(/\s+/g,'-').toLowerCase()}.txt`;
+        a.click();
+        showToast('Report downloaded!', 'success');
+    }
+
+    // ───────────────────────────────────────────────
+    // On page load — check for pre-filled data from advisor page
+    // ───────────────────────────────────────────────
+    window.addEventListener('load', () => {
+        // Check if coming from advisor page with skills pre-loaded
+        const savedSkills = sessionStorage.getItem('userSkills');
+        const savedCareer = sessionStorage.getItem('selectedCareer');
+
+        if (savedSkills) {
+            try {
+                const parsed = JSON.parse(savedSkills);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    userSkills = parsed;
+                    renderTags();
+
+                    if (savedCareer) {
+                        sessionStorage.removeItem('selectedCareer');
+                        sessionStorage.removeItem('userSkills');
+                        // Auto-run if career is also provided
+                        showToast(`Loaded ${userSkills.length} skills from Advisor`, 'success');
+                        goToStep2().then(() => {
+                            // Wait for careers to load then auto-select and analyze
+                        });
+                        return;
+                    }
+                    showToast(`Loaded ${userSkills.length} skills from previous session`, 'info');
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        renderTags();
+    });
+    </script>
+</body>
+</html>
