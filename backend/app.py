@@ -4,7 +4,7 @@ import sys
 
 # Configure Flask to use the frontend folder for templates
 template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
-app = Flask(__name__, template_folder=template_dir)
+app = Flask(__name__, template_folder=template_dir, static_folder=template_dir, static_url_path='/static')
 app.secret_key = "skillorbit_secret"
 
 # Add parent directory to path to import ML module

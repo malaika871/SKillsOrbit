@@ -13,6 +13,7 @@
 
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="/static/nav.css" rel="stylesheet">
 
     <style>
         :root {
@@ -60,31 +61,7 @@
             border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Navbar */
-        .navbar-custom {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-link {
-            color: var(--text-secondary) !important;
-            font-weight: 500;
-            position: relative;
-            padding-bottom: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--secondary) !important;
-        }
-
-        .nav-link.active {
-            font-weight: 700;
-            border-bottom: 2px solid var(--secondary);
-        }
+        /* Navbar — see /static/nav.css */
 
         /* Buttons */
         .btn-primary-gradient {
@@ -360,12 +337,18 @@
         .sim-modal .modal-body { padding: 1.25rem 1.5rem 1.5rem; }
         .sim-modal .btn-close { filter: invert(1); opacity: 0.7; }
         .sim-stat-card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px;
             padding: 14px 16px;
             height: 100%;
+            transition: transform 0.2s ease;
         }
+        .sim-stat-card:hover { transform: translateY(-2px); }
+        .sim-stat-card.accent-green  { border-left: 4px solid #34d399; background: linear-gradient(90deg, rgba(52,211,153,0.14), transparent); }
+        .sim-stat-card.accent-cyan   { border-left: 4px solid #00e5ff; background: linear-gradient(90deg, rgba(0,229,255,0.14), transparent); }
+        .sim-stat-card.accent-purple { border-left: 4px solid #e879f9; background: linear-gradient(90deg, rgba(232,121,249,0.14), transparent); }
+        .sim-stat-card.accent-amber  { border-left: 4px solid #fbbf24; background: linear-gradient(90deg, rgba(251,191,36,0.14), transparent); }
         .sim-stat-label {
             font-size: 0.72rem;
             text-transform: uppercase;
@@ -374,44 +357,87 @@
             margin-bottom: 4px;
         }
         .sim-stat-value { font-size: 1.15rem; font-weight: 700; }
-        .trend-rising { color: #4ade80; }
-        .trend-moderate { color: #4cd7f6; }
-        .trend-stable { color: #fbbf24; }
-        .trend-declining { color: #f87171; }
+        .trend-rising { color: #34d399; text-shadow: 0 0 12px rgba(52,211,153,0.5); }
+        .trend-moderate { color: #00e5ff; text-shadow: 0 0 12px rgba(0,229,255,0.5); }
+        .trend-stable { color: #fbbf24; text-shadow: 0 0 12px rgba(251,191,36,0.5); }
+        .trend-declining { color: #fb7185; text-shadow: 0 0 12px rgba(251,113,133,0.5); }
         .sim-chart-box {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(145deg, rgba(79,70,229,0.16) 0%, rgba(6,182,212,0.08) 100%);
+            border: 1px solid rgba(255,255,255,0.14);
             border-radius: 14px;
             padding: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
         }
+        .sim-chart-box.salary-box { border-top: 3px solid #00e5ff; box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 28px rgba(0,229,255,0.15); }
+        .sim-chart-box.demand-box { border-top: 3px solid #00e5ff; box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 28px rgba(0,229,255,0.12); }
+        .sim-chart-box.radar-box  { border-top: 3px solid #e879f9; box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 28px rgba(232,121,249,0.12); }
         .sim-chart-canvas-wrap {
             position: relative;
             width: 100%;
             height: 220px;
             overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+        .sim-chart-canvas-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+        .sim-chart-canvas-wrap.salary-bg {
+            background: linear-gradient(165deg, #0a1e38 0%, #061525 50%, #030810 100%);
+            border-color: rgba(0,229,255,0.5);
+            box-shadow: inset 0 0 70px rgba(0,229,255,0.14), inset 0 0 140px rgba(6,182,212,0.06);
+        }
+        .sim-chart-canvas-wrap.demand-bg {
+            background: linear-gradient(165deg, #0c1830 0%, #081228 50%, #040818 100%);
+            border-color: rgba(0,229,255,0.45);
+            box-shadow: inset 0 0 70px rgba(0,229,255,0.12), inset 0 0 140px rgba(99,102,241,0.08);
+        }
+        .sim-chart-canvas-wrap.radar-bg {
+            background: linear-gradient(165deg, #1a0e28 0%, #100820 50%, #080510 100%);
+            border-color: rgba(232,121,249,0.45);
+            box-shadow: inset 0 0 70px rgba(232,121,249,0.12), inset 0 0 140px rgba(167,139,250,0.08);
         }
         .sim-chart-canvas-wrap canvas {
             display: block;
             width: 100% !important;
             height: 100% !important;
+            position: relative;
+            z-index: 1;
         }
-        .sim-chart-canvas-wrap.tall {
-            height: 260px;
-        }
+        .sim-chart-canvas-wrap.tall { height: 260px; }
         .sim-chart-title {
             font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--primary);
+            font-weight: 700;
+            color: #f1f5f9;
             margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        .sim-chart-title .dot {
+            width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+        }
+        .dot-cyan   { background: #00e5ff; box-shadow: 0 0 10px #00e5ff; }
+        .dot-blue   { background: #60a5fa; box-shadow: 0 0 10px #60a5fa; }
+        .dot-pink   { background: #e879f9; box-shadow: 0 0 10px #e879f9; }
         .sim-insight {
             font-size: 0.84rem;
-            color: var(--text-secondary);
-            padding: 8px 12px;
-            background: rgba(79,70,229,0.12);
-            border-left: 3px solid var(--primary-dark);
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 8px;
+            color: #e2e8f0;
+            padding: 10px 14px;
+            background: linear-gradient(90deg, rgba(0,229,255,0.12), rgba(79,70,229,0.08));
+            border-left: 4px solid #00e5ff;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 10px;
         }
         .sim-loading {
             text-align: center;
@@ -429,19 +455,19 @@
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand text-white fw-bold fs-5" href="/">SkillOrbit</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                <ul class="navbar-nav gap-4">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto gap-4">
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link active" href="/advisor">Advisor</a></li>
                     <li class="nav-item"><a class="nav-link" href="/skill-gap">Skill Gap</a></li>
                     <li class="nav-item"><a class="nav-link" href="/resume-analyzer">Resume Analyzer</a></li>
                     <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
                 </ul>
+                <button type="button" class="btn btn-nav-login rounded-pill px-4 py-2">Login</button>
             </div>
-            <button class="btn btn-outline-custom rounded-pill px-4 py-2">Login</button>
         </div>
     </nav>
 
@@ -531,17 +557,17 @@
                         <div class="row g-3 mb-4" id="simStatsRow"></div>
                         <div class="row g-3 mb-4">
                             <div class="col-lg-7">
-                                <div class="sim-chart-box">
-                                    <div class="sim-chart-title">5-Year Salary Projection (USD)</div>
-                                    <div class="sim-chart-canvas-wrap">
+                                <div class="sim-chart-box salary-box">
+                                    <div class="sim-chart-title"><span class="dot dot-cyan"></span>5-Year Salary Projection (USD)</div>
+                                    <div class="sim-chart-canvas-wrap salary-bg">
                                         <canvas id="salaryChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-5">
-                                <div class="sim-chart-box">
-                                    <div class="sim-chart-title">Market Demand Trend</div>
-                                    <div class="sim-chart-canvas-wrap">
+                                <div class="sim-chart-box demand-box">
+                                    <div class="sim-chart-title"><span class="dot dot-blue"></span>Market Demand Trend</div>
+                                    <div class="sim-chart-canvas-wrap demand-bg">
                                         <canvas id="demandChart"></canvas>
                                     </div>
                                 </div>
@@ -549,9 +575,9 @@
                         </div>
                         <div class="row g-3">
                             <div class="col-lg-6">
-                                <div class="sim-chart-box">
-                                    <div class="sim-chart-title">Career Market Factors</div>
-                                    <div class="sim-chart-canvas-wrap tall">
+                                <div class="sim-chart-box radar-box">
+                                    <div class="sim-chart-title"><span class="dot dot-pink"></span>Career Market Factors</div>
+                                    <div class="sim-chart-canvas-wrap tall radar-bg">
                                         <canvas id="factorsChart"></canvas>
                                     </div>
                                 </div>
@@ -630,156 +656,222 @@
             return fresh;
         }
 
+        const CHART_COLORS = {
+            maxSalary: '#00e5ff',
+            midSalary: '#e879f9',
+            minSalary: '#fb923c',
+            green: '#34d399',
+            cyan: '#00e5ff',
+            amber: '#fbbf24',
+            rose: '#fb7185',
+            magenta: '#d946ef',
+            pink: '#f472b6',
+        };
+
+        const SIM_TOOLTIP = {
+            backgroundColor: 'rgba(4, 14, 30, 0.96)',
+            titleColor: '#f1f5f9',
+            bodyColor: '#cbd5e1',
+            borderWidth: 2,
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true,
+        };
+
+        const chartAreaBgPlugin = {
+            id: 'chartAreaBg',
+            beforeDraw(chart, _a, opts) {
+                const { ctx, chartArea } = chart;
+                if (!chartArea) return;
+                const { left, top, right, bottom } = chartArea;
+                ctx.save();
+                ctx.fillStyle = opts.color || 'rgba(5, 14, 30, 0.9)';
+                ctx.fillRect(left, top, right - left, bottom - top);
+                if (opts.borderColor) {
+                    ctx.strokeStyle = opts.borderColor;
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(left, top, right - left, bottom - top);
+                }
+                ctx.restore();
+            },
+        };
+
+        function makeGradient(ctx, area, stops) {
+            const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+            stops.forEach(([o, c]) => g.addColorStop(o, c));
+            return g;
+        }
+
+        function makeRadialGradient(ctx, area, inner, outer) {
+            const cx = (area.left + area.right) / 2;
+            const cy = (area.top + area.bottom) / 2;
+            const r = Math.min(area.right - area.left, area.bottom - area.top) / 2;
+            const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+            g.addColorStop(0, inner);
+            g.addColorStop(1, outer);
+            return g;
+        }
+
+        function demandTrendColors(trend) {
+            const m = {
+                Rising:    { line: '#34d399', fill: ['rgba(52,211,153,0.55)', 'rgba(52,211,153,0.04)'], point: '#6ee7b7', area: 'rgba(4,22,16,0.92)', border: 'rgba(52,211,153,0.45)' },
+                Moderate:  { line: '#00e5ff', fill: ['rgba(0,229,255,0.5)', 'rgba(0,229,255,0.04)'], point: '#67e8f9', area: 'rgba(4,16,32,0.92)', border: 'rgba(0,229,255,0.45)' },
+                Stable:    { line: '#fbbf24', fill: ['rgba(251,191,36,0.5)', 'rgba(251,191,36,0.04)'], point: '#fde047', area: 'rgba(28,18,4,0.92)', border: 'rgba(251,191,36,0.45)' },
+                Declining: { line: '#fb7185', fill: ['rgba(251,113,133,0.5)', 'rgba(251,113,133,0.04)'], point: '#fda4af', area: 'rgba(28,8,14,0.92)', border: 'rgba(251,113,133,0.45)' },
+            };
+            return m[trend] || m.Moderate;
+        }
+
         function buildSimulationCharts(data) {
             destroySimCharts();
 
             const years = data.projected_salary.map(p => p.year);
             const salaryValues = data.projected_salary.flatMap(p => [p.min, p.mid, p.max]);
-            const salaryMin = Math.floor(Math.min(...salaryValues) * 0.92);
-            const salaryMax = Math.ceil(Math.max(...salaryValues) * 1.08);
-
-            const lineChartOpts = {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: { duration: 600 },
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: {
-                        labels: { color: CHART_DEFAULTS.color, boxWidth: 12, font: { size: 11 } },
-                    },
-                },
-                scales: {
-                    x: {
-                        ticks: { color: CHART_DEFAULTS.color },
-                        grid: { color: CHART_DEFAULTS.grid },
-                    },
-                    y: {
-                        min: salaryMin,
-                        max: salaryMax,
-                        ticks: {
-                            color: CHART_DEFAULTS.color,
-                            callback: v => '$' + (v / 1000).toFixed(0) + 'K',
-                        },
-                        grid: { color: CHART_DEFAULTS.grid },
-                    },
-                },
-            };
+            const salaryMin = Math.floor(Math.min(...salaryValues) * 0.9);
+            const salaryMax = Math.ceil(Math.max(...salaryValues) * 1.1);
+            const demandColors = demandTrendColors(data.market_trend);
 
             salaryChartInst = new Chart(document.getElementById('salaryChart'), {
                 type: 'line',
+                plugins: [chartAreaBgPlugin],
                 data: {
                     labels: years,
                     datasets: [
                         {
                             label: 'Max Salary',
                             data: data.projected_salary.map(p => p.max),
-                            borderColor: '#4cd7f6',
-                            backgroundColor: 'rgba(76,215,246,0.12)',
-                            fill: true,
-                            tension: 0.35,
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
+                            borderColor: CHART_COLORS.maxSalary,
+                            backgroundColor(ctx) {
+                                const { chart } = ctx;
+                                const { ctx: c, chartArea } = chart;
+                                if (!chartArea) return 'rgba(0,229,255,0.2)';
+                                return makeGradient(c, chartArea, [[0,'rgba(0,229,255,0.55)'],[0.7,'rgba(0,229,255,0.12)'],[1,'rgba(0,229,255,0.02)']]);
+                            },
+                            fill: true, tension: 0.4, borderWidth: 3.5,
+                            pointRadius: 6, pointHoverRadius: 9,
+                            pointBackgroundColor: CHART_COLORS.maxSalary,
+                            pointBorderColor: '#fff', pointBorderWidth: 2,
                         },
                         {
                             label: 'Mid Salary',
                             data: data.projected_salary.map(p => p.mid),
-                            borderColor: '#c3c0ff',
-                            borderWidth: 2,
-                            tension: 0.35,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
+                            borderColor: CHART_COLORS.midSalary,
+                            backgroundColor: 'transparent',
+                            tension: 0.4, borderWidth: 3.5,
+                            pointRadius: 6, pointHoverRadius: 9,
+                            pointBackgroundColor: CHART_COLORS.midSalary,
+                            pointBorderColor: '#fff', pointBorderWidth: 2,
                         },
                         {
                             label: 'Min Salary',
                             data: data.projected_salary.map(p => p.min),
-                            borderColor: '#818cf8',
-                            borderDash: [5, 5],
-                            borderWidth: 2,
-                            tension: 0.35,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
+                            borderColor: CHART_COLORS.minSalary,
+                            borderDash: [7, 4], backgroundColor: 'transparent',
+                            tension: 0.4, borderWidth: 3,
+                            pointRadius: 5, pointHoverRadius: 8,
+                            pointBackgroundColor: CHART_COLORS.minSalary,
+                            pointBorderColor: '#fff', pointBorderWidth: 2,
                         },
                     ],
                 },
-                options: lineChartOpts,
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 900, easing: 'easeOutQuart' },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        chartAreaBg: { color: 'rgba(4,18,36,0.92)', borderColor: 'rgba(0,229,255,0.35)' },
+                        legend: {
+                            position: 'top', align: 'end',
+                            labels: { color: '#f1f5f9', usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 11, weight: '700' } },
+                        },
+                        tooltip: { ...SIM_TOOLTIP, borderColor: 'rgba(0,229,255,0.6)',
+                            callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toLocaleString()}` } },
+                    },
+                    scales: {
+                        x: { ticks: { color: '#e2e8f0', font: { weight: '600' } }, grid: { color: 'rgba(0,229,255,0.12)', lineWidth: 1 }, border: { display: false } },
+                        y: { min: salaryMin, max: salaryMax,
+                            ticks: { color: '#cbd5e1', callback: v => '$' + (v/1000).toFixed(0) + 'K' },
+                            grid: { color: 'rgba(148,163,184,0.28)', lineWidth: 1 }, border: { display: false } },
+                    },
+                },
             });
 
             demandChartInst = new Chart(document.getElementById('demandChart'), {
                 type: 'line',
+                plugins: [chartAreaBgPlugin],
                 data: {
                     labels: data.demand_projection.map(p => p.year),
                     datasets: [{
                         label: 'Demand Index',
                         data: data.demand_projection.map(p => p.demand_index),
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79,70,229,0.2)',
-                        fill: true,
-                        tension: 0.35,
-                        borderWidth: 2,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#4cd7f6',
-                        pointHoverRadius: 7,
+                        borderColor: demandColors.line,
+                        backgroundColor(ctx) {
+                            const { chart } = ctx;
+                            const { ctx: c, chartArea } = chart;
+                            if (!chartArea) return demandColors.fill[0];
+                            return makeGradient(c, chartArea, [[0, demandColors.fill[0]], [1, demandColors.fill[1]]]);
+                        },
+                        fill: true, tension: 0.4, borderWidth: 3.5,
+                        pointRadius: 7, pointHoverRadius: 10,
+                        pointBackgroundColor: demandColors.point,
+                        pointBorderColor: '#fff', pointBorderWidth: 2,
                     }],
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: { duration: 600 },
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 900, easing: 'easeOutQuart' },
                     plugins: {
+                        chartAreaBg: { color: demandColors.area, borderColor: demandColors.border },
                         legend: { display: false },
+                        tooltip: { ...SIM_TOOLTIP, borderColor: demandColors.border,
+                            callbacks: { label: ctx => ` Demand Index: ${ctx.parsed.y}/100` } },
                     },
                     scales: {
-                        x: {
-                            ticks: { color: CHART_DEFAULTS.color },
-                            grid: { display: false },
-                        },
-                        y: {
-                            min: 0,
-                            max: 100,
-                            ticks: { color: CHART_DEFAULTS.color },
-                            grid: { color: CHART_DEFAULTS.grid },
-                        },
+                        x: { ticks: { color: '#e2e8f0', font: { weight: '600' } }, grid: { color: 'rgba(0,229,255,0.1)', lineWidth: 1 }, border: { display: false } },
+                        y: { min: 0, max: 100,
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: 'rgba(148,163,184,0.28)', lineWidth: 1 }, border: { display: false } },
                     },
                 },
             });
 
-            const factors = data.market_factors;
+            const f = data.market_factors;
+            const radarPts = [CHART_COLORS.cyan, CHART_COLORS.magenta, CHART_COLORS.green, CHART_COLORS.amber, CHART_COLORS.pink];
             factorsChartInst = new Chart(document.getElementById('factorsChart'), {
                 type: 'radar',
+                plugins: [chartAreaBgPlugin],
                 data: {
                     labels: ['Demand', 'Salary Potential', 'Job Security', 'Growth Outlook', 'Low Competition'],
                     datasets: [{
                         label: data.career,
-                        data: [
-                            factors.demand,
-                            factors.salary_potential,
-                            factors.job_security,
-                            factors.growth_outlook,
-                            factors.competition_ease,
-                        ],
-                        backgroundColor: 'rgba(79,70,229,0.25)',
-                        borderColor: '#4f46e5',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#4cd7f6',
-                        pointRadius: 4,
+                        data: [f.demand, f.salary_potential, f.job_security, f.growth_outlook, f.competition_ease],
+                        backgroundColor(ctx) {
+                            const { chart } = ctx;
+                            const { ctx: c, chartArea } = chart;
+                            if (!chartArea) return 'rgba(232,121,249,0.4)';
+                            return makeRadialGradient(c, chartArea, 'rgba(232,121,249,0.6)', 'rgba(79,70,229,0.06)');
+                        },
+                        borderColor: CHART_COLORS.magenta, borderWidth: 3,
+                        pointBackgroundColor: radarPts, pointBorderColor: '#fff', pointBorderWidth: 2,
+                        pointRadius: 7, pointHoverRadius: 10,
                     }],
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: { duration: 600 },
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 900, easing: 'easeOutQuart' },
                     plugins: {
-                        legend: { labels: { color: CHART_DEFAULTS.color } },
+                        chartAreaBg: { color: 'rgba(20,8,32,0.92)', borderColor: 'rgba(232,121,249,0.35)' },
+                        legend: { position: 'bottom', labels: { color: '#f1f5f9', font: { weight: '700' } } },
+                        tooltip: { ...SIM_TOOLTIP, borderColor: 'rgba(232,121,249,0.5)',
+                            callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.r}/100` } },
                     },
                     scales: {
                         r: {
-                            min: 0,
-                            max: 100,
-                            ticks: { display: false, stepSize: 20 },
-                            grid: { color: CHART_DEFAULTS.grid },
-                            angleLines: { color: CHART_DEFAULTS.grid },
-                            pointLabels: { color: CHART_DEFAULTS.color, font: { size: 11 } },
+                            min: 0, max: 100,
+                            ticks: { display: true, stepSize: 25, color: 'rgba(203,213,225,0.75)', backdropColor: 'rgba(20,8,32,0.7)', font: { size: 9, weight: '600' } },
+                            grid: { color: 'rgba(167,139,250,0.35)', lineWidth: 1 },
+                            angleLines: { color: 'rgba(232,121,249,0.4)', lineWidth: 1.5 },
+                            pointLabels: { color: '#f1f5f9', font: { size: 11, weight: '700' } },
                         },
                     },
                 },
@@ -831,29 +923,27 @@
 
             document.getElementById('simStatsRow').innerHTML = `
                 <div class="col-6 col-md-3">
-                    <div class="sim-stat-card">
+                    <div class="sim-stat-card accent-green">
                         <div class="sim-stat-label">Market Trend</div>
                         <div class="sim-stat-value ${trendClass}">${data.market_trend}</div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="sim-stat-card">
+                    <div class="sim-stat-card accent-cyan">
                         <div class="sim-stat-label">Salary Range</div>
-                        <div class="sim-stat-value" style="font-size:0.95rem;">
-                            ${fmtSalary(cur.min)} – ${fmtSalary(cur.max)}
-                        </div>
+                        <div class="sim-stat-value" style="font-size:0.95rem; color:#67e8f9;">${fmtSalary(cur.min)} – ${fmtSalary(cur.max)}</div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="sim-stat-card">
+                    <div class="sim-stat-card accent-purple">
                         <div class="sim-stat-label">Annual Salary Growth</div>
-                        <div class="sim-stat-value" style="color:var(--secondary);">+${data.salary_growth_rate}%</div>
+                        <div class="sim-stat-value" style="color:#e879f9;">+${data.salary_growth_rate}%</div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="sim-stat-card">
+                    <div class="sim-stat-card accent-amber">
                         <div class="sim-stat-label">Market Outlook</div>
-                        <div class="sim-stat-value" style="color:var(--primary);">${outlook}/100</div>
+                        <div class="sim-stat-value" style="color:#fde047;">${outlook}/100</div>
                     </div>
                 </div>`;
 
