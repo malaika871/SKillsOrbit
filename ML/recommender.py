@@ -20,6 +20,8 @@ def get_matches(user_skills_string, top_n=5):
     top = df.sort_values("score", ascending=False).head(top_n)
     results = []
     for _, row in top.iterrows():
+        market_trend = row["market_trend"] if "market_trend" in row and pd.notna(row["market_trend"]) else "Moderate"
+        growth_rate = row["salary_growth_rate"] if "salary_growth_rate" in row and pd.notna(row["salary_growth_rate"]) else 5.0
         results.append({
             "career": row["career_title"],
             "score": round(float(row["score"]) * 100, 1),
@@ -27,6 +29,10 @@ def get_matches(user_skills_string, top_n=5):
             "salary_min": row["salary_min"],
             "salary_max": row["salary_max"],
             "demand_level": row["demand_level"],
-            "job_type": row["job_type"]
+            "job_type": row["job_type"],
+            "market_trend": market_trend,
+            "salary_growth_rate": float(growth_rate),
+            "automation_risk": row.get("automation_risk"),
+            "competition_level": row.get("competition_level"),
         })
     return results

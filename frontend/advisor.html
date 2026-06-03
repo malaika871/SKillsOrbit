@@ -344,6 +344,80 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Simulation Modal */
+        .sim-modal .modal-content {
+            background: #12182b;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 18px;
+            color: var(--text-primary);
+        }
+        .sim-modal { z-index: 1060; }
+        .sim-modal .modal-header {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 1.25rem 1.5rem;
+        }
+        .sim-modal .modal-body { padding: 1.25rem 1.5rem 1.5rem; }
+        .sim-modal .btn-close { filter: invert(1); opacity: 0.7; }
+        .sim-stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 14px 16px;
+            height: 100%;
+        }
+        .sim-stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .sim-stat-value { font-size: 1.15rem; font-weight: 700; }
+        .trend-rising { color: #4ade80; }
+        .trend-moderate { color: #4cd7f6; }
+        .trend-stable { color: #fbbf24; }
+        .trend-declining { color: #f87171; }
+        .sim-chart-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 16px;
+        }
+        .sim-chart-canvas-wrap {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+        }
+        .sim-chart-canvas-wrap canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .sim-chart-canvas-wrap.tall {
+            height: 260px;
+        }
+        .sim-chart-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+        .sim-insight {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            background: rgba(79,70,229,0.12);
+            border-left: 3px solid var(--primary-dark);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 8px;
+        }
+        .sim-loading {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -437,6 +511,64 @@
         </div>
     </footer>
 
+    <!-- Career Simulation Modal -->
+    <div class="modal fade sim-modal" id="simulationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title fw-bold mb-1" id="simModalTitle">Career Market Simulation</h5>
+                        <p class="mb-0" style="color:var(--text-secondary); font-size:0.85rem;" id="simModalSubtitle"></p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="sim-loading" id="simLoading">
+                        <div class="spinner-border text-primary mb-3" role="status"></div>
+                        <p class="mb-0">Loading market trends and salary projections…</p>
+                    </div>
+                    <div id="simContent" class="d-none">
+                        <div class="row g-3 mb-4" id="simStatsRow"></div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-lg-7">
+                                <div class="sim-chart-box">
+                                    <div class="sim-chart-title">5-Year Salary Projection (USD)</div>
+                                    <div class="sim-chart-canvas-wrap">
+                                        <canvas id="salaryChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="sim-chart-box">
+                                    <div class="sim-chart-title">Market Demand Trend</div>
+                                    <div class="sim-chart-canvas-wrap">
+                                        <canvas id="demandChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-lg-6">
+                                <div class="sim-chart-box">
+                                    <div class="sim-chart-title">Career Market Factors</div>
+                                    <div class="sim-chart-canvas-wrap tall">
+                                        <canvas id="factorsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="sim-chart-box">
+                                    <div class="sim-chart-title">Market Insights</div>
+                                    <div id="simInsights"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -448,6 +580,288 @@
         let skills = [];
         let currentMatches = [];
         let currentUserSkills = [];
+        let salaryChartInst = null;
+        let demandChartInst = null;
+        let factorsChartInst = null;
+        let simModal = null;
+
+        const TREND_CLASS = {
+            Rising: 'trend-rising',
+            Moderate: 'trend-moderate',
+            Stable: 'trend-stable',
+            Declining: 'trend-declining',
+        };
+
+        const CHART_DEFAULTS = {
+            color: '#c7c4d8',
+            grid: 'rgba(255,255,255,0.06)',
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('simulationModal');
+            if (el) simModal = new bootstrap.Modal(el);
+
+            document.getElementById('results-container').addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn-simulate');
+                if (!btn) return;
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-match-index'), 10);
+                const match = currentMatches[idx];
+                if (match) openCareerSimulation(match.career, match.score);
+            });
+        });
+
+        function fmtSalary(n) {
+            return '$' + Math.round(n).toLocaleString();
+        }
+
+        function destroySimCharts() {
+            [salaryChartInst, demandChartInst, factorsChartInst].forEach(c => c?.destroy());
+            salaryChartInst = demandChartInst = factorsChartInst = null;
+            ['salaryChart', 'demandChart', 'factorsChart'].forEach(resetChartCanvas);
+        }
+
+        function resetChartCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || !canvas.parentNode) return null;
+            const fresh = document.createElement('canvas');
+            fresh.id = canvasId;
+            canvas.parentNode.replaceChild(fresh, canvas);
+            return fresh;
+        }
+
+        function buildSimulationCharts(data) {
+            destroySimCharts();
+
+            const years = data.projected_salary.map(p => p.year);
+            const salaryValues = data.projected_salary.flatMap(p => [p.min, p.mid, p.max]);
+            const salaryMin = Math.floor(Math.min(...salaryValues) * 0.92);
+            const salaryMax = Math.ceil(Math.max(...salaryValues) * 1.08);
+
+            const lineChartOpts = {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 600 },
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        labels: { color: CHART_DEFAULTS.color, boxWidth: 12, font: { size: 11 } },
+                    },
+                },
+                scales: {
+                    x: {
+                        ticks: { color: CHART_DEFAULTS.color },
+                        grid: { color: CHART_DEFAULTS.grid },
+                    },
+                    y: {
+                        min: salaryMin,
+                        max: salaryMax,
+                        ticks: {
+                            color: CHART_DEFAULTS.color,
+                            callback: v => '$' + (v / 1000).toFixed(0) + 'K',
+                        },
+                        grid: { color: CHART_DEFAULTS.grid },
+                    },
+                },
+            };
+
+            salaryChartInst = new Chart(document.getElementById('salaryChart'), {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Max Salary',
+                            data: data.projected_salary.map(p => p.max),
+                            borderColor: '#4cd7f6',
+                            backgroundColor: 'rgba(76,215,246,0.12)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                        },
+                        {
+                            label: 'Mid Salary',
+                            data: data.projected_salary.map(p => p.mid),
+                            borderColor: '#c3c0ff',
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                        },
+                        {
+                            label: 'Min Salary',
+                            data: data.projected_salary.map(p => p.min),
+                            borderColor: '#818cf8',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                        },
+                    ],
+                },
+                options: lineChartOpts,
+            });
+
+            demandChartInst = new Chart(document.getElementById('demandChart'), {
+                type: 'line',
+                data: {
+                    labels: data.demand_projection.map(p => p.year),
+                    datasets: [{
+                        label: 'Demand Index',
+                        data: data.demand_projection.map(p => p.demand_index),
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79,70,229,0.2)',
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#4cd7f6',
+                        pointHoverRadius: 7,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 600 },
+                    plugins: {
+                        legend: { display: false },
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: CHART_DEFAULTS.color },
+                            grid: { display: false },
+                        },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: { color: CHART_DEFAULTS.color },
+                            grid: { color: CHART_DEFAULTS.grid },
+                        },
+                    },
+                },
+            });
+
+            const factors = data.market_factors;
+            factorsChartInst = new Chart(document.getElementById('factorsChart'), {
+                type: 'radar',
+                data: {
+                    labels: ['Demand', 'Salary Potential', 'Job Security', 'Growth Outlook', 'Low Competition'],
+                    datasets: [{
+                        label: data.career,
+                        data: [
+                            factors.demand,
+                            factors.salary_potential,
+                            factors.job_security,
+                            factors.growth_outlook,
+                            factors.competition_ease,
+                        ],
+                        backgroundColor: 'rgba(79,70,229,0.25)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4cd7f6',
+                        pointRadius: 4,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 600 },
+                    plugins: {
+                        legend: { labels: { color: CHART_DEFAULTS.color } },
+                    },
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: { display: false, stepSize: 20 },
+                            grid: { color: CHART_DEFAULTS.grid },
+                            angleLines: { color: CHART_DEFAULTS.grid },
+                            pointLabels: { color: CHART_DEFAULTS.color, font: { size: 11 } },
+                        },
+                    },
+                },
+            });
+        }
+
+        async function openCareerSimulation(careerName, matchScore) {
+            if (!simModal) {
+                simModal = new bootstrap.Modal(document.getElementById('simulationModal'));
+            }
+
+            document.getElementById('simModalTitle').textContent = 'Career Market Simulation';
+            document.getElementById('simModalSubtitle').textContent = `Projections for ${careerName}`;
+            document.getElementById('simLoading').classList.remove('d-none');
+            document.getElementById('simContent').classList.add('d-none');
+            destroySimCharts();
+            simModal.show();
+
+            try {
+                const res = await fetch('/api/career-simulation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ career: careerName, match_score: matchScore }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Simulation failed');
+
+                renderSimulationModal(data);
+                document.getElementById('simLoading').classList.add('d-none');
+                document.getElementById('simContent').classList.remove('d-none');
+
+                // Charts must render after modal content is visible (fixed height)
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => buildSimulationCharts(data));
+                });
+            } catch (err) {
+                simModal.hide();
+                alert('Simulation error: ' + err.message);
+            }
+        }
+
+        function renderSimulationModal(data) {
+            const trendClass = TREND_CLASS[data.market_trend] || 'trend-stable';
+            const outlook = data.metrics.market_outlook_score;
+            const cur = data.current_salary;
+
+            document.getElementById('simModalSubtitle').textContent =
+                `${data.career} · ${data.job_type} · ${data.match_score ?? '—'}% skill match`;
+
+            document.getElementById('simStatsRow').innerHTML = `
+                <div class="col-6 col-md-3">
+                    <div class="sim-stat-card">
+                        <div class="sim-stat-label">Market Trend</div>
+                        <div class="sim-stat-value ${trendClass}">${data.market_trend}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="sim-stat-card">
+                        <div class="sim-stat-label">Salary Range</div>
+                        <div class="sim-stat-value" style="font-size:0.95rem;">
+                            ${fmtSalary(cur.min)} – ${fmtSalary(cur.max)}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="sim-stat-card">
+                        <div class="sim-stat-label">Annual Salary Growth</div>
+                        <div class="sim-stat-value" style="color:var(--secondary);">+${data.salary_growth_rate}%</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="sim-stat-card">
+                        <div class="sim-stat-label">Market Outlook</div>
+                        <div class="sim-stat-value" style="color:var(--primary);">${outlook}/100</div>
+                    </div>
+                </div>`;
+
+            document.getElementById('simInsights').innerHTML =
+                (data.insights || []).map(t => `<div class="sim-insight">${t}</div>`).join('');
+        }
+
+        window.openCareerSimulation = openCareerSimulation;
 
         // Render skill tags
         function renderTags() {
@@ -590,8 +1004,8 @@
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2" onclick="viewRoadmap('${match.career}')">View Roadmap</button>
-                            <button class="btn btn-outline-custom rounded-pill flex-grow-1 py-2">Simulate</button>
+                            <button type="button" class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2" onclick="viewRoadmap('${match.career.replace(/'/g, "\\'")}')">View Roadmap</button>
+                            <button type="button" class="btn btn-outline-custom rounded-pill flex-grow-1 py-2 btn-simulate" data-match-index="${index}">Simulate</button>
                         </div>
                     </div>
                 `;

@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from ML.recommender import get_matches
 from ML.skill_gap import get_skill_gap, get_detailed_skill_gap, prioritize_skills
 from ML.roadmap_generator import get_all_careers, generate_roadmap, get_roadmap_for_skill_level
+from ML.career_simulator import simulate_career
 from resume_analyzer import SkillExtractor, PetriNet
 
 _extractor = SkillExtractor()
@@ -194,6 +195,26 @@ def petri_simulate():
     try:
         net = PetriNet()
         result = net.simulate_all()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/career-simulation", methods=["POST"])
+def career_simulation():
+    """API endpoint for market trend and salary simulation for a career."""
+    try:
+        data = request.get_json() or {}
+        career = data.get("career", "")
+        match_score = data.get("match_score")
+
+        if not career:
+            return jsonify({"error": "Career name is required"}), 400
+
+        result = simulate_career(career, match_score=match_score)
+        if not result:
+            return jsonify({"error": f"Career '{career}' not found"}), 404
+
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
