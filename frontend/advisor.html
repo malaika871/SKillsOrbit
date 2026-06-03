@@ -462,7 +462,6 @@
                 <ul class="navbar-nav mx-auto gap-4">
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link active" href="/advisor">Advisor</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/skill-gap">Skill Gap</a></li>
                     <li class="nav-item"><a class="nav-link" href="/resume-analyzer">Resume Analyzer</a></li>
                     <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
                 </ul>
@@ -1093,9 +1092,15 @@
                             <span class="text-secondary ms-2">• ${match.job_type}</span>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2" onclick="viewRoadmap('${match.career.replace(/'/g, "\\'")}')">View Roadmap</button>
-                            <button type="button" class="btn btn-outline-custom rounded-pill flex-grow-1 py-2 btn-simulate" data-match-index="${index}">Simulate</button>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary-gradient rounded-pill flex-grow-1 py-2" onclick="viewRoadmap('${match.career.replace(/'/g, "\\'")}')">View Roadmap</button>
+                                <button type="button" class="btn btn-outline-custom rounded-pill flex-grow-1 py-2 btn-simulate" data-match-index="${index}">Simulate</button>
+                            </div>
+                            <button type="button" class="btn btn-outline-custom rounded-pill w-100 py-2" onclick="showDetailedSkillGap(event, ${index})">
+                                <span class="material-symbols-outlined sm me-1">analytics</span>
+                                Skill Gap Analysis
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1105,39 +1110,6 @@
 
             matchesSection.appendChild(row);
             resultsContainer.appendChild(matchesSection);
-
-            // Add skill gap section if there's a top match
-            if (matches.length > 0) {
-                const topMatch = matches[0];
-                const userSkillsLower = userSkills.map(s => s.toLowerCase());
-                const missingSkills = topMatch.required_skills.filter(skill =>
-                    !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
-                );
-
-                if (missingSkills.length > 0) {
-                    const gapSection = document.createElement('div');
-                    gapSection.className = 'glass-card rounded p-4';
-                    gapSection.innerHTML = `
-                        <div class="d-flex align-items-start gap-3">
-                            <span class="material-symbols-outlined" style="color: var(--error); font-size: 32px;">warning</span>
-                            <div class="flex-grow-1">
-                                <h5 class="fw-semibold mb-2">You are missing ${missingSkills.length} skill${missingSkills.length > 1 ? 's' : ''} for your top match</h5>
-                                <p class="mb-3" style="color: var(--text-secondary);">
-                                    Focus on these skills to increase your match score for ${topMatch.career}.
-                                </p>
-                                <div class="mb-3">
-                                    ${missingSkills.slice(0, 5).map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
-                                </div>
-                                <a href="#" class="text-decoration-none" style="color: var(--secondary);" onclick="showDetailedSkillGap(event)">
-                                    View Full Skill Gap Analysis
-                                    <span class="material-symbols-outlined sm">arrow_forward</span>
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                    resultsContainer.appendChild(gapSection);
-                }
-            }
         }
 
         // Analyze button
@@ -1216,8 +1188,8 @@
             window.location.href = '/roadmap';
         }
 
-        // Show detailed skill gap analysis
-        function showDetailedSkillGap(event) {
+        // Show detailed skill gap analysis with all features
+        async function showDetailedSkillGap(event, matchIndex = 0) {
             event.preventDefault();
 
             if (currentMatches.length === 0) {
@@ -1225,96 +1197,123 @@
                 return;
             }
 
-            const topMatch = currentMatches[0];
+            const selectedMatch = currentMatches[matchIndex];
+            const allCareerMatches = currentMatches;
             const userSkillsLower = currentUserSkills.map(s => s.toLowerCase());
-
-            // Calculate all missing skills
-            const allMissingSkills = topMatch.required_skills.filter(skill =>
-                !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
-            );
-
-            // Calculate matching skills
-            const matchingSkills = topMatch.required_skills.filter(skill =>
-                userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
-            );
 
             // Create detailed modal content
             const modalHTML = `
                 <div id="skillGapModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="closeSkillGapModal()">
-                    <div class="glass-card rounded p-4" style="max-width: 900px; max-height: 90vh; overflow-y: auto; width: 100%;" onclick="event.stopPropagation()">
+                    <div class="glass-card rounded p-4" style="max-width: 1000px; max-height: 95vh; overflow-y: auto; width: 100%;" onclick="event.stopPropagation()">
                         <div class="d-flex justify-content-between align-items-start mb-4">
                             <div>
+                                <div class="d-inline-flex align-items-center gap-2 mb-2" style="background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.3); border-radius: 20px; padding: 6px 16px;">
+                                    <span class="material-symbols-outlined sm" style="color: var(--primary);">analytics</span>
+                                    <span style="font-size: 13px; color: var(--primary);">AI-Powered Analysis</span>
+                                </div>
                                 <h4 class="fw-bold mb-2">Skill Gap Analysis</h4>
-                                <p class="mb-0" style="color: var(--text-secondary);">For ${topMatch.career}</p>
+                                <p class="mb-0" style="color: var(--text-secondary);">For ${selectedMatch.career}</p>
                             </div>
-                            <button onclick="closeSkillGapModal()" class="btn btn-outline-custom btn-sm rounded-pill">Close</button>
-                        </div>
-
-                        <!-- Chart Visualization -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="glass-card rounded p-3 mb-3" style="background: rgba(255, 255, 255, 0.03);">
-                                    <h6 class="fw-semibold mb-3 text-center">Overall Match</h6>
-                                    <canvas id="skillGapDoughnut" style="max-height: 250px;"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="glass-card rounded p-3 mb-3" style="background: rgba(255, 255, 255, 0.03);">
-                                    <h6 class="fw-semibold mb-3 text-center">Skill Comparison</h6>
-                                    <canvas id="skillGapBar" style="max-height: 250px;"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Progress Overview -->
-                        <div class="glass-card rounded p-3 mb-4" style="background: rgba(255, 255, 255, 0.03);">
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <h3 class="fw-bold mb-1" style="color: var(--success);">${matchingSkills.length}</h3>
-                                    <small style="color: var(--text-secondary);">Skills Matched</small>
-                                </div>
-                                <div class="col-4">
-                                    <h3 class="fw-bold mb-1" style="color: var(--error);">${allMissingSkills.length}</h3>
-                                    <small style="color: var(--text-secondary);">Skills Needed</small>
-                                </div>
-                                <div class="col-4">
-                                    <h3 class="fw-bold mb-1" style="color: var(--secondary);">${topMatch.score}%</h3>
-                                    <small style="color: var(--text-secondary);">Match Score</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Your Skills -->
-                        <div class="mb-4">
-                            <h6 class="fw-semibold mb-3">✅ Skills You Have (${matchingSkills.length})</h6>
-                            <div>
-                                ${matchingSkills.map(skill => `<span class="skill-chip skill-chip-match">${skill}</span>`).join('')}
-                            </div>
-                        </div>
-
-                        <!-- Missing Skills -->
-                        <div class="mb-4">
-                            <h6 class="fw-semibold mb-3">📚 Skills to Learn (${allMissingSkills.length})</h6>
-                            <div>
-                                ${allMissingSkills.map(skill => `<span class="skill-chip skill-chip-missing">${skill}</span>`).join('')}
-                            </div>
-                        </div>
-
-                        <!-- Recommendations -->
-                        <div class="glass-card rounded p-3" style="background: rgba(76, 215, 246, 0.1); border-color: var(--secondary);">
-                            <h6 class="fw-semibold mb-2">💡 Recommendations</h6>
-                            <ul class="mb-0" style="color: var(--text-secondary); font-size: 14px;">
-                                <li>Focus on learning the most in-demand skills first</li>
-                                <li>Consider taking online courses or certifications</li>
-                                <li>Build projects to practice these skills</li>
-                                <li>Join communities to learn from experts</li>
-                            </ul>
-                        </div>
-
-                        <div class="mt-4 text-center">
-                            <button onclick="viewRoadmap('${topMatch.career}')" class="btn btn-primary-gradient rounded-pill px-4 py-2">
-                                View Learning Roadmap
+                            <button onclick="closeSkillGapModal()" class="btn btn-outline-custom btn-sm rounded-pill">
+                                <span class="material-symbols-outlined sm">close</span>
                             </button>
+                        </div>
+
+                        <!-- Loading overlay -->
+                        <div id="skillGapLoading" class="text-center py-5">
+                            <div class="spinner-border text-primary mb-3" role="status"></div>
+                            <p style="color: var(--text-secondary);">Calculating your detailed skill gap...</p>
+                        </div>
+
+                        <!-- Results container (hidden initially) -->
+                        <div id="skillGapResults" class="d-none">
+                            <!-- Header Stats -->
+                            <div class="glass-card rounded p-3 mb-4" style="background: rgba(255,255,255,0.03);">
+                                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3" id="skillGapHeader">
+                                </div>
+                            </div>
+
+                            <!-- Charts -->
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="glass-card rounded p-3 h-100">
+                                        <h6 class="fw-semibold mb-3 text-center">Match Overview</h6>
+                                        <div style="max-height: 220px; position: relative;">
+                                            <canvas id="skillGapDoughnut"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="glass-card rounded p-3 h-100">
+                                        <h6 class="fw-semibold mb-3 text-center">Skill Profile</h6>
+                                        <div style="max-height: 220px; position: relative;">
+                                            <canvas id="skillGapRadar"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Skills Count Bar Chart -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="glass-card rounded p-3">
+                                        <h6 class="fw-semibold mb-3 text-center">Matched vs Missing Skills</h6>
+                                        <div style="max-height: 200px; position: relative;">
+                                            <canvas id="skillGapBarChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Skills Breakdown -->
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="glass-card rounded p-3 h-100">
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <span class="material-symbols-outlined sm" style="color: var(--success);">check_circle</span>
+                                            <h6 class="fw-semibold mb-0">Skills You Have</h6>
+                                            <span id="skillGapMatchCount" class="badge" style="background: rgba(166,244,197,0.2); color: var(--success); border: 1px solid rgba(166,244,197,0.3); border-radius: 20px; padding: 3px 9px; font-size: 11px; font-weight: 700;">0</span>
+                                        </div>
+                                        <div id="skillGapMatchedSkills"></div>
+                                        <div id="skillGapPartialSection" class="mt-3 d-none">
+                                            <small style="color: var(--text-secondary); font-size: 12px;" class="d-block mb-2">Partial matches (related skills):</small>
+                                            <div id="skillGapPartialSkills"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="glass-card rounded p-3 h-100">
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <span class="material-symbols-outlined sm" style="color: var(--error);">close</span>
+                                            <h6 class="fw-semibold mb-0">Skills to Learn</h6>
+                                            <span id="skillGapMissingCount" class="badge" style="background: rgba(255,217,102,0.15); color: var(--warning); border: 1px solid rgba(255,217,102,0.25); border-radius: 20px; padding: 3px 9px; font-size: 11px; font-weight: 700;">0</span>
+                                        </div>
+                                        <div id="skillGapMissingSkills"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- Recommendations -->
+                            <div class="glass-card rounded p-3 mb-4" id="skillGapRecSection">
+                                <div class="d-flex align-items-center gap-2 mb-4">
+                                    <span class="material-symbols-outlined" style="color: var(--secondary);">lightbulb</span>
+                                    <h6 class="fw-bold mb-0">Personalized Recommendations</h6>
+                                </div>
+                                <div id="skillGapRecList"></div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                                <button onclick="viewRoadmap('${selectedMatch.career}')" class="btn btn-primary-gradient rounded-pill px-4 py-2">
+                                    <span class="material-symbols-outlined sm me-1">map</span>
+                                    View Full Roadmap
+                                </button>
+                                <button onclick="exportSkillGapReport()" class="btn btn-outline-custom rounded-pill px-4 py-2">
+                                    <span class="material-symbols-outlined sm me-1">download</span>
+                                    Export Report
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1323,155 +1322,371 @@
             // Append modal to body
             document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-            // Wait for DOM to render, then create charts
-            setTimeout(() => {
-                createSkillGapCharts(matchingSkills.length, allMissingSkills.length, topMatch.score);
-            }, 100);
+            // Now fetch the detailed analysis from the backend
+            try {
+                // 1. Get detailed skill gap analysis
+                const gapRes = await fetch('/api/skill-gap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_skills: currentUserSkills,
+                        career_match: selectedMatch
+                    })
+                });
+                if (!gapRes.ok) throw new Error(`Skill gap API error ${gapRes.status}`);
+                const gapData = await gapRes.json();
+
+                // 2. Prioritize missing skills
+                let prioritizedSkills = [];
+                if (gapData.missing_skills && gapData.missing_skills.length > 0) {
+                    try {
+                        const prioRes = await fetch('/api/prioritize-skills', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                missing_skills: gapData.missing_skills,
+                                career_matches: allCareerMatches
+                            })
+                        });
+                        if (prioRes.ok) {
+                            const prioData = await prioRes.json();
+                            prioritizedSkills = prioData.prioritized_skills || [];
+                        }
+                    } catch (e) {
+                        console.warn('Priority endpoint failed, falling back.', e);
+                        prioritizedSkills = gapData.missing_skills.map(s => ({ skill: s, frequency: 1 }));
+                    }
+                }
+
+                // Store for export
+                window.currentSkillGapData = { gapData, prioritizedSkills, career: selectedMatch.career, userSkills: currentUserSkills };
+
+                // Hide loading, show results
+                document.getElementById('skillGapLoading').classList.add('d-none');
+                document.getElementById('skillGapResults').classList.remove('d-none');
+
+                // Render everything
+                renderEnhancedSkillGapResults(gapData, prioritizedSkills);
+
+            } catch (err) {
+                console.error(err);
+                alert(`Analysis failed: ${err.message}. Is the backend running?`);
+                closeSkillGapModal();
+            }
         }
 
-        // Global variable to track chart instances
-        let skillGapChartInstances = [];
 
-        // Create skill gap visualization charts
-        function createSkillGapCharts(matchedCount, missingCount, matchScore) {
-            // Destroy previous chart instances if they exist
-            skillGapChartInstances.forEach(chart => {
-                if (chart) chart.destroy();
-            });
-            skillGapChartInstances = [];
 
-            const totalSkills = matchedCount + missingCount;
-            const missingPercentage = ((missingCount / totalSkills) * 100).toFixed(1);
-
-            // Doughnut Chart - Overall Match
-            const doughnutCtx = document.getElementById('skillGapDoughnut');
-            if (doughnutCtx) {
-                const doughnutChart = new Chart(doughnutCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Skills Matched', 'Skills Missing'],
-                        datasets: [{
-                            data: [matchedCount, missingCount],
-                            backgroundColor: [
-                                'rgba(166, 244, 197, 0.8)',  // success color
-                                'rgba(255, 180, 171, 0.8)'   // error color
-                            ],
-                            borderColor: [
-                                'rgba(166, 244, 197, 1)',
-                                'rgba(255, 180, 171, 1)'
-                            ],
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    color: '#dfe3e7',
-                                    padding: 15,
-                                    font: {
-                                        size: 12
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(27, 32, 35, 0.95)',
-                                titleColor: '#dfe3e7',
-                                bodyColor: '#c7c4d8',
-                                borderColor: 'rgba(255, 255, 255, 0.1)',
-                                borderWidth: 1,
-                                padding: 12,
-                                displayColors: true,
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed || 0;
-                                        const percentage = ((value / totalSkills) * 100).toFixed(1);
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
+        // Build horizontal bar chart for matched vs missing skills
+        function buildSkillGapBarChart(matched, missing) {
+            const ctx = document.getElementById('skillGapBarChart');
+            if (!ctx) return;
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Matched Skills', 'Missing Skills'],
+                    datasets: [{
+                        label: 'Count',
+                        data: [matched, missing],
+                        backgroundColor: [
+                            'rgba(166, 244, 197, 0.8)',
+                            'rgba(255, 180, 171, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(166, 244, 197, 1)',
+                            'rgba(255, 180, 171, 1)'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // makes it horizontal
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(27,32,35,0.95)',
+                            titleColor: '#dfe3e7',
+                            bodyColor: '#c7c4d8',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1
                         }
-                    }
-                });
-                skillGapChartInstances.push(doughnutChart);
-            }
-
-            // Bar Chart - Skill Comparison
-            const barCtx = document.getElementById('skillGapBar');
-            if (barCtx) {
-                const barChart = new Chart(barCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Skills You Have', 'Skills to Learn', 'Total Required'],
-                        datasets: [{
-                            label: 'Skill Count',
-                            data: [matchedCount, missingCount, totalSkills],
-                            backgroundColor: [
-                                'rgba(166, 244, 197, 0.8)',  // success
-                                'rgba(255, 180, 171, 0.8)',  // error
-                                'rgba(76, 215, 246, 0.8)'    // secondary
-                            ],
-                            borderColor: [
-                                'rgba(166, 244, 197, 1)',
-                                'rgba(255, 180, 171, 1)',
-                                'rgba(76, 215, 246, 1)'
-                            ],
-                            borderWidth: 2,
-                            borderRadius: 6
-                        }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    color: '#dfe3e7',
-                                    stepSize: 1,
-                                    font: {
-                                        size: 11
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)',
-                                    drawBorder: false
-                                }
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#c7c4d8',
+                                font: { size: 12 }
                             },
-                            x: {
-                                ticks: {
-                                    color: '#dfe3e7',
-                                    font: {
-                                        size: 11
-                                    }
-                                },
-                                grid: {
-                                    display: false
-                                }
+                            grid: {
+                                color: 'rgba(255,255,255,0.1)'
                             }
                         },
-                        plugins: {
-                            legend: {
-                                display: false
+                        y: {
+                            ticks: {
+                                color: '#c7c4d8',
+                                font: { size: 12 }
                             },
-                            tooltip: {
-                                backgroundColor: 'rgba(27, 32, 35, 0.95)',
-                                titleColor: '#dfe3e7',
-                                bodyColor: '#c7c4d8',
-                                borderColor: 'rgba(255, 255, 255, 0.1)',
-                                borderWidth: 1,
-                                padding: 12,
-                                displayColors: false
+                            grid: {
+                                display: false
                             }
                         }
                     }
-                });
-                skillGapChartInstances.push(barChart);
+                }
+            });
+            window.gapChartInstances.push(chart);
+        }
+
+        // Render enhanced skill gap results
+        function renderEnhancedSkillGapResults(gapData, prioritizedSkills) {
+            const { exact_matches, partial_matches, missing_skills, match_percentage, total_required, matched_count, career } = gapData;
+            window.gapChartInstances = [];
+
+            // Header stats
+            const scoreColor = match_percentage >= 75 ? 'var(--success)' : match_percentage >= 50 ? 'var(--secondary)' : 'var(--warning)';
+            document.getElementById('skillGapHeader').innerHTML = `
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="material-symbols-outlined sm" style="color: var(--secondary);">work</span>
+                        <span style="color: var(--text-secondary); font-size: 13px;">Target Career</span>
+                    </div>
+                    <h4 class="fw-bold mb-0">${career}</h4>
+                </div>
+                <div class="d-flex gap-3 flex-wrap justify-content-center">
+                    <div style="text-align: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); min-width: 80px;">
+                        <div style="font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: var(--success);">${exact_matches.length}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Matched</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); min-width: 80px;">
+                        <div style="font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: var(--warning);">${partial_matches.length}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Partial</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); min-width: 80px;">
+                        <div style="font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: var(--error);">${missing_skills.length}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Missing</div>
+                    </div>
+                    <div style="text-align: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); min-width: 80px;">
+                        <div style="font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: ${scoreColor};">${match_percentage}%</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Match</div>
+                    </div>
+                </div>
+            `;
+
+            // Charts
+            setTimeout(() => {
+                buildEnhancedDoughnutChart(exact_matches.length, partial_matches.length, missing_skills.length);
+                buildEnhancedRadarChart(exact_matches.length, partial_matches.length, missing_skills.length, total_required, match_percentage);
+                buildSkillGapBarChart(exact_matches.length, missing_skills.length);
+            }, 100);
+
+            // Matched skills
+            const matchedDiv = document.getElementById('skillGapMatchedSkills');
+            document.getElementById('skillGapMatchCount').textContent = exact_matches.length;
+            if (exact_matches.length > 0) {
+                matchedDiv.innerHTML = exact_matches.map(s => `<span class="skill-chip skill-chip-match">${s}</span>`).join('');
+            } else {
+                matchedDiv.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">No exact skill matches found.</p>';
             }
+
+            // Partial matches
+            const partialSection = document.getElementById('skillGapPartialSection');
+            const partialDiv = document.getElementById('skillGapPartialSkills');
+            if (partial_matches.length > 0) {
+                partialSection.classList.remove('d-none');
+                partialDiv.innerHTML = partial_matches.map(s => `<span class="skill-chip" style="background: rgba(255,217,102,0.12); border: 1px solid rgba(255,217,102,0.25); color: var(--warning);">${s}</span>`).join('');
+            } else {
+                partialSection.classList.add('d-none');
+            }
+
+            // Missing skills
+            const missingDiv = document.getElementById('skillGapMissingSkills');
+            document.getElementById('skillGapMissingCount').textContent = missing_skills.length;
+            if (missing_skills.length > 0) {
+                missingDiv.innerHTML = missing_skills.map(s => `<span class="skill-chip skill-chip-missing">${s}</span>`).join('');
+            } else {
+                missingDiv.innerHTML = '<p style="color: var(--success); font-size: 13px;">🎉 You have all the required skills!</p>';
+            }
+
+            // Personalized recommendations
+            const recList = document.getElementById('skillGapRecList');
+            const recs = generateSkillGapRecommendations(gapData, prioritizedSkills);
+            recList.innerHTML = recs.map(r => `
+                <div class="d-flex gap-3 p-3 mb-2 rounded" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: ${r.bg};">${r.icon}</div>
+                    <div>
+                        <div class="fw-semibold" style="font-size: 14px; margin-bottom: 2px;">${r.title}</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">${r.body}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Generate skill gap recommendations
+        function generateSkillGapRecommendations(gapData, prioritizedSkills) {
+            const { match_percentage, missing_skills, exact_matches, career } = gapData;
+            const recs = [];
+
+            if (match_percentage >= 75) {
+                recs.push({ icon: '🚀', bg: 'rgba(166,244,197,0.15)', title: 'You\'re almost ready!', body: `With a ${match_percentage}% match, you can start applying for ${career} roles. Polish your portfolio to stand out.` });
+            } else if (match_percentage >= 50) {
+                recs.push({ icon: '📈', bg: 'rgba(195,192,255,0.15)', title: 'Strong foundation detected', body: `You have solid skills. Closing ${missing_skills.length} skill gap${missing_skills.length !== 1 ? 's' : ''} could significantly boost your employability for ${career}.` });
+            } else {
+                recs.push({ icon: '🎯', bg: 'rgba(255,217,102,0.15)', title: 'Focus your learning', body: `Start with the top-priority skills above. Dedicate 2-3 months to the most critical ones before applying for ${career} positions.` });
+            }
+
+            if (prioritizedSkills.length > 0) {
+                const topSkill = prioritizedSkills[0].skill;
+                recs.push({ icon: '📚', bg: 'rgba(76,215,246,0.1)', title: `Start with: ${topSkill}`, body: `This is the most cross-career relevant skill to learn next. Look for free courses on Coursera, Udemy, or YouTube to get started quickly.` });
+            }
+
+            if (exact_matches.length > 0) {
+                recs.push({ icon: '💼', bg: 'rgba(79,70,229,0.15)', title: 'Showcase what you have', body: `Build 1-2 projects using your existing skills (${exact_matches.slice(0, 3).join(', ')}) and publish them on GitHub to demonstrate real-world ability.` });
+            }
+
+            recs.push({ icon: '🤝', bg: 'rgba(255,255,255,0.05)', title: 'Network in your target field', body: `Join LinkedIn groups and communities relevant to ${career}. Informational interviews can reveal which skills are truly valued day-to-day.` });
+
+            if (missing_skills.length > 3) {
+                recs.push({ icon: '🗓️', bg: 'rgba(255,180,171,0.08)', title: 'Create a 90-day plan', body: `You have ${missing_skills.length} skills to learn. Don't try all at once — pick the top 2-3 priorities and set a realistic weekly study schedule.` });
+            }
+
+            return recs;
+        }
+
+        // Build enhanced doughnut chart
+        function buildEnhancedDoughnutChart(matched, partial, missing) {
+            const ctx = document.getElementById('skillGapDoughnut');
+            if (!ctx) return;
+            const chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Exact Match', 'Partial Match', 'Missing'],
+                    datasets: [{
+                        data: [matched, partial, missing],
+                        backgroundColor: [
+                            'rgba(166,244,197,0.8)',
+                            'rgba(255,217,102,0.7)',
+                            'rgba(255,180,171,0.8)'
+                        ],
+                        borderColor: ['rgba(166,244,197,1)', 'rgba(255,217,102,1)', 'rgba(255,180,171,1)'],
+                        borderWidth: 2,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#dfe3e7', padding: 14, font: { size: 11 } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(27,32,35,0.95)',
+                            titleColor: '#dfe3e7',
+                            bodyColor: '#c7c4d8',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = matched + partial + missing;
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return ` ${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            window.gapChartInstances.push(chart);
+        }
+
+        // Build enhanced radar chart
+        function buildEnhancedRadarChart(matched, partial, missing, total, matchPct) {
+            const ctx = document.getElementById('skillGapRadar');
+            if (!ctx) return;
+            const readiness = Math.min(100, matchPct + (partial * 5));
+            const breadth = total > 0 ? Math.round((matched / total) * 100) : 0;
+            const depth = matched > 0 ? Math.round(Math.min(100, (matched / (matched + partial)) * 100)) : 0;
+            const learning = 100 - Math.round((missing / Math.max(1, total)) * 100);
+            const relevance = Math.round(matchPct);
+
+            const chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Readiness', 'Breadth', 'Depth', 'Learnability', 'Relevance'],
+                    datasets: [{
+                        label: 'Your Profile',
+                        data: [readiness, breadth, depth, learning, relevance],
+                        backgroundColor: 'rgba(79,70,229,0.2)',
+                        borderColor: 'rgba(195,192,255,0.8)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(195,192,255,1)',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: '#c7c4d8', font: { size: 10 }, stepSize: 25, backdropColor: 'transparent' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#dfe3e7', font: { size: 11 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(27,32,35,0.95)',
+                            titleColor: '#dfe3e7',
+                            bodyColor: '#c7c4d8',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1
+                        }
+                    }
+                }
+            });
+            window.gapChartInstances.push(chart);
+        }
+
+        // Export skill gap report
+        function exportSkillGapReport() {
+            if (!window.currentSkillGapData) {
+                alert('No results to export yet.');
+                return;
+            }
+            const { gapData, prioritizedSkills, career, userSkills } = window.currentSkillGapData;
+            const lines = [
+                'SkillOrbit — Skill Gap Analysis Report',
+                '=======================================',
+                `Career: ${career}`,
+                `Match Score: ${gapData.match_percentage}%`,
+                `Date: ${new Date().toLocaleDateString()}`,
+                '',
+                `YOUR SKILLS (${userSkills.length}): ${userSkills.join(', ')}`,
+                '',
+                `MATCHED SKILLS (${gapData.exact_matches.length}): ${gapData.exact_matches.join(', ')}`,
+                `PARTIAL MATCHES (${gapData.partial_matches.length}): ${gapData.partial_matches.join(', ')}`,
+                `MISSING SKILLS (${gapData.missing_skills.length}): ${gapData.missing_skills.join(', ')}`,
+                '',
+                'TOP PRIORITY SKILLS TO LEARN:',
+                ...prioritizedSkills.slice(0, 8).map((s, i) => `  ${i+1}. ${s.skill} (needed in ${s.frequency} career paths)`),
+                '',
+                'Generated by SkillOrbit AI'
+            ];
+            const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `skillorbit-gap-report-${career.replace(/\s+/g,'-').toLowerCase()}.txt`;
+            a.click();
         }
 
         // Close skill gap modal and cleanup
@@ -1479,10 +1694,12 @@
             const modal = document.getElementById('skillGapModal');
             if (modal) {
                 // Destroy chart instances
-                skillGapChartInstances.forEach(chart => {
-                    if (chart) chart.destroy();
-                });
-                skillGapChartInstances = [];
+                if (window.gapChartInstances) {
+                    window.gapChartInstances.forEach(chart => {
+                        if (chart) chart.destroy();
+                    });
+                    window.gapChartInstances = [];
+                }
 
                 // Remove modal
                 modal.remove();
