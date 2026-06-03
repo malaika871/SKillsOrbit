@@ -1,21 +1,36 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, jsonify
 import os
 import sys
 
+# Add project root to path to import modules properly
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 # Configure Flask to use the frontend folder for templates
-template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
+template_dir = os.path.join(PROJECT_ROOT, 'frontend')
 app = Flask(__name__, template_folder=template_dir, static_folder=template_dir, static_url_path='/static')
 app.secret_key = "skillorbit_secret"
 
-# Add parent directory to path to import ML module
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+# Import ML modules
 from ML.recommender import get_matches
-from ML.skill_gap import get_skill_gap, get_detailed_skill_gap, prioritize_skills
+from ML.skill_gap import get_detailed_skill_gap, prioritize_skills
 from ML.roadmap_generator import get_all_careers, generate_roadmap, get_roadmap_for_skill_level
 from ML.career_simulator import simulate_career
-from resume_analyzer import SkillExtractor, PetriNet
+from backend.resume_analyzer import SkillExtractor, PetriNet
 
-_extractor = SkillExtractor()
+# Lazy-loaded extractor
+_extractor = None
+
+def get_extractor():
+    """Get or create the SkillExtractor instance (lazy-loaded with error handling)"""
+    global _extractor
+    if _extractor is None:
+        try:
+            _extractor = SkillExtractor()
+        except OSError as e:
+            raise RuntimeError(f"Failed to initialize resume analyzer: {e}") from e
+    return _extractor
 
 @app.route("/")
 def home():
@@ -132,7 +147,6 @@ def prioritize_skills_endpoint():
 
 
 
-
 @app.route("/resume-analyzer")
 def resume_analyzer_page():
     return render_template("resume_analyzer.html")
@@ -148,8 +162,11 @@ def analyze_resume():
         return jsonify({"error": "Empty filename"}), 400
 
     try:
+        extractor = get_extractor()
         file_bytes = file.read()
-        info = _extractor.analyze(file_bytes, file.filename)
+        info = extractor.analyze(file_bytes, file.filename)
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -219,4 +236,15 @@ def career_simulation():
 
 
 if __name__ == "__main__":
+    # Startup checks
+    print("Starting SkillOrbit app...")
+    try:
+        # Test import basic dependencies
+        import pandas
+        import spacy
+    except ImportError as e:
+        print(f"Missing required dependency: {e}")
+        print("Please install requirements with: pip install -r requirements.txt")
+        sys.exit(1)
+    
     app.run(debug=True)

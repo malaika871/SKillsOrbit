@@ -5,8 +5,6 @@ import spacy
 from rapidfuzz import fuzz
 from docx import Document
 
-nlp = spacy.load("en_core_web_sm")
-
 SKILL_TAXONOMY = [
     # Programming Languages
     "Python", "Java", "JavaScript", "TypeScript", "C", "C++", "C#", "R", "Go",
@@ -68,6 +66,13 @@ _PHONE_RE = re.compile(r'(?<!\d)(?:\+?\d[\d\s\-().]{7,15}\d)(?!\d)')
 class SkillExtractor:
     def __init__(self):
         self._taxonomy_lower = [s.lower() for s in SKILL_TAXONOMY]
+        try:
+            self.nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            raise OSError(
+                "SpaCy model 'en_core_web_sm' not found. "
+                "Please install it with: python -m spacy download en_core_web_sm"
+            )
 
     def extract_text_from_pdf(self, file_bytes: bytes) -> str:
         try:
@@ -110,7 +115,7 @@ class SkillExtractor:
         phone_m = _PHONE_RE.search(text)
         phone = phone_m.group(0).strip() if phone_m else ""
 
-        doc = nlp(text[:2000])
+        doc = self.nlp(text[:2000])
         name = next((ent.text for ent in doc.ents if ent.label_ == "PERSON"), "")
 
         text_lower = text.lower()

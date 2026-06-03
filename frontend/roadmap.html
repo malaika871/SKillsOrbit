@@ -395,12 +395,12 @@
             const grid = document.getElementById('career-grid');
             grid.innerHTML = '';
 
-            careers.forEach(career => {
+            careers.forEach(careerTitle => {
                 const col = document.createElement('div');
                 col.className = 'col-md-4 col-lg-3';
                 col.innerHTML = `
-                    <div class="glass-card rounded p-3 career-select-card" onclick="selectCareer('${career.career_title}')">
-                        <h6 class="fw-semibold mb-1">${career.career_title}</h6>
+                    <div class="glass-card rounded p-3 career-select-card" onclick="selectCareer('${careerTitle}')">
+                        <h6 class="fw-semibold mb-1">${careerTitle}</h6>
                         <small style="color: var(--text-secondary);">Click to view roadmap</small>
                     </div>
                 `;

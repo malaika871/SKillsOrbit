@@ -1,5 +1,10 @@
 import os
 import pandas as pd
+import logging
+
+# Set up basic logging
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, "data", "careers.csv")
@@ -18,6 +23,20 @@ DEFAULT_GROWTH_BY_TREND = {
     "Declining": 1.5,
 }
 
+# Lazy loaded cached data
+_df = None
+
+def _initialize_data():
+    """Lazy load and cache the careers data with error handling."""
+    global _df
+    if _df is None:
+        try:
+            if not os.path.exists(DATA_PATH):
+                raise FileNotFoundError(f"Career data file not found at: {DATA_PATH}")
+            _df = pd.read_csv(DATA_PATH)
+        except Exception as e:
+            raise RuntimeError(f"Failed to initialize career simulator: {str(e)}")
+
 
 def _infer_market_trend(demand_level: float) -> str:
     if demand_level >= 9:
@@ -34,17 +53,20 @@ def _infer_salary_growth(market_trend: str) -> float:
 
 
 def _safe_float(value, default=0.0) -> float:
+    """Safely convert to float, with logging for invalid values."""
     try:
         if pd.isna(value):
             return default
         return float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError) as e:
+        logger.warning(f"Invalid numeric value '{value}', using default {default} instead. Error: {e}")
         return default
 
 
 def _get_career_row(career_name: str):
-    df = pd.read_csv(DATA_PATH)
-    matches = df[df["career_title"].str.lower() == career_name.strip().lower()]
+    """Get career row from cached dataframe."""
+    _initialize_data()
+    matches = _df[_df["career_title"].str.lower() == career_name.strip().lower()]
     if matches.empty:
         return None
     return matches.iloc[0]
@@ -176,7 +198,7 @@ def simulate_career(career_name: str, match_score=None, years: int = 5):
         market_trend = str(market_trend).strip()
 
     salary_growth_rate = _safe_float(row.get("salary_growth_rate"), None)
-    if salary_growth_rate is None or salary_growth_rate == 0:
+    if salary_growth_rate is None:  # Only use default if None, not 0.0
         salary_growth_rate = _infer_salary_growth(market_trend)
 
     salary_min = int(row["salary_min"])
