@@ -183,7 +183,20 @@ def analyze_resume():
         raw_matches = []
 
     career_matches = [
-        {"career": m["career"], "match_score": m["score"], "rank": i + 1}
+        {
+            "career": m["career"],
+            "match_score": m["score"],
+            "rank": i + 1,
+            "required_skills": m["required_skills"],
+            "salary_min": m["salary_min"],
+            "salary_max": m["salary_max"],
+            "demand_level": m["demand_level"],
+            "job_type": m["job_type"],
+            "market_trend": m["market_trend"],
+            "salary_growth_rate": m["salary_growth_rate"],
+            "automation_risk": m["automation_risk"],
+            "competition_level": m["competition_level"]
+        }
         for i, m in enumerate(raw_matches)
     ]
 
