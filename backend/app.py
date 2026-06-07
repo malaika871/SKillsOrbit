@@ -1,20 +1,36 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, jsonify
 import os
 import sys
 
+# Add project root to path to import modules properly
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 # Configure Flask to use the frontend folder for templates
-template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
-app = Flask(__name__, template_folder=template_dir)
+template_dir = os.path.join(PROJECT_ROOT, 'frontend')
+app = Flask(__name__, template_folder=template_dir, static_folder=template_dir, static_url_path='/static')
 app.secret_key = "skillorbit_secret"
 
-# Add parent directory to path to import ML module
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+# Import ML modules
 from ML.recommender import get_matches
-from ML.skill_gap import get_skill_gap, get_detailed_skill_gap, prioritize_skills
+from ML.skill_gap import get_detailed_skill_gap, prioritize_skills
 from ML.roadmap_generator import get_all_careers, generate_roadmap, get_roadmap_for_skill_level
-from resume_analyzer import SkillExtractor, PetriNet
+from ML.career_simulator import simulate_career
+from backend.resume_analyzer import SkillExtractor, PetriNet
 
-_extractor = SkillExtractor()
+# Lazy-loaded extractor
+_extractor = None
+
+def get_extractor():
+    """Get or create the SkillExtractor instance (lazy-loaded with error handling)"""
+    global _extractor
+    if _extractor is None:
+        try:
+            _extractor = SkillExtractor()
+        except OSError as e:
+            raise RuntimeError(f"Failed to initialize resume analyzer: {e}") from e
+    return _extractor
 
 @app.route("/")
 def home():
@@ -129,6 +145,8 @@ def prioritize_skills_endpoint():
         return jsonify({"error": str(e)}), 500
 
 
+
+
 @app.route("/resume-analyzer")
 def resume_analyzer_page():
     return render_template("resume_analyzer.html")
@@ -144,8 +162,11 @@ def analyze_resume():
         return jsonify({"error": "Empty filename"}), 400
 
     try:
+        extractor = get_extractor()
         file_bytes = file.read()
-        info = _extractor.analyze(file_bytes, file.filename)
+        info = extractor.analyze(file_bytes, file.filename)
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
@@ -162,7 +183,20 @@ def analyze_resume():
         raw_matches = []
 
     career_matches = [
-        {"career": m["career"], "match_score": m["score"], "rank": i + 1}
+        {
+            "career": m["career"],
+            "match_score": m["score"],
+            "rank": i + 1,
+            "required_skills": m["required_skills"],
+            "salary_min": m["salary_min"],
+            "salary_max": m["salary_max"],
+            "demand_level": m["demand_level"],
+            "job_type": m["job_type"],
+            "market_trend": m["market_trend"],
+            "salary_growth_rate": m["salary_growth_rate"],
+            "automation_risk": m["automation_risk"],
+            "competition_level": m["competition_level"]
+        }
         for i, m in enumerate(raw_matches)
     ]
 
@@ -194,5 +228,36 @@ def petri_simulate():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/career-simulation", methods=["POST"])
+def career_simulation():
+    """API endpoint for market trend and salary simulation for a career."""
+    try:
+        data = request.get_json() or {}
+        career = data.get("career", "")
+        match_score = data.get("match_score")
+
+        if not career:
+            return jsonify({"error": "Career name is required"}), 400
+
+        result = simulate_career(career, match_score=match_score)
+        if not result:
+            return jsonify({"error": f"Career '{career}' not found"}), 404
+
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
+    # Startup checks
+    print("Starting SkillOrbit app...")
+    try:
+        # Test import basic dependencies
+        import pandas
+        import spacy
+    except ImportError as e:
+        print(f"Missing required dependency: {e}")
+        print("Please install requirements with: pip install -r requirements.txt")
+        sys.exit(1)
+    
     app.run(debug=True)

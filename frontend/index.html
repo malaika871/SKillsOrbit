@@ -13,6 +13,7 @@
 
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="/static/nav.css" rel="stylesheet">
 
     <style>
         :root {
@@ -30,12 +31,26 @@
             box-sizing: border-box;
         }
 
+        html {
+            height: 100%;
+        }
+
         body {
             background-color: #0A0F1E;
             color: var(--text-primary);
             overflow-x: hidden;
             font-family: 'Inter', sans-serif;
             position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .page-main {
+            flex: 1 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         /* Glass Card Effect */
@@ -84,10 +99,10 @@
 
         /* Background Orbs */
         .orb {
-            position: absolute;
+            position: fixed;
             border-radius: 50%;
             filter: blur(80px);
-            z-index: -1;
+            z-index: 0;
             opacity: 0.4;
             animation: float 20s infinite linear;
             pointer-events: none;
@@ -126,31 +141,7 @@
             100% { transform: translate(0, 0) scale(1); }
         }
 
-        /* Navbar */
-        .navbar-custom {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-link {
-            color: var(--text-secondary) !important;
-            font-weight: 500;
-            position: relative;
-            padding-bottom: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--secondary) !important;
-        }
-
-        .nav-link.active {
-            font-weight: 700;
-            border-bottom: 2px solid var(--secondary);
-        }
+        /* Navbar — see /static/nav.css */
 
         /* Reveal Animation */
         .reveal {
@@ -241,9 +232,12 @@
         }
 
         /* Footer */
-        footer {
+        footer.site-footer {
+            flex-shrink: 0;
+            margin-top: auto;
             background: #0a0f12;
             border-top: 1px solid rgba(145, 143, 161, 0.3);
+            padding: 1rem 0;
         }
 
         /* Dashboard Image Container */
@@ -270,22 +264,23 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand text-white fw-bold fs-5" href="#">SkillOrbit</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand text-white fw-bold fs-5" href="/">SkillOrbit</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                <ul class="navbar-nav gap-4">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto gap-4">
                     <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="/advisor">Advisor</a></li>
                     <li class="nav-item"><a class="nav-link" href="/resume-analyzer">Resume Analyzer</a></li>
                     <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
                 </ul>
+                <button type="button" class="btn btn-nav-login rounded-pill px-4 py-2">Login</button>
             </div>
-            <button class="btn btn-primary-gradient rounded-pill px-4 py-2">Get Started</button>
         </div>
     </nav>
 
+    <main class="page-main">
     <!-- Hero Section -->
     <header class="container text-center" style="padding-top: 160px; padding-bottom: 80px;">
         <div class="reveal">
@@ -349,7 +344,7 @@
     </section>
 
     <!-- Features Section -->
-    <section class="container py-5 my-5">
+    <section class="container py-5">
         <div class="text-center mb-5">
             <h2 class="reveal display-6 fw-semibold mb-3">Precision Tools for Modern Careers</h2>
             <p class="reveal" style="color: var(--text-secondary);">Our AI suite covers every aspect of your professional journey.</p>
@@ -425,7 +420,7 @@
     </section>
 
     <!-- How It Works Section -->
-    <section class="container py-5 my-5">
+    <section class="container py-5">
         <div class="text-center mb-5">
             <h2 class="reveal display-6 fw-semibold mb-3">Your Journey to Success</h2>
             <p class="reveal" style="color: var(--text-secondary);">Three simple steps to transform your professional life.</p>
@@ -476,7 +471,7 @@
     </section>
 
     <!-- CTA Banner -->
-    <section class="container py-5 my-5">
+    <section class="container py-5">
         <div class="reveal glass-card rounded p-5 text-center position-relative overflow-hidden">
             <!-- Inner Glows -->
             <div class="position-absolute top-0 end-0" style="width: 256px; height: 256px; background: rgba(195, 192, 255, 0.2); filter: blur(80px); transform: translate(50%, -50%);"></div>
@@ -491,17 +486,18 @@
             </button>
         </div>
     </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="py-5 mt-5">
+    <footer class="site-footer py-3 mt-4">
         <div class="container">
-            <div class="row align-items-center g-4">
+            <div class="row align-items-center g-3">
                 <div class="col-md-4 text-center text-md-start">
-                    <h5 class="fw-bold mb-2">SkillOrbit</h5>
+                    <h5 class="fw-bold mb-1 fs-6">SkillOrbit</h5>
                     <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2025 SkillOrbit AI. All rights reserved.</p>
                 </div>
                 <div class="col-md-4 text-center">
-                    <div class="d-flex gap-4 justify-content-center">
+                    <div class="d-flex gap-4 justify-content-center flex-wrap">
                         <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Privacy Policy</a>
                         <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Terms of Service</a>
                         <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Contact Support</a>
@@ -510,12 +506,12 @@
                 <div class="col-md-4">
                     <div class="d-flex gap-3 justify-content-center justify-content-md-end">
                         <button class="glass-card border-0 rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 40px; height: 40px; color: var(--text-primary);">
-                            <span class="material-symbols-outlined" style="font-size: 20px;">public</span>
+                                style="width: 36px; height: 36px; color: var(--text-primary);">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">public</span>
                         </button>
                         <button class="glass-card border-0 rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 40px; height: 40px; color: var(--text-primary);">
-                            <span class="material-symbols-outlined" style="font-size: 20px;">groups</span>
+                                style="width: 36px; height: 36px; color: var(--text-primary);">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">groups</span>
                         </button>
                     </div>
                 </div>

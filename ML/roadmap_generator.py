@@ -1,5 +1,10 @@
 import pandas as pd
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, "data", "careers.csv")
@@ -148,15 +153,32 @@ ROADMAP_TEMPLATES = {
     }
 }
 
+# Lazy loaded cached data
+_df = None
+_careers_list = None
+
+def _initialize_data():
+    """Lazy load and cache the careers data with error handling."""
+    global _df, _careers_list
+    if _df is None or _careers_list is None:
+        try:
+            if not os.path.exists(DATA_PATH):
+                raise FileNotFoundError(f"Career data file not found at: {DATA_PATH}")
+            _df = pd.read_csv(DATA_PATH)
+            _careers_list = _df["career_title"].tolist()
+        except Exception as e:
+            raise RuntimeError(f"Failed to initialize roadmap generator: {str(e)}")
+
+
 def get_all_careers():
-    """Get list of all available careers from CSV"""
+    """Get list of all available careers from CSV (cached)"""
     try:
-        df = pd.read_csv(DATA_PATH)
-        careers = df[['career_title']].to_dict('records')
-        return careers
+        _initialize_data()
+        return _careers_list
     except Exception as e:
-        print(f"Error loading careers: {e}")
+        logger.error(f"Error loading careers: {e}")
         return []
+
 
 def generate_roadmap(career_name):
     """Generate a roadmap for a specific career"""
@@ -168,13 +190,13 @@ def generate_roadmap(career_name):
 
     # Otherwise, generate a generic roadmap based on skills from CSV
     try:
-        df = pd.read_csv(DATA_PATH)
-        career_data = df[df['career_title'] == career_name].iloc[0]
+        _initialize_data()
+        career_data = _df[_df['career_title'] == career_name].iloc[0]
 
         skills = [s.strip() for s in career_data['required_skills'].split(',')]
 
-        # Split skills into phases
-        skills_per_phase = max(5, len(skills) // 3)
+        # Split skills into phases (fixed logic: min 3, max 5 skills per phase)
+        skills_per_phase = min(5, max(3, len(skills) // 3))
         phases = []
 
         for i in range(0, len(skills), skills_per_phase):
@@ -204,8 +226,9 @@ def generate_roadmap(career_name):
         }
 
     except Exception as e:
-        print(f"Error generating roadmap: {e}")
+        logger.error(f"Error generating roadmap for {career_name}: {e}")
         return None
+
 
 def get_roadmap_for_skill_level(career_name, user_skills):
     """

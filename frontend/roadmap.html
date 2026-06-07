@@ -13,6 +13,7 @@
 
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="/static/nav.css" rel="stylesheet">
 
     <style>
         :root {
@@ -60,31 +61,7 @@
             border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Navbar */
-        .navbar-custom {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-link {
-            color: var(--text-secondary) !important;
-            font-weight: 500;
-            position: relative;
-            padding-bottom: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--secondary) !important;
-        }
-
-        .nav-link.active {
-            font-weight: 700;
-            border-bottom: 2px solid var(--secondary);
-        }
+        /* Navbar — see /static/nav.css */
 
         /* Buttons */
         .btn-primary-gradient {
@@ -293,18 +270,18 @@
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand text-white fw-bold fs-5" href="/">SkillOrbit</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                <ul class="navbar-nav gap-4">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto gap-4">
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="/advisor">Advisor</a></li>
                     <li class="nav-item"><a class="nav-link" href="/resume-analyzer">Resume Analyzer</a></li>
                     <li class="nav-item"><a class="nav-link active" href="/roadmap">Roadmap</a></li>
                 </ul>
+                <button type="button" class="btn btn-nav-login rounded-pill px-4 py-2">Login</button>
             </div>
-            <button class="btn btn-outline-custom rounded-pill px-4 py-2">Login</button>
         </div>
     </nav>
 
@@ -418,12 +395,12 @@
             const grid = document.getElementById('career-grid');
             grid.innerHTML = '';
 
-            careers.forEach(career => {
+            careers.forEach(careerTitle => {
                 const col = document.createElement('div');
                 col.className = 'col-md-4 col-lg-3';
                 col.innerHTML = `
-                    <div class="glass-card rounded p-3 career-select-card" onclick="selectCareer('${career.career_title}')">
-                        <h6 class="fw-semibold mb-1">${career.career_title}</h6>
+                    <div class="glass-card rounded p-3 career-select-card" onclick="selectCareer('${careerTitle}')">
+                        <h6 class="fw-semibold mb-1">${careerTitle}</h6>
                         <small style="color: var(--text-secondary);">Click to view roadmap</small>
                     </div>
                 `;

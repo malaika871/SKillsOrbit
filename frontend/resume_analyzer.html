@@ -6,184 +6,247 @@
     <title>SkillOrbit | Resume Analyzer</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="/static/nav.css" rel="stylesheet">
 
     <style>
         :root {
             --primary: #c3c0ff;
             --primary-dark: #4f46e5;
             --secondary: #4cd7f6;
+            --accent: #a78bfa;
+            --green: #4ade80;
+            --red: #f87171;
             --text-primary: #dfe3e7;
             --text-secondary: #c7c4d8;
+            --bg: #0A0F1E;
+            --card-bg: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.09);
         }
+
         * { box-sizing: border-box; }
+
         body {
-            background-color: #0A0F1E;
+            background-color: var(--bg);
             color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             overflow-x: hidden;
         }
-        .navbar-custom {
-            background: rgba(10,15,30,0.92);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-        .nav-link { color: var(--text-secondary) !important; font-weight: 500; transition: color 0.2s; }
-        .nav-link:hover, .nav-link.active { color: var(--primary) !important; }
-        .nav-link.active { border-bottom: 2px solid var(--primary); }
+
+        /* ─── Shared cards ─── */
         .glass-card {
-            background: rgba(255,255,255,0.05);
+            background: var(--card-bg);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border);
             border-radius: 16px;
         }
-        .btn-primary-gradient {
-            background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 100%);
-            border: none;
-            color: white;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: opacity 0.2s;
-        }
-        .btn-primary-gradient:hover { opacity: 0.88; color: white; }
-        .btn-primary-gradient:disabled { opacity: 0.5; }
 
+        /* ─── Gradient button ─── */
+        .btn-grad {
+            background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 100%);
+            border: none; color: white;
+            font-weight: 600; border-radius: 8px;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .btn-grad:hover  { opacity: 0.88; color: white; transform: translateY(-1px); }
+        .btn-grad:active { transform: translateY(0); }
+        .btn-grad:disabled { opacity: 0.45; }
+
+        /* ─── Upload zone ─── */
         .upload-zone {
-            border: 2px dashed rgba(195,192,255,0.4);
+            border: 2px dashed rgba(195,192,255,0.3);
             border-radius: 14px;
-            padding: 48px 32px;
+            padding: 52px 32px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
+            background: rgba(79,70,229,0.03);
         }
         .upload-zone:hover, .upload-zone.drag-over {
             border-color: var(--primary);
             background: rgba(195,192,255,0.06);
         }
+        .upload-icon {
+            font-size: 54px;
+            color: var(--primary);
+            opacity: 0.7;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .upload-zone:hover .upload-icon { opacity: 1; transform: translateY(-3px); }
 
+        /* ─── Section title ─── */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.01em;
+            margin-bottom: 1rem;
+        }
+
+        /* ─── Skill tags ─── */
         .skill-tag {
             display: inline-block;
-            background: rgba(79,70,229,0.22);
-            border: 1px solid rgba(79,70,229,0.45);
+            background: rgba(79,70,229,0.2);
+            border: 1px solid rgba(79,70,229,0.4);
             color: var(--primary);
             border-radius: 20px;
             padding: 3px 13px;
-            font-size: 0.81rem;
+            font-size: 0.8rem;
             font-weight: 500;
             margin: 3px;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .bar-label { font-size: 0.87rem; font-weight: 500; }
+        /* ─── Career bars ─── */
         .bar-track {
             background: rgba(255,255,255,0.07);
-            border-radius: 6px;
-            height: 16px;
-            overflow: hidden;
+            border-radius: 6px; height: 14px; overflow: hidden;
         }
         .bar-fill {
             height: 100%;
             background: linear-gradient(90deg, #4F46E5, #06B6D4);
             border-radius: 6px;
-            width: 0;
-            transition: width 1s ease;
+            width: 0; transition: width 1.2s cubic-bezier(.4,0,.2,1);
         }
 
+        /* ─── Info rows ─── */
+        .info-row {
+            display: flex; gap: 8px;
+            align-items: flex-start;
+            margin-bottom: 9px;
+            font-size: 0.875rem;
+        }
+        .info-label { color: var(--text-secondary); min-width: 80px; font-weight: 500; }
+        .info-value { color: var(--text-primary); font-weight: 600; word-break: break-all; }
+
+        /* ─── Skill gap items ─── */
         .gap-item {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 7px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            font-size: 0.88rem;
+            display: flex; align-items: center; gap: 9px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
         }
         .gap-item:last-child { border-bottom: none; }
-        .dot-have  { color: #4ade80; font-size: 0.55rem; flex-shrink: 0; }
-        .dot-miss  { color: #f87171; font-size: 0.55rem; flex-shrink: 0; }
 
-        .section-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-        .info-row {
-            display: flex;
-            gap: 8px;
-            align-items: flex-start;
-            margin-bottom: 8px;
-            font-size: 0.88rem;
-        }
-        .info-label { color: var(--text-secondary); min-width: 78px; }
-        .info-value { color: var(--text-primary); font-weight: 500; word-break: break-all; }
-
-        #results-section { display: none; }
-
-        /* ── Petri Net SVG ── */
+        /* ─── Petri net (embedded, animated) ─── */
         .pn-place {
-            fill: rgba(255,255,255,0.07);
-            stroke: rgba(195,192,255,0.45);
+            fill: rgba(255,255,255,0.06);
+            stroke: rgba(195,192,255,0.35);
             stroke-width: 2;
-            transition: fill 0.5s, stroke 0.5s, stroke-width 0.5s;
+            transition: fill 0.5s, stroke 0.5s;
         }
         .pn-place.active {
-            fill: rgba(74,222,128,0.28);
+            fill: rgba(74,222,128,0.15);
             stroke: #4ade80;
-            stroke-width: 3;
+        }
+        .pn-place.done {
+            fill: rgba(99,102,241,0.25);
+            stroke: #818cf8;
         }
         .pn-trans {
-            fill: rgba(255,255,255,0.07);
-            stroke: rgba(76,215,246,0.4);
+            fill: rgba(255,255,255,0.06);
+            stroke: rgba(76,215,246,0.3);
             stroke-width: 2;
-            transition: fill 0.5s, stroke 0.5s, stroke-width 0.5s;
+            transition: fill 0.5s;
         }
-        .pn-trans.fired {
-            fill: rgba(99,102,241,0.38);
-            stroke: #818cf8;
-            stroke-width: 3;
+        .pn-trans.active {
+            fill: rgba(76,215,246,0.2);
+            stroke: #4cd7f6;
+        }
+        .pn-trans.done {
+            fill: rgba(6,182,212,0.2);
+            stroke: #4cd7f6;
         }
         .pn-lbl {
             fill: var(--text-secondary);
-            font-family: 'Inter', sans-serif;
-            font-size: 10.5px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
             text-anchor: middle;
             dominant-baseline: middle;
             pointer-events: none;
         }
         .pn-lbl-sm {
-            fill: rgba(199,196,216,0.7);
-            font-family: 'Inter', sans-serif;
-            font-size: 9px;
+            fill: rgba(199,196,216,0.6);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 8.5px;
             text-anchor: middle;
             pointer-events: none;
         }
-        .pn-token {
+        .pn-token-dot {
             fill: #4ade80;
-            filter: drop-shadow(0 0 5px #4ade80);
-            transition: cx 0.7s ease, cy 0.7s ease;
+            filter: drop-shadow(0 0 6px #4ade80);
+            transition: cx 0.6s ease;
         }
         .pn-arrow {
             fill: none;
-            stroke: rgba(195,192,255,0.4);
+            stroke: rgba(195,192,255,0.3);
             stroke-width: 1.5;
-            marker-end: url(#arrowhead);
+            marker-end: url(#arrow2);
+            transition: stroke 0.5s;
+        }
+        .pn-arrow.lit {
+            stroke: var(--accent);
         }
 
-        #simLogWrap {
-            max-height: 220px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(195,192,255,0.3) transparent;
+        /* ─── Petri net container ─── */
+        #petri-container {
+            display: none;
         }
-        .log-entry {
-            padding: 6px 12px;
-            border-left: 3px solid rgba(195,192,255,0.35);
-            margin-bottom: 5px;
-            font-size: 0.83rem;
-            color: var(--text-secondary);
-            background: rgba(255,255,255,0.03);
-            border-radius: 0 6px 6px 0;
+        #petri-container.active {
+            display: block;
         }
+        .petri-msg {
+            text-align: center;
+            margin-top: 16px;
+            min-height: 28px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        /* ─── Results section ─── */
+        #results-section { display: none; }
+
+        /* Fade-in animation for result cards */
+    .fade-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.6s ease forwards;
+    }
+    @keyframes fadeUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Primary gradient button */
+    .btn-primary-gradient {
+        background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary-gradient:hover {
+        opacity: 0.88;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    /* Outline custom button */
+    .btn-outline-custom {
+        border: 1px solid rgba(195, 192, 255, 0.4);
+        background: rgba(195, 192, 255, 0.05);
+        color: var(--primary);
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    .btn-outline-custom:hover {
+        background: rgba(195, 192, 255, 0.1);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
     </style>
 </head>
 <body>
@@ -195,17 +258,21 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-            <ul class="navbar-nav gap-4">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto gap-4">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="/advisor">Advisor</a></li>
                 <li class="nav-item"><a class="nav-link active" href="/resume-analyzer">Resume Analyzer</a></li>
                 <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
             </ul>
+            <button type="button" class="btn btn-nav-login rounded-pill px-4 py-2">Login</button>
         </div>
     </div>
 </nav>
 
+<!-- ═══════════════════════════════════════
+     MAIN PAGE
+════════════════════════════════════════ -->
 <div class="container" style="padding-top: 96px; padding-bottom: 64px;">
 
     <!-- PAGE HEADER -->
@@ -216,8 +283,8 @@
                 Resume Analyzer
             </span>
         </h1>
-        <p style="color: var(--text-secondary); max-width: 540px; margin: 0 auto; font-size: 0.96rem;">
-            Upload your resume (PDF or DOCX) to extract skills, match career paths, and simulate the analysis workflow as a Petri Net.
+        <p style="color: var(--text-secondary); max-width: 520px; margin: 0 auto; font-size: 0.95rem;">
+            Upload your resume — watch the live Petri Net simulation as each stage of analysis runs, then see your full results.
         </p>
     </div>
 
@@ -226,20 +293,20 @@
         <form id="resumeForm" enctype="multipart/form-data">
             <div class="upload-zone" id="uploadZone"
                  onclick="document.getElementById('resumeFile').click()">
-                <span class="material-symbols-outlined mb-2 d-block"
-                      style="font-size:48px; color:var(--primary); opacity:.75;">upload_file</span>
-                <p class="mb-1 fw-semibold">Drop your resume here or click to browse</p>
+                <span class="material-symbols-outlined upload-icon mb-2 d-block">upload_file</span>
+                <p class="mb-1 fw-semibold" style="font-size:1.05rem;">Drop your resume here or click to browse</p>
                 <p class="mb-0" style="color:var(--text-secondary); font-size:0.85rem;">
                     Supports PDF and DOCX files
                 </p>
                 <p id="fileName" class="mt-2 mb-0"
-                   style="color:var(--primary); font-size:0.88rem; font-weight:500;"></p>
+                   style="color:var(--primary); font-size:0.88rem; font-weight:600;"></p>
             </div>
             <input type="file" id="resumeFile" name="resume"
                    accept=".pdf,.docx,.doc" class="d-none">
             <div class="text-center mt-3">
                 <button type="submit" id="analyzeBtn"
-                        class="btn btn-primary-gradient px-5 py-2">
+                        class="btn btn-grad px-5 py-2 fs-6">
+                    <span class="material-symbols-outlined me-1" style="vertical-align:middle; font-size:18px;">play_circle</span>
                     <span id="btnText">Analyze Resume</span>
                     <span id="btnSpinner"
                           class="spinner-border spinner-border-sm ms-2 d-none"
@@ -249,13 +316,138 @@
         </form>
     </div>
 
-    <!-- RESULTS -->
+    <!-- EMBEDDED PETRI NET (shown during analysis) -->
+    <div class="glass-card p-4 mb-4" id="petri-container">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="section-title mb-0">
+                &#9670; Live Petri Net Simulation
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <svg id="petriLive" viewBox="0 0 870 170"
+                 style="width:100%; min-width:580px; display:block;">
+                <defs>
+                    <marker id="arrow2" markerWidth="8" markerHeight="6"
+                            refX="7" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6"
+                                 fill="rgba(195,192,255,0.45)"/>
+                    </marker>
+                </defs>
+                <!-- Arcs -->
+                <line class="pn-arrow" id="arrow-0" x1="93"  y1="80" x2="114" y2="80"/>
+                <line class="pn-arrow" id="arrow-1" x1="154" y1="80" x2="178" y2="80"/>
+                <line class="pn-arrow" id="arrow-2" x1="234" y1="80" x2="254" y2="80"/>
+                <line class="pn-arrow" id="arrow-3" x1="294" y1="80" x2="318" y2="80"/>
+                <line class="pn-arrow" id="arrow-4" x1="374" y1="80" x2="394" y2="80"/>
+                <line class="pn-arrow" id="arrow-5" x1="434" y1="80" x2="458" y2="80"/>
+                <line class="pn-arrow" id="arrow-6" x1="514" y1="80" x2="534" y2="80"/>
+                <line class="pn-arrow" id="arrow-7" x1="574" y1="80" x2="598" y2="80"/>
+                <line class="pn-arrow" id="arrow-8" x1="654" y1="80" x2="674" y2="80"/>
+                <line class="pn-arrow" id="arrow-9" x1="714" y1="80" x2="766" y2="80"/>
+                <!-- Places -->
+                <circle class="pn-place" id="place-P0" cx="66"  cy="80" r="26"/><text class="pn-lbl" x="66"  y="80">P0</text>
+                <text class="pn-lbl-sm" x="66"  y="118">Resume</text><text class="pn-lbl-sm" x="66"  y="129">Uploaded</text>
+                <circle class="pn-place" id="place-P1" cx="206" cy="80" r="26"/><text class="pn-lbl" x="206" y="80">P1</text>
+                <text class="pn-lbl-sm" x="206" y="118">Text</text><text class="pn-lbl-sm" x="206" y="129">Extracted</text>
+                <circle class="pn-place" id="place-P2" cx="346" cy="80" r="26"/><text class="pn-lbl" x="346" y="80">P2</text>
+                <text class="pn-lbl-sm" x="346" y="118">Skills</text><text class="pn-lbl-sm" x="346" y="129">Identified</text>
+                <circle class="pn-place" id="place-P3" cx="486" cy="80" r="26"/><text class="pn-lbl" x="486" y="80">P3</text>
+                <text class="pn-lbl-sm" x="486" y="118">Career</text><text class="pn-lbl-sm" x="486" y="129">Matched</text>
+                <circle class="pn-place" id="place-P4" cx="626" cy="80" r="26"/><text class="pn-lbl" x="626" y="80">P4</text>
+                <text class="pn-lbl-sm" x="626" y="118">Gap</text><text class="pn-lbl-sm" x="626" y="129">Analysis</text>
+                <circle class="pn-place" id="place-P5" cx="794" cy="80" r="26"/><text class="pn-lbl" x="794" y="80">P5</text>
+                <text class="pn-lbl-sm" x="794" y="118">Report</text><text class="pn-lbl-sm" x="794" y="129">Ready</text>
+                <!-- Transitions -->
+                <rect class="pn-trans" id="trans-T0" x="114" y="66" width="40" height="28" rx="4"/>
+                <text class="pn-lbl" x="134" y="80">T0</text>
+                <rect class="pn-trans" id="trans-T1" x="254" y="66" width="40" height="28" rx="4"/>
+                <text class="pn-lbl" x="274" y="80">T1</text>
+                <rect class="pn-trans" id="trans-T2" x="394" y="66" width="40" height="28" rx="4"/>
+                <text class="pn-lbl" x="414" y="80">T2</text>
+                <rect class="pn-trans" id="trans-T3" x="534" y="66" width="40" height="28" rx="4"/>
+                <text class="pn-lbl" x="554" y="80">T3</text>
+                <rect class="pn-trans" id="trans-T4" x="674" y="66" width="40" height="28" rx="4"/>
+                <text class="pn-lbl" x="694" y="80">T4</text>
+                <!-- Token (moves dynamically) -->
+                <circle class="pn-token-dot" id="token" cx="66" cy="80" r="7"/>
+            </svg>
+        </div>
+        <div class="petri-msg" id="petri-current-msg">Ready to start analysis…</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">
+            <span style="color:rgba(99,102,241,0.9);">&#9679;</span> Places (states) &nbsp;|&nbsp;
+            <span style="color:rgba(6,182,212,0.9);">&#9632;</span> Transitions (processes) &nbsp;|&nbsp;
+            <span style="color:var(--green);">&#9679;</span> Token (current state)
+        </div>
+    </div>
+
+    <!-- RESULTS (hidden until simulation done) -->
     <div id="results-section">
+
+        <!-- Petri Net complete diagram (small, read-only) -->
+        <div class="glass-card p-4 mb-4 fade-up" style="animation-delay:0s">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div class="section-title mb-0">
+                    &#9670; Petri Net — Analysis Completed
+                </div>
+                <span style="font-size:0.8rem; color:var(--green); font-weight:600; font-family:'JetBrains Mono',monospace;">
+                    &#10003; All 5 transitions fired
+                </span>
+            </div>
+            <div style="overflow-x:auto;">
+                <svg id="petriResult" viewBox="0 0 870 170"
+                     style="width:100%; min-width:580px; display:block;">
+                    <defs>
+                        <marker id="arrow-result" markerWidth="8" markerHeight="6"
+                                refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6"
+                                     fill="rgba(195,192,255,0.45)"/>
+                        </marker>
+                    </defs>
+                    <!-- Arcs -->
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="93"  y1="80" x2="114" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="154" y1="80" x2="178" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="234" y1="80" x2="254" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="294" y1="80" x2="318" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="374" y1="80" x2="394" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="434" y1="80" x2="458" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="514" y1="80" x2="534" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="574" y1="80" x2="598" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="654" y1="80" x2="674" y2="80" marker-end="url(#arrow-result)"/>
+                    <line class="pn-arrow" style="stroke: rgba(195,192,255,0.45);" x1="714" y1="80" x2="766" y2="80" marker-end="url(#arrow-result)"/>
+                    <!-- Places -->
+                    <circle class="pn-place done" cx="66"  cy="80" r="26"/><text class="pn-lbl" x="66"  y="80">P0</text>
+                    <text class="pn-lbl-sm" x="66"  y="118">Resume</text><text class="pn-lbl-sm" x="66"  y="129">Uploaded</text>
+                    <circle class="pn-place done" cx="206" cy="80" r="26"/><text class="pn-lbl" x="206" y="80">P1</text>
+                    <text class="pn-lbl-sm" x="206" y="118">Text</text><text class="pn-lbl-sm" x="206" y="129">Extracted</text>
+                    <circle class="pn-place done" cx="346" cy="80" r="26"/><text class="pn-lbl" x="346" y="80">P2</text>
+                    <text class="pn-lbl-sm" x="346" y="118">Skills</text><text class="pn-lbl-sm" x="346" y="129">Identified</text>
+                    <circle class="pn-place done" cx="486" cy="80" r="26"/><text class="pn-lbl" x="486" y="80">P3</text>
+                    <text class="pn-lbl-sm" x="486" y="118">Career</text><text class="pn-lbl-sm" x="486" y="129">Matched</text>
+                    <circle class="pn-place done" cx="626" cy="80" r="26"/><text class="pn-lbl" x="626" y="80">P4</text>
+                    <text class="pn-lbl-sm" x="626" y="118">Gap</text><text class="pn-lbl-sm" x="626" y="129">Analysis</text>
+                    <circle class="pn-place done" cx="794" cy="80" r="26"/><text class="pn-lbl" x="794" y="80">P5</text>
+                    <text class="pn-lbl-sm" x="794" y="118">Report</text><text class="pn-lbl-sm" x="794" y="129">Ready</text>
+                    <!-- Transitions -->
+                    <rect class="pn-trans done" x="114" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="134" y="80">T0</text>
+                    <rect class="pn-trans done" x="254" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="274" y="80">T1</text>
+                    <rect class="pn-trans done" x="394" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="414" y="80">T2</text>
+                    <rect class="pn-trans done" x="534" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="554" y="80">T3</text>
+                    <rect class="pn-trans done" x="674" y="66" width="40" height="28" rx="4"/>
+                    <text class="pn-lbl" x="694" y="80">T4</text>
+                    <!-- Final token at P5 -->
+                    <circle class="pn-token-dot" cx="794" cy="80" r="7"/>
+                </svg>
+            </div>
+        </div>
 
         <!-- Row 1: Candidate info + Skills -->
         <div class="row g-4 mb-4">
             <div class="col-md-4">
-                <div class="glass-card p-4 h-100">
+                <div class="glass-card p-4 h-100 fade-up" style="animation-delay:0.1s">
                     <div class="section-title">Candidate Info</div>
                     <div class="info-row">
                         <span class="info-label">Name</span>
@@ -280,357 +472,786 @@
                 </div>
             </div>
             <div class="col-md-8">
-                <div class="glass-card p-4 h-100">
+                <div class="glass-card p-4 h-100 fade-up" style="animation-delay:0.2s">
                     <div class="section-title">Skills Detected</div>
                     <div id="skillTags"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Row 2: Career matches + Skill gaps -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-7">
-                <div class="glass-card p-4 h-100">
-                    <div class="section-title">Career Matches</div>
-                    <div id="careerBars"></div>
-                </div>
-            </div>
-            <div class="col-md-5">
-                <div class="glass-card p-4 h-100">
-                    <div class="section-title">
-                        Skill Gaps —
-                        <span id="topCareerLabel"
-                              style="color:var(--secondary); font-size:0.95rem;"></span>
-                    </div>
-                    <div id="skillGapsList"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Row 3: Petri Net -->
-        <div class="glass-card p-4">
-            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                <div class="section-title mb-0">
-                    Petri Net — Resume Analysis Workflow
-                </div>
-                <button id="simulateBtn"
-                        class="btn btn-primary-gradient px-4 py-2"
-                        onclick="runSimulation()">
-                    <span class="material-symbols-outlined me-1"
-                          style="vertical-align:middle; font-size:18px;">play_arrow</span>
-                    Simulate
-                </button>
-            </div>
-            <p style="color:var(--text-secondary); font-size:0.83rem; margin-bottom:14px;">
-                Circles = places (states) &nbsp;|&nbsp; Rectangles = transitions (processes) &nbsp;|&nbsp;
-                Green dot = current token position
-            </p>
-
-            <!-- SVG Petri Net diagram -->
-            <div style="overflow-x:auto;">
-                <svg id="petriSvg" viewBox="0 0 870 195"
-                     style="width:100%; min-width:600px; display:block;">
-                    <defs>
-                        <marker id="arrowhead" markerWidth="8" markerHeight="6"
-                                refX="7" refY="3" orient="auto">
-                            <polygon points="0 0, 8 3, 0 6"
-                                     fill="rgba(195,192,255,0.5)"/>
-                        </marker>
-                    </defs>
-
-                    <!-- ── Arcs ── -->
-                    <!-- P0 → T0 -->
-                    <line class="pn-arrow" x1="93"  y1="80" x2="114" y2="80"/>
-                    <!-- T0 → P1 -->
-                    <line class="pn-arrow" x1="154" y1="80" x2="178" y2="80"/>
-                    <!-- P1 → T1 -->
-                    <line class="pn-arrow" x1="234" y1="80" x2="254" y2="80"/>
-                    <!-- T1 → P2 -->
-                    <line class="pn-arrow" x1="294" y1="80" x2="318" y2="80"/>
-                    <!-- P2 → T2 -->
-                    <line class="pn-arrow" x1="374" y1="80" x2="394" y2="80"/>
-                    <!-- T2 → P3 -->
-                    <line class="pn-arrow" x1="434" y1="80" x2="458" y2="80"/>
-                    <!-- P3 → T3 -->
-                    <line class="pn-arrow" x1="514" y1="80" x2="534" y2="80"/>
-                    <!-- T3 → P4 -->
-                    <line class="pn-arrow" x1="574" y1="80" x2="598" y2="80"/>
-                    <!-- P4 → T4 -->
-                    <line class="pn-arrow" x1="654" y1="80" x2="674" y2="80"/>
-                    <!-- T4 → P5 -->
-                    <line class="pn-arrow" x1="714" y1="80" x2="766" y2="80"/>
-
-                    <!-- ── Places ── -->
-                    <!-- P0: cx=66 -->
-                    <circle id="pn-P0" class="pn-place" cx="66"  cy="80" r="27"/>
-                    <text class="pn-lbl" x="66"  y="80">P0</text>
-                    <text class="pn-lbl-sm" x="66"  y="122">Resume</text>
-                    <text class="pn-lbl-sm" x="66"  y="134">Uploaded</text>
-
-                    <!-- P1: cx=206 -->
-                    <circle id="pn-P1" class="pn-place" cx="206" cy="80" r="27"/>
-                    <text class="pn-lbl" x="206" y="80">P1</text>
-                    <text class="pn-lbl-sm" x="206" y="122">Text</text>
-                    <text class="pn-lbl-sm" x="206" y="134">Extracted</text>
-
-                    <!-- P2: cx=346 -->
-                    <circle id="pn-P2" class="pn-place" cx="346" cy="80" r="27"/>
-                    <text class="pn-lbl" x="346" y="80">P2</text>
-                    <text class="pn-lbl-sm" x="346" y="122">Skills</text>
-                    <text class="pn-lbl-sm" x="346" y="134">Identified</text>
-
-                    <!-- P3: cx=486 -->
-                    <circle id="pn-P3" class="pn-place" cx="486" cy="80" r="27"/>
-                    <text class="pn-lbl" x="486" y="80">P3</text>
-                    <text class="pn-lbl-sm" x="486" y="122">Career</text>
-                    <text class="pn-lbl-sm" x="486" y="134">Matched</text>
-
-                    <!-- P4: cx=626 -->
-                    <circle id="pn-P4" class="pn-place" cx="626" cy="80" r="27"/>
-                    <text class="pn-lbl" x="626" y="80">P4</text>
-                    <text class="pn-lbl-sm" x="626" y="122">Gap Analysis</text>
-                    <text class="pn-lbl-sm" x="626" y="134">Done</text>
-
-                    <!-- P5: cx=794 -->
-                    <circle id="pn-P5" class="pn-place" cx="794" cy="80" r="27"/>
-                    <text class="pn-lbl" x="794" y="80">P5</text>
-                    <text class="pn-lbl-sm" x="794" y="122">Report</text>
-                    <text class="pn-lbl-sm" x="794" y="134">Ready</text>
-
-                    <!-- ── Transitions ── -->
-                    <!-- T0: center x=134, rect x=114 -->
-                    <rect id="pn-T0" class="pn-trans" x="114" y="66" width="40" height="28" rx="4"/>
-                    <text class="pn-lbl" x="134" y="80">T0</text>
-                    <text class="pn-lbl-sm" x="134" y="108">extract</text>
-                    <text class="pn-lbl-sm" x="134" y="119">_text</text>
-
-                    <!-- T1: center x=274, rect x=254 -->
-                    <rect id="pn-T1" class="pn-trans" x="254" y="66" width="40" height="28" rx="4"/>
-                    <text class="pn-lbl" x="274" y="80">T1</text>
-                    <text class="pn-lbl-sm" x="274" y="108">identify</text>
-                    <text class="pn-lbl-sm" x="274" y="119">_skills</text>
-
-                    <!-- T2: center x=414, rect x=394 -->
-                    <rect id="pn-T2" class="pn-trans" x="394" y="66" width="40" height="28" rx="4"/>
-                    <text class="pn-lbl" x="414" y="80">T2</text>
-                    <text class="pn-lbl-sm" x="414" y="108">match</text>
-                    <text class="pn-lbl-sm" x="414" y="119">_careers</text>
-
-                    <!-- T3: center x=554, rect x=534 -->
-                    <rect id="pn-T3" class="pn-trans" x="534" y="66" width="40" height="28" rx="4"/>
-                    <text class="pn-lbl" x="554" y="80">T3</text>
-                    <text class="pn-lbl-sm" x="554" y="108">analyze</text>
-                    <text class="pn-lbl-sm" x="554" y="119">_gaps</text>
-
-                    <!-- T4: center x=694, rect x=674 -->
-                    <rect id="pn-T4" class="pn-trans" x="674" y="66" width="40" height="28" rx="4"/>
-                    <text class="pn-lbl" x="694" y="80">T4</text>
-                    <text class="pn-lbl-sm" x="694" y="108">generate</text>
-                    <text class="pn-lbl-sm" x="694" y="119">_report</text>
-
-                    <!-- ── Token (starts at P0) ── -->
-                    <circle id="pn-token" class="pn-token" cx="66" cy="80" r="7"/>
-                </svg>
-            </div>
-
-            <!-- Simulation log -->
-            <div id="simLogSection" style="display:none;" class="mt-3">
-                <div style="font-size:0.95rem; font-weight:600; color:var(--primary);
-                            margin-bottom:8px;">Simulation Log</div>
-                <div id="simLogWrap">
-                    <div id="simLogItems"></div>
-                </div>
+        <!-- Career matches -->
+        <div class="mb-4">
+            <div class="glass-card p-4 fade-up" style="animation-delay:0.3s">
+                <div class="section-title">Career Matches</div>
+                <div id="careerBars"></div>
             </div>
         </div>
 
     </div><!-- /results-section -->
+</div>
 
-</div><!-- /container -->
+<!-- Skill Gap Analysis Modal -->
+<div class="modal fade" id="skillGapModal" tabindex="-1" aria-labelledby="skillGapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background-color: #0A0F1E; color: white; border: 1px solid rgba(255,255,255,0.1);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="skillGapModalLabel">
+                    <span class="material-symbols-outlined me-2" style="color: #4cd7f6;">analytics</span>
+                    Skill Gap Analysis
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="closeSkillGapModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div id="skillGapLoading" class="text-center py-5">
+                    <div class="spinner-border text-[#4cd7f6]" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-[#c7c4d8]">Calculating your detailed skill gap...</p>
+                </div>
+                <div id="skillGapContent" class="d-none">
+                    <div id="skillGapHeader" class="mb-4"></div>
+                    <!-- Charts -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="glass-card rounded p-3 h-100">
+                                <h6 class="fw-semibold mb-3 text-center">Match Overview</h6>
+                                <div style="max-height: 220px; position: relative;">
+                                    <canvas id="skillGapDoughnut"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="glass-card rounded p-3 h-100">
+                                <h6 class="fw-semibold mb-3 text-center">Skill Profile</h6>
+                                <div style="max-height: 220px; position: relative;">
+                                    <canvas id="skillGapRadar"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Skills Count Bar Chart -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="glass-card rounded p-3">
+                                <h6 class="fw-semibold mb-3 text-center">Matched vs Missing Skills</h6>
+                                <div style="max-height: 200px; position: relative;">
+                                    <canvas id="skillGapBarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="glass-card rounded p-3 h-100">
+                                <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                    <span class="material-symbols-outlined text-[#4ade80]">check_circle</span>
+                                    Skills You Have <span id="skillGapMatchCount" class="badge bg-[#4ade80]/20 text-[#4ade80] ms-2">0</span>
+                                </h6>
+                                <div id="skillGapMatchedSkills" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                        <div id="skillGapPartialSection" class="col-md-6 d-none">
+                            <div class="glass-card rounded p-3 h-100">
+                                <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                    <span class="material-symbols-outlined text-[#ffd766]">adjust</span>
+                                    Partial Matches
+                                </h6>
+                                <div id="skillGapPartialSkills" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="glass-card rounded p-3 h-100">
+                                <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                                    <span class="material-symbols-outlined text-[#ffb4ab]">close</span>
+                                    Skills to Learn <span id="skillGapMissingCount" class="badge bg-[#ffb4ab]/20 text-[#ffb4ab] ms-2">0</span>
+                                </h6>
+                                <div id="skillGapMissingSkills" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Personalized Recommendations -->
+                    <div class="glass-card rounded p-3 mb-4">
+                        <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined text-[#a78bfa]">lightbulb</span>
+                            Personalized Recommendations
+                        </h6>
+                        <div id="skillGapRecList"></div>
+                    </div>
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 flex-wrap">
+                        <button type="button" class="btn btn-primary-gradient rounded-pill flex-grow-1" id="skillGapViewRoadmapBtn">
+                            <span class="material-symbols-outlined sm me-1">route</span>
+                            View Full Roadmap
+                        </button>
+                        <button type="button" class="btn btn-outline-custom rounded-pill flex-grow-1" onclick="exportSkillGapReport()">
+                            <span class="material-symbols-outlined sm me-1">download</span>
+                            Export Report
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal" onclick="closeSkillGapModal()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    /* ── Token positions matching SVG place cx/cy ── */
-    const PLACE_COORDS = {
-        P0: {cx: 66,  cy: 80},
-        P1: {cx: 206, cy: 80},
-        P2: {cx: 346, cy: 80},
-        P3: {cx: 486, cy: 80},
-        P4: {cx: 626, cy: 80},
-        P5: {cx: 794, cy: 80},
-    };
+/* ─────────────────────────────────────────
+   GLOBAL VARIABLES
+───────────────────────────────────────── */
+let currentUserSkills = [];
+let currentCareerMatches = [];
 
-    /* ── File selection ── */
-    const fileInput = document.getElementById('resumeFile');
-    fileInput.addEventListener('change', () => {
-        const name = fileInput.files[0]?.name || '';
-        document.getElementById('fileName').textContent = name ? `Selected: ${name}` : '';
-    });
+/* ─────────────────────────────────────────
+   PETRI NET STAGE DEFINITIONS
+───────────────────────────────────────── */
+const PLACE_COORDS = {
+    'P0': 66,
+    'P1': 206,
+    'P2': 346,
+    'P3': 486,
+    'P4': 626,
+    'P5': 794
+};
+const STAGES = [
+    { id: 'P0', label: 'Resume Uploaded',    msg: '📄 Your resume has been received by the system.',           transition: null },
+    { id: 'P1', label: 'Text Extracted',     msg: '🔍 Extracting raw text from your PDF/DOCX file…',          transition: 'T0' },
+    { id: 'P2', label: 'Skills Identified',  msg: '🔢 Scanning for technical & soft skills in your resume…',  transition: 'T1' },
+    { id: 'P3', label: 'Career Matched',     msg: '👨‍💼 Matching your skill profile against career database…',  transition: 'T2' },
+    { id: 'P4', label: 'Gap Analysis Done',  msg: '📈 Calculating skill gaps for your top career matches…',   transition: 'T3' },
+    { id: 'P5', label: 'Report Ready',       msg: '✅ Analysis complete! Preparing your full report…',        transition: 'T4' },
+];
 
-    /* ── Drag & drop ── */
-    const uploadZone = document.getElementById('uploadZone');
-    uploadZone.addEventListener('dragover', e => {
-        e.preventDefault();
-        uploadZone.classList.add('drag-over');
-    });
-    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-    uploadZone.addEventListener('drop', e => {
-        e.preventDefault();
-        uploadZone.classList.remove('drag-over');
-        if (e.dataTransfer.files.length) {
-            fileInput.files = e.dataTransfer.files;
-            document.getElementById('fileName').textContent =
-                `Selected: ${e.dataTransfer.files[0].name}`;
-        }
-    });
+const STAGE_DELAYS = [900, 1000, 1100, 1000, 1100, 900]; // ms per stage
 
-    /* ── Form submit ── */
-    document.getElementById('resumeForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        const file = fileInput.files[0];
-        if (!file) { alert('Please select a resume file first.'); return; }
+/* ─────────────────────────────────────────
+   FILE SELECTION & DRAG DROP
+───────────────────────────────────────── */
+const fileInput  = document.getElementById('resumeFile');
+const uploadZone = document.getElementById('uploadZone');
 
-        document.getElementById('btnText').textContent = 'Analyzing…';
-        document.getElementById('btnSpinner').classList.remove('d-none');
-        document.getElementById('analyzeBtn').disabled = true;
+fileInput.addEventListener('change', () => {
+    const name = fileInput.files[0]?.name || '';
+    document.getElementById('fileName').textContent = name ? `Selected: ${name}` : '';
+});
 
-        const formData = new FormData();
-        formData.append('resume', file);
-
-        try {
-            const res = await fetch('/api/analyze-resume', {method: 'POST', body: formData});
-            const data = await res.json();
-            if (!res.ok) { alert(data.error || 'Analysis failed.'); return; }
-            renderResults(data);
-        } catch (err) {
-            alert('Network error: ' + err.message);
-        } finally {
-            document.getElementById('btnText').textContent = 'Analyze Resume';
-            document.getElementById('btnSpinner').classList.add('d-none');
-            document.getElementById('analyzeBtn').disabled = false;
-        }
-    });
-
-    /* ── Render results ── */
-    function renderResults(data) {
-        const {resume_info, career_matches, skill_gaps} = data;
-
-        /* Candidate info */
-        document.getElementById('infoName').textContent  = resume_info.name      || 'Not detected';
-        document.getElementById('infoEmail').textContent = resume_info.email     || 'Not detected';
-        document.getElementById('infoPhone').textContent = resume_info.phone     || 'Not detected';
-        document.getElementById('infoEdu').textContent   = resume_info.education || 'Not detected';
-        document.getElementById('infoCount').textContent = `${resume_info.skills_count} skills found`;
-
-        /* Skill tags */
-        const tagsEl = document.getElementById('skillTags');
-        tagsEl.innerHTML = resume_info.skills_found.length
-            ? resume_info.skills_found.map(s => `<span class="skill-tag">${s}</span>`).join('')
-            : '<p style="color:var(--text-secondary); font-size:.9rem;">No skills detected.</p>';
-
-        /* Career match bars */
-        const barsEl = document.getElementById('careerBars');
-        barsEl.innerHTML = career_matches.map((m, i) => `
-            <div class="mb-3">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="bar-label">${i+1}. ${m.career}</span>
-                    <span style="font-size:.84rem; color:var(--secondary); font-weight:600;">
-                        ${m.match_score}%
-                    </span>
-                </div>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width:${m.match_score}%;"></div>
-                </div>
-            </div>`).join('');
-
-        /* Skill gaps */
-        document.getElementById('topCareerLabel').textContent = skill_gaps.top_career || '';
-        const gapsEl = document.getElementById('skillGapsList');
-        const haveItems  = (skill_gaps.you_have      || []).map(s =>
-            `<div class="gap-item">
-                <span class="dot-have">&#9679;</span>
-                <span>${s}</span>
-             </div>`).join('');
-        const missItems  = (skill_gaps.missing_skills || []).slice(0, 12).map(s =>
-            `<div class="gap-item">
-                <span class="dot-miss">&#9679;</span>
-                <span>${s}</span>
-             </div>`).join('');
-        gapsEl.innerHTML = (haveItems + missItems) ||
-            '<p style="color:var(--text-secondary); font-size:.88rem;">No gap data available.</p>';
-
-        /* Reset Petri Net to initial state */
-        resetPetriNet();
-
-        /* Show section */
-        const sec = document.getElementById('results-section');
-        sec.style.display = 'block';
-        setTimeout(() => sec.scrollIntoView({behavior: 'smooth', block: 'start'}), 100);
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        document.getElementById('fileName').textContent = `Selected: ${e.dataTransfer.files[0].name}`;
     }
+});
 
-    /* ── Petri Net helpers ── */
-    function resetPetriNet() {
-        document.querySelectorAll('.pn-place').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.pn-trans').forEach(el => el.classList.remove('fired'));
-        const tok = document.getElementById('pn-token');
-        tok.setAttribute('cx', PLACE_COORDS.P0.cx);
-        tok.setAttribute('cy', PLACE_COORDS.P0.cy);
-        document.getElementById('simLogSection').style.display = 'none';
-        document.getElementById('simLogItems').innerHTML = '';
+/* ─────────────────────────────────────────
+   FORM SUBMIT — main flow
+───────────────────────────────────────── */
+document.getElementById('resumeForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const file = fileInput.files[0];
+    if (!file) { alert('Please select a resume file first.'); return; }
+
+    // Disable button + spinner
+    document.getElementById('btnText').textContent = 'Analyzing…';
+    document.getElementById('btnSpinner').classList.remove('d-none');
+    document.getElementById('analyzeBtn').disabled = true;
+
+    // Hide previous results
+    document.getElementById('results-section').style.display = 'none';
+
+    // Send request (runs in parallel with simulation)
+    const formData = new FormData();
+    formData.append('resume', file);
+    const apiPromise = fetch('/api/analyze-resume', { method: 'POST', body: formData });
+
+    // Show Petri net and run step-by-step simulation
+    await runPetriSimulation(apiPromise);
+});
+
+/* ─────────────────────────────────────────
+   PETRI NET SIMULATION (EMBEDDED)
+───────────────────────────────────────── */
+async function runPetriSimulation(apiPromise) {
+    const container = document.getElementById('petri-container');
+    container.classList.add('active');
+    // Scroll to Petri Net container
+    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const token = document.getElementById('token');
+    const msgEl = document.getElementById('petri-current-msg');
+
+    // Reset all elements
+    for (let i = 0; i < STAGES.length; i++) {
+        const place = document.getElementById('place-' + STAGES[i].id);
+        place.classList.remove('active', 'done');
+        if (STAGES[i].transition) {
+            const trans = document.getElementById('trans-' + STAGES[i].transition);
+            trans.classList.remove('active', 'done');
+        }
     }
+    for (let i = 0; i < 10; i++) {
+        const arrow = document.getElementById('arrow-' + i);
+        if (arrow) arrow.classList.remove('lit');
+    }
+    token.setAttribute('cx', PLACE_COORDS['P0']);
+    msgEl.innerHTML = 'Starting analysis pipeline…';
 
-    async function runSimulation() {
-        const btn = document.getElementById('simulateBtn');
-        btn.disabled = true;
+    // Activate stages one by one
+    for (let i = 0; i < STAGES.length; i++) {
+        const stage = STAGES[i];
+        const place = document.getElementById('place-' + stage.id);
 
-        try {
-            const res  = await fetch('/api/petri-simulate', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: '{}'
-            });
-            const data = await res.json();
-
-            resetPetriNet();
-            document.getElementById('simLogSection').style.display = 'block';
-            const logItems = document.getElementById('simLogItems');
-
-            for (const step of data.log) {
-                await sleep(800);
-
-                /* Highlight active place & move token */
-                document.querySelectorAll('.pn-place').forEach(el => el.classList.remove('active'));
-                if (step.active_place) {
-                    document.getElementById('pn-' + step.active_place)?.classList.add('active');
-                    const coord = PLACE_COORDS[step.active_place];
-                    if (coord) {
-                        const tok = document.getElementById('pn-token');
-                        tok.setAttribute('cx', coord.cx);
-                        tok.setAttribute('cy', coord.cy);
-                    }
-                }
-
-                /* Highlight fired transition */
-                document.querySelectorAll('.pn-trans').forEach(el => el.classList.remove('fired'));
-                if (step.fired_transition) {
-                    document.getElementById('pn-' + step.fired_transition)?.classList.add('fired');
-                }
-
-                /* Log entry */
-                const entry = document.createElement('div');
-                entry.className = 'log-entry';
-                entry.innerHTML =
-                    `<strong style="color:var(--primary)">Step ${step.step}</strong> — ${step.description}`;
-                logItems.appendChild(entry);
-                document.getElementById('simLogWrap').scrollTop = 9999;
+        // Mark previous as done
+        if (i > 0) {
+            const prevStage = STAGES[i-1];
+            const prevPlace = document.getElementById('place-' + prevStage.id);
+            prevPlace.classList.remove('active');
+            prevPlace.classList.add('done');
+            if (prevStage.transition) {
+                const prevTrans = document.getElementById('trans-' + prevStage.transition);
+                prevTrans.classList.remove('active');
+                prevTrans.classList.add('done');
             }
-        } catch (err) {
-            alert('Simulation error: ' + err.message);
-        } finally {
-            btn.disabled = false;
+            const arrow = document.getElementById('arrow-' + (i-1));
+            if (arrow) arrow.classList.add('lit');
+        }
+
+        // Activate current place
+        place.classList.add('active');
+        token.setAttribute('cx', PLACE_COORDS[stage.id]);
+        msgEl.innerHTML = stage.msg;
+
+        // If this stage has a transition, activate it
+        if (stage.transition) {
+            const trans = document.getElementById('trans-' + stage.transition);
+            await sleep(STAGE_DELAYS[i] * 0.3);
+            trans.classList.add('active');
+            await sleep(STAGE_DELAYS[i] * 0.7);
+        } else {
+            await sleep(STAGE_DELAYS[i]);
         }
     }
 
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    // Mark last stage done
+    const lastPlace = document.getElementById('place-P5');
+    lastPlace.classList.remove('active');
+    lastPlace.classList.add('done');
+    const lastTrans = document.getElementById('trans-T4');
+    if (lastTrans) lastTrans.classList.remove('active');
+    if (lastTrans) lastTrans.classList.add('done');
+    const lastArrow = document.getElementById('arrow-9');
+    if (lastArrow) lastArrow.classList.add('lit');
+    msgEl.innerHTML = '🎉 Pipeline complete! Loading your results…';
+
+    await sleep(800);
+
+    // Wait for actual API response
+    let data;
+    try {
+        const res = await apiPromise;
+        data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Analysis failed.');
+    } catch (err) {
+        resetBtn();
+        alert('Error: ' + err.message);
+        return;
+    }
+
+    // Hide Petri net, show results
+    container.classList.remove('active');
+    resetBtn();
+    renderResults(data);
+}
+
+/* ─────────────────────────────────────────
+   RENDER ALL RESULTS
+───────────────────────────────────────── */
+function renderResults(data) {
+    const { resume_info, career_matches, skill_gaps } = data;
+    currentUserSkills = resume_info.skills_found || [];
+    currentCareerMatches = career_matches || [];
+
+    /* Candidate info */
+    document.getElementById('infoName').textContent  = resume_info.name      || 'Not detected';
+    document.getElementById('infoEmail').textContent = resume_info.email     || 'Not detected';
+    document.getElementById('infoPhone').textContent = resume_info.phone     || 'Not detected';
+    document.getElementById('infoEdu').textContent   = resume_info.education || 'Not detected';
+    document.getElementById('infoCount').textContent = `${resume_info.skills_count} skills found`;
+
+    /* Skill tags */
+    const tagsEl = document.getElementById('skillTags');
+    tagsEl.innerHTML = currentUserSkills.length
+        ? currentUserSkills.map(s => `<span class="skill-tag">${s}</span>`).join('')
+        : '<p style="color:var(--text-secondary); font-size:.9rem;">No skills detected.</p>';
+
+    /* Career match bars */
+    const barsEl = document.getElementById('careerBars');
+    barsEl.innerHTML = currentCareerMatches.map((m, i) => `
+        <div class="mb-3 p-3 glass-card rounded">
+            <div class="d-flex justify-content-between mb-2">
+                <span style="font-size:1rem; font-weight:600;">${i+1}. ${m.career}</span>
+                <span style="font-size:.9rem; color:var(--secondary); font-weight:700;">
+                    ${m.match_score}%
+                </span>
+            </div>
+            <div class="bar-track mb-3">
+                <div class="bar-fill" style="width:0%" data-target="${m.match_score}"></div>
+            </div>
+            <button type="button" class="btn btn-outline-custom rounded-pill w-100 py-2" onclick="showDetailedSkillGap(event, ${i})">
+                <span class="material-symbols-outlined sm me-1" style="font-size:18px;">analytics</span>
+                Skill Gap Analysis
+            </button>
+        </div>`).join('');
+
+    // Animate bars after render
+    setTimeout(() => {
+        document.querySelectorAll('.bar-fill[data-target]').forEach(bar => {
+            bar.style.width = bar.dataset.target + '%';
+        });
+    }, 150);
+
+    /* Show results section */
+    const sec = document.getElementById('results-section');
+    sec.style.display = 'block';
+    setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+}
+
+/* ─────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────── */
+function resetBtn() {
+    document.getElementById('btnText').textContent = 'Analyze Resume';
+    document.getElementById('btnSpinner').classList.add('d-none');
+    document.getElementById('analyzeBtn').disabled = false;
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ─────────────────────────────────────────
+   SKILL GAP FUNCTIONS
+───────────────────────────────────────── */
+
+// Show detailed skill gap analysis
+async function showDetailedSkillGap(event, matchIndex = 0) {
+    event.preventDefault();
+    const modal = new bootstrap.Modal(document.getElementById('skillGapModal'));
+    const loadingDiv = document.getElementById('skillGapLoading');
+    const contentDiv = document.getElementById('skillGapContent');
+
+    // Show modal with loading
+    modal.show();
+    loadingDiv.classList.remove('d-none');
+    contentDiv.classList.add('d-none');
+
+    if (currentCareerMatches.length === 0) {
+        alert('No career matches available. Please analyze your resume first.');
+        modal.hide();
+        return;
+    }
+
+    // Create a proper career match object with required_skills (we'll have to fetch or get it)
+    // Wait, but the career matches from /api/analyze-resume don't have required_skills?
+    // Wait, let's check what the backend returns! Wait, let's check app.py's /api/analyze-resume:
+    // Oh, right, in app.py the career matches are from get_matches which DOES return required_skills!
+    // So currentCareerMatches[i] should have required_skills!
+    const selectedMatch = currentCareerMatches[matchIndex];
+
+    try {
+        // Fetch detailed skill gap
+        const gapResponse = await fetch('/api/skill-gap', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_skills: currentUserSkills,
+                career_match: selectedMatch
+            })
+        });
+        const gapData = await gapResponse.json();
+
+        // Fetch prioritized skills
+        const prioritizeResponse = await fetch('/api/prioritize-skills', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                missing_skills: gapData.missing_skills,
+                career_matches: currentCareerMatches
+            })
+        });
+        const prioritizeData = await prioritizeResponse.json();
+
+        // Render results
+        renderEnhancedSkillGapResults(gapData, prioritizeData.prioritized_skills, selectedMatch.career);
+
+        // Set up view roadmap button
+        document.getElementById('skillGapViewRoadmapBtn').onclick = () => {
+            viewRoadmap(selectedMatch.career);
+        };
+
+    } catch (error) {
+        console.error('Error fetching skill gap analysis:', error);
+        alert('Failed to load skill gap analysis. Please try again.');
+        modal.hide();
+    }
+}
+
+// Render skill gap results with charts
+function renderEnhancedSkillGapResults(gapData, prioritizedSkills, career) {
+    const { exact_matches, partial_matches, missing_skills, match_percentage, total_required, matched_count } = gapData;
+    window.gapChartInstances = [];
+
+    const loadingDiv = document.getElementById('skillGapLoading');
+    const contentDiv = document.getElementById('skillGapContent');
+
+    // Header stats
+    const scoreColor = match_percentage >= 75 ? '#4ade80' : match_percentage >= 50 ? '#4cd7f6' : '#ffb4ab';
+    document.getElementById('skillGapHeader').innerHTML = `
+        <div class="d-flex flex-wrap gap-4 justify-content-between align-items-center">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="material-symbols-outlined sm" style="color: #4cd7f6;">work</span>
+                    <span style="color: #c7c4d8; font-size: 13px;">Target Career</span>
+                </div>
+                <h4 class="fw-bold mb-0">${career}</h4>
+            </div>
+            <div class="d-flex gap-3 flex-wrap justify-content-center">
+                <div style="text-align: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); min-width: 80px;">
+                    <div style="font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: #4ade80;">${exact_matches.length}</div>
+                    <div style="font-size: 12px; color: #c7c4d8;">Matched</div>
+                </div>
+                <div style="text-align: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); min-width: 80px;">
+                    <div style="font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: #ffd766;">${partial_matches.length}</div>
+                    <div style="font-size: 12px; color: #c7c4d8;">Partial</div>
+                </div>
+                <div style="text-align: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); min-width: 80px;">
+                    <div style="font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: #ffb4ab;">${missing_skills.length}</div>
+                    <div style="font-size: 12px; color: #c7c4d8;">Missing</div>
+                </div>
+                <div style="text-align: center; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); min-width: 80px;">
+                    <div style="font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; color: ${scoreColor};">${match_percentage}%</div>
+                    <div style="font-size: 12px; color: #c7c4d8;">Match</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Charts
+    setTimeout(() => {
+        buildEnhancedDoughnutChart(exact_matches.length, partial_matches.length, missing_skills.length);
+        buildEnhancedRadarChart(exact_matches.length, partial_matches.length, missing_skills.length, total_required, match_percentage);
+        buildSkillGapBarChart(exact_matches.length, missing_skills.length);
+    }, 100);
+
+    // Matched skills
+    const matchedDiv = document.getElementById('skillGapMatchedSkills');
+    document.getElementById('skillGapMatchCount').textContent = exact_matches.length;
+    if (exact_matches.length > 0) {
+        matchedDiv.innerHTML = exact_matches.map(s => `<span class="skill-tag" style="background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.3); color: #4ade80;">${s}</span>`).join('');
+    } else {
+        matchedDiv.innerHTML = '<p style="color: #c7c4d8; font-size: 13px;">No exact skill matches found.</p>';
+    }
+
+    // Partial matches
+    const partialSection = document.getElementById('skillGapPartialSection');
+    const partialDiv = document.getElementById('skillGapPartialSkills');
+    if (partial_matches.length > 0) {
+        partialSection.classList.remove('d-none');
+        partialDiv.innerHTML = partial_matches.map(s => `<span class="skill-tag" style="background: rgba(255,215,102,0.15); border-color: rgba(255,215,102,0.3); color: #ffd766;">${s}</span>`).join('');
+    } else {
+        partialSection.classList.add('d-none');
+    }
+
+    // Missing skills
+    const missingDiv = document.getElementById('skillGapMissingSkills');
+    document.getElementById('skillGapMissingCount').textContent = missing_skills.length;
+    if (missing_skills.length > 0) {
+        missingDiv.innerHTML = missing_skills.map(s => `<span class="skill-tag" style="background: rgba(255,180,171,0.15); border-color: rgba(255,180,171,0.3); color: #ffb4ab;">${s}</span>`).join('');
+    } else {
+        missingDiv.innerHTML = '<p style="color: #4ade80; font-size: 13px;">🎉 You have all the required skills!</p>';
+    }
+
+    // Personalized recommendations
+    const recList = document.getElementById('skillGapRecList');
+    const recs = generateSkillGapRecommendations(gapData, prioritizedSkills);
+    recList.innerHTML = recs.map(r => `
+        <div class="d-flex gap-3 p-3 mb-2 rounded" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+            <div style="width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: ${r.bg};">${r.icon}</div>
+            <div>
+                <div class="fw-semibold" style="font-size: 14px; margin-bottom: 2px;">${r.title}</div>
+                <div style="font-size: 13px; color: #c7c4d8;">${r.body}</div>
+            </div>
+        </div>
+    `).join('');
+
+    // Show content
+    loadingDiv.classList.add('d-none');
+    contentDiv.classList.remove('d-none');
+}
+
+// Build enhanced doughnut chart
+function buildEnhancedDoughnutChart(exact, partial, missing) {
+    const ctx = document.getElementById('skillGapDoughnut');
+    if (!ctx) return;
+    const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Exact Matches', 'Partial Matches', 'Missing Skills'],
+            datasets: [{
+                data: [exact, partial, missing],
+                backgroundColor: [
+                    'rgba(74, 222, 128, 0.7)',
+                    'rgba(255, 215, 102, 0.7)',
+                    'rgba(255, 180, 171, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(74, 222, 128, 1)',
+                    'rgba(255, 215, 102, 1)',
+                    'rgba(255, 180, 171, 1)'
+                ],
+                borderWidth: 2,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#c7c4d8', font: { size: 12 } }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 15, 30, 0.95)',
+                    titleColor: '#dfe3e7',
+                    bodyColor: '#c7c4d8',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1
+                }
+            }
+        }
+    });
+    window.gapChartInstances.push(chart);
+}
+
+// Build enhanced radar chart
+function buildEnhancedRadarChart(exact, partial, missing, total, matchPercent) {
+    const ctx = document.getElementById('skillGapRadar');
+    if (!ctx) return;
+    const readiness = (exact / total) * 100;
+    const breadth = Math.min(100, (exact + partial) / total * 100);
+    const depth = exact > 0 ? Math.min(100, (exact / (exact + partial + missing)) * 100 + 30) : 20;
+    const learnability = matchPercent;
+    const relevance = Math.min(100, matchPercent + 10);
+
+    const chart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Readiness', 'Breadth', 'Depth', 'Learnability', 'Relevance'],
+            datasets: [{
+                label: 'Skill Profile',
+                data: [readiness, breadth, depth, learnability, relevance],
+                fill: true,
+                backgroundColor: 'rgba(76, 215, 246, 0.2)',
+                borderColor: 'rgba(76, 215, 246, 1)',
+                pointBackgroundColor: 'rgba(76, 215, 246, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(76, 215, 246, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { color: '#c7c4d8', stepSize: 20 },
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    pointLabels: { color: '#c7c4d8', font: { size: 11 } }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 15, 30, 0.95)',
+                    titleColor: '#dfe3e7',
+                    bodyColor: '#c7c4d8',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1
+                }
+            }
+        }
+    });
+    window.gapChartInstances.push(chart);
+}
+
+// Build horizontal bar chart
+function buildSkillGapBarChart(exact, missing) {
+    const ctx = document.getElementById('skillGapBarChart');
+    if (!ctx) return;
+    const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Matched Skills', 'Missing Skills'],
+            datasets: [{
+                label: 'Count',
+                data: [exact, missing],
+                backgroundColor: [
+                    'rgba(74, 222, 128, 0.7)',
+                    'rgba(255, 180, 171, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(74, 222, 128, 1)',
+                    'rgba(255, 180, 171, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 15, 30, 0.95)',
+                    titleColor: '#dfe3e7',
+                    bodyColor: '#c7c4d8',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { color: '#c7c4d8', font: { size: 12 } },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    ticks: { color: '#c7c4d8', font: { size: 12 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+    window.gapChartInstances.push(chart);
+}
+
+// Generate personalized recommendations
+function generateSkillGapRecommendations(gapData, prioritizedSkills) {
+    const recs = [];
+    const { match_percentage, missing_skills, exact_matches, career } = gapData;
+
+    // Recommendation 1: Focus on prioritized skills
+    if (prioritizedSkills && prioritizedSkills.length > 0) {
+        const topSkills = prioritizedSkills.slice(0, 3).map(s => s.skill).join(', ');
+        recs.push({
+            icon: '🎯',
+            bg: 'rgba(76, 215, 246, 0.2)',
+            title: 'Start with High-Impact Skills',
+            body: `Prioritize learning: ${topSkills} — these appear most frequently across matching careers.`
+        });
+    }
+
+    // Recommendation 2: Skill building strategy
+    if (match_percentage < 50) {
+        recs.push({
+            icon: '📚',
+            bg: 'rgba(255, 215, 102, 0.2)',
+            title: 'Structured Learning Path',
+            body: `Your match percentage is ${match_percentage}%. Consider a structured learning program starting with the fundamentals.`
+        });
+    } else if (match_percentage < 75) {
+        recs.push({
+            icon: '🚀',
+            bg: 'rgba(74, 222, 128, 0.2)',
+            title: 'You\'re Making Progress!',
+            body: `Great work! Focus on filling the remaining ${missing_skills.length} gaps to become job-ready.`
+        });
+    } else {
+        recs.push({
+            icon: '🏆',
+            bg: 'rgba(167, 139, 250, 0.2)',
+            title: 'Excellent Skill Match!',
+            body: `You already have ${match_percentage}% of required skills! Consider advanced specializations or certifications to stand out.`
+        });
+    }
+
+    // Recommendation 3: Practice & build portfolio
+    recs.push({
+        icon: '💼',
+        bg: 'rgba(255, 180, 171, 0.2)',
+        title: 'Build Practical Experience',
+        body: 'Apply your skills by building projects, contributing to open source, or taking on freelance work.'
+    });
+
+    return recs;
+}
+
+// Export skill gap report
+function exportSkillGapReport() {
+    const careerName = document.querySelector('#skillGapHeader h4').textContent;
+    const matchedSkills = Array.from(document.querySelectorAll('#skillGapMatchedSkills .skill-tag')).map(el => el.textContent);
+    const missingSkills = Array.from(document.querySelectorAll('#skillGapMissingSkills .skill-tag')).map(el => el.textContent);
+
+    const lines = [
+        'SKILLORBIT SKILL GAP ANALYSIS REPORT',
+        '================================',
+        '',
+        `Career: ${careerName}`,
+        '',
+        'SKILLS YOU HAVE:',
+        matchedSkills.map(s => `  • ${s}`).join('\n'),
+        '',
+        'SKILLS TO LEARN:',
+        missingSkills.map(s => `  • ${s}`).join('\n'),
+        '',
+        'Generated by SkillOrbit AI'
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `skillorbit-gap-report-${careerName.replace(/\s+/g,'-').toLowerCase()}.txt`;
+    a.click();
+}
+
+// Close skill gap modal
+function closeSkillGapModal() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('skillGapModal'));
+    if (modal) {
+        modal.hide();
+    }
+    // Destroy chart instances
+    if (window.gapChartInstances) {
+        window.gapChartInstances.forEach(chart => {
+            if (chart) chart.destroy();
+        });
+        window.gapChartInstances = [];
+    }
+}
+
+// Navigate to roadmap with selected career
+function viewRoadmap(careerName) {
+    // Store career in sessionStorage for roadmap page to use
+    sessionStorage.setItem('selectedCareer', careerName);
+    sessionStorage.setItem('userSkills', JSON.stringify(currentUserSkills));
+    // Navigate to roadmap page
+    window.location.href = '/roadmap';
+}
+
 </script>
 </body>
 </html>
