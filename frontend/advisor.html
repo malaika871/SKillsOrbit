@@ -465,7 +465,6 @@
                     <li class="nav-item"><a class="nav-link" href="/resume-analyzer">Resume Analyzer</a></li>
                     <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
                 </ul>
-                <button type="button" class="btn btn-nav-login rounded-pill px-4 py-2">Login</button>
             </div>
         </div>
     </nav>
@@ -724,12 +723,19 @@
         function buildSimulationCharts(data) {
             destroySimCharts();
 
-            const years = data.projected_salary.map(p => p.year);
+            const years        = data.projected_salary.map(p => p.year);
             const salaryValues = data.projected_salary.flatMap(p => [p.min, p.mid, p.max]);
-            const salaryMin = Math.floor(Math.min(...salaryValues) * 0.9);
-            const salaryMax = Math.ceil(Math.max(...salaryValues) * 1.1);
+            const salaryMin    = Math.floor(Math.min(...salaryValues) * 0.9);
+            const salaryMax    = Math.ceil(Math.max(...salaryValues) * 1.1);
             const demandColors = demandTrendColors(data.market_trend);
 
+            const fullSalaryMax = data.projected_salary.map(p => p.max);
+            const fullSalaryMid = data.projected_salary.map(p => p.mid);
+            const fullSalaryMin = data.projected_salary.map(p => p.min);
+            const fullDemand    = data.demand_projection.map(p => p.demand_index);
+            const N             = years.length;
+
+            // ── Salary chart (start with empty data arrays) ──────────────────
             salaryChartInst = new Chart(document.getElementById('salaryChart'), {
                 type: 'line',
                 plugins: [chartAreaBgPlugin],
@@ -738,7 +744,7 @@
                     datasets: [
                         {
                             label: 'Max Salary',
-                            data: data.projected_salary.map(p => p.max),
+                            data: new Array(N).fill(null),
                             borderColor: CHART_COLORS.maxSalary,
                             backgroundColor(ctx) {
                                 const { chart } = ctx;
@@ -753,7 +759,7 @@
                         },
                         {
                             label: 'Mid Salary',
-                            data: data.projected_salary.map(p => p.mid),
+                            data: new Array(N).fill(null),
                             borderColor: CHART_COLORS.midSalary,
                             backgroundColor: 'transparent',
                             tension: 0.4, borderWidth: 3.5,
@@ -763,7 +769,7 @@
                         },
                         {
                             label: 'Min Salary',
-                            data: data.projected_salary.map(p => p.min),
+                            data: new Array(N).fill(null),
                             borderColor: CHART_COLORS.minSalary,
                             borderDash: [7, 4], backgroundColor: 'transparent',
                             tension: 0.4, borderWidth: 3,
@@ -775,7 +781,7 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    animation: { duration: 900, easing: 'easeOutQuart' },
+                    animation: false,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
                         chartAreaBg: { color: 'rgba(4,18,36,0.92)', borderColor: 'rgba(0,229,255,0.35)' },
@@ -795,6 +801,7 @@
                 },
             });
 
+            // ── Demand chart (start with empty data) ─────────────────────────
             demandChartInst = new Chart(document.getElementById('demandChart'), {
                 type: 'line',
                 plugins: [chartAreaBgPlugin],
@@ -802,7 +809,7 @@
                     labels: data.demand_projection.map(p => p.year),
                     datasets: [{
                         label: 'Demand Index',
-                        data: data.demand_projection.map(p => p.demand_index),
+                        data: new Array(N).fill(null),
                         borderColor: demandColors.line,
                         backgroundColor(ctx) {
                             const { chart } = ctx;
@@ -818,7 +825,7 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    animation: { duration: 900, easing: 'easeOutQuart' },
+                    animation: false,
                     plugins: {
                         chartAreaBg: { color: demandColors.area, borderColor: demandColors.border },
                         legend: { display: false },
@@ -834,8 +841,11 @@
                 },
             });
 
+            // ── Radar chart — draws all at once with a sweep animation ────────
             const f = data.market_factors;
             const radarPts = [CHART_COLORS.cyan, CHART_COLORS.magenta, CHART_COLORS.green, CHART_COLORS.amber, CHART_COLORS.pink];
+            const fullRadar = [f.demand, f.salary_potential, f.job_security, f.growth_outlook, f.competition_ease];
+
             factorsChartInst = new Chart(document.getElementById('factorsChart'), {
                 type: 'radar',
                 plugins: [chartAreaBgPlugin],
@@ -843,7 +853,7 @@
                     labels: ['Demand', 'Salary Potential', 'Job Security', 'Growth Outlook', 'Low Competition'],
                     datasets: [{
                         label: data.career,
-                        data: [f.demand, f.salary_potential, f.job_security, f.growth_outlook, f.competition_ease],
+                        data: new Array(5).fill(0),
                         backgroundColor(ctx) {
                             const { chart } = ctx;
                             const { ctx: c, chartArea } = chart;
@@ -857,7 +867,7 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    animation: { duration: 900, easing: 'easeOutQuart' },
+                    animation: false,
                     plugins: {
                         chartAreaBg: { color: 'rgba(20,8,32,0.92)', borderColor: 'rgba(232,121,249,0.35)' },
                         legend: { position: 'bottom', labels: { color: '#f1f5f9', font: { weight: '700' } } },
@@ -875,6 +885,52 @@
                     },
                 },
             });
+
+            // ── Real-time animation: reveal one data point every 320ms ────────
+            // Salary + Demand lines draw point-by-point together.
+            // Radar sweeps its values up from 0 after line charts finish.
+            let step = 0;
+            const STEP_MS = 320;
+
+            function revealNextPoint() {
+                if (step >= N) {
+                    // Lines done — now animate radar from 0 → real values over 800ms
+                    animateRadar(fullRadar);
+                    return;
+                }
+
+                // Reveal index `step` on all three line datasets
+                salaryChartInst.data.datasets[0].data[step] = fullSalaryMax[step];
+                salaryChartInst.data.datasets[1].data[step] = fullSalaryMid[step];
+                salaryChartInst.data.datasets[2].data[step] = fullSalaryMin[step];
+                salaryChartInst.update('none');   // 'none' = skip Chart.js own animation
+
+                demandChartInst.data.datasets[0].data[step] = fullDemand[step];
+                demandChartInst.update('none');
+
+                step++;
+                setTimeout(revealNextPoint, STEP_MS);
+            }
+
+            function animateRadar(targets) {
+                const RADAR_STEPS = 30;
+                const RADAR_MS    = 800 / RADAR_STEPS;
+                let   radarStep   = 0;
+
+                function tick() {
+                    radarStep++;
+                    const progress = radarStep / RADAR_STEPS;
+                    // ease-out: fast start, slow finish
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    factorsChartInst.data.datasets[0].data = targets.map(v => Math.round(v * eased));
+                    factorsChartInst.update('none');
+                    if (radarStep < RADAR_STEPS) setTimeout(tick, RADAR_MS);
+                }
+                tick();
+            }
+
+            // Small delay so the modal finishes its show transition before we start
+            setTimeout(revealNextPoint, 300);
         }
 
         async function openCareerSimulation(careerName, matchScore) {
