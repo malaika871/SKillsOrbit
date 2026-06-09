@@ -12,13 +12,14 @@ template_dir = os.path.join(PROJECT_ROOT, 'frontend')
 app = Flask(__name__, template_folder=template_dir, static_folder=template_dir, static_url_path='/static')
 app.secret_key = "skillorbit_secret"
 
+
 # Import ML modules
 from ML.recommender import get_matches
 from ML.skill_gap import get_detailed_skill_gap, prioritize_skills
 from ML.roadmap_generator import get_all_careers, generate_roadmap, get_roadmap_for_skill_level
 from ML.career_simulator import simulate_career
 from backend.resume_analyzer import SkillExtractor, PetriNet
-
+from ML.train_model import train
 # Lazy-loaded extractor
 _extractor = None
 
@@ -247,6 +248,13 @@ def career_simulation():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/train-model",methods=["POST"])
+def train_model_endpoint():
+    try:
+        result=train()
+        return jsonify(result),200
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
 
 if __name__ == "__main__":
     # Startup checks
