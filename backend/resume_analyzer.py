@@ -1,6 +1,6 @@
 import re
 import io
-import fitz  # PyMuPDF
+import pymupdf as fitz
 import spacy
 from rapidfuzz import fuzz
 from docx import Document

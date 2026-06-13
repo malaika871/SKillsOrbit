@@ -20,7 +20,6 @@ cymem==2.0.13
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 etelemetry==0.3.1
 filelock==3.29.0
-fitz==0.0.1.dev2
 Flask==3.1.3
 gunicorn==26.0.0
 h11==0.16.0

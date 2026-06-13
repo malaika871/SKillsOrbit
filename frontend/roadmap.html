@@ -14,6 +14,7 @@
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="/static/nav.css" rel="stylesheet">
+    <link href="/static/simulations.css" rel="stylesheet">
 
     <style>
         :root {
@@ -328,6 +329,20 @@
                 </div>
             </div>
 
+            <!-- Learning Path Petri Net Simulation -->
+            <div class="sim-panel mb-4" id="roadmap-petri-panel">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <div class="sim-panel-title mb-0">&#9670; Live Learning Path Simulation (Petri Net)</div>
+                    <button type="button" class="btn btn-primary-gradient btn-sm rounded-pill px-3" id="btn-play-roadmap-sim" onclick="playRoadmapSimulation()">
+                        <span class="material-symbols-outlined sm align-middle" style="font-size:16px;">play_arrow</span> Play Simulation
+                    </button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <svg id="roadmapPetriSvg" viewBox="0 0 800 120" style="width:100%; min-width:520px; display:block;"></svg>
+                </div>
+                <div class="sim-msg mt-2" id="roadmap-petri-msg">Select a career and click Play to animate your learning path.</div>
+            </div>
+
             <!-- Timeline -->
             <div class="roadmap-timeline" id="roadmap-timeline">
                 <!-- Timeline items will be dynamically generated here -->
@@ -341,7 +356,7 @@
             <div class="row align-items-center g-3">
                 <div class="col-md-6 text-center text-md-start">
                     <h5 class="fw-bold mb-2">SkillOrbit</h5>
-                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2025 SkillOrbit AI. All rights reserved.</p>
+                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2026 SkillOrbit AI. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <div class="d-flex gap-4 justify-content-center justify-content-md-end">
@@ -356,10 +371,14 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/simulations.js"></script>
 
     <!-- Roadmap JavaScript -->
     <script>
         let selectedCareer = null;
+        let currentRoadmapData = null;
+        let currentUserSkills = [];
+        let roadmapPetriCoords = {};
 
         // Load careers on page load
         window.addEventListener('load', async function() {
@@ -398,27 +417,29 @@
             careers.forEach(careerTitle => {
                 const col = document.createElement('div');
                 col.className = 'col-md-4 col-lg-3';
-                col.innerHTML = `
-                    <div class="glass-card rounded p-3 career-select-card" onclick="selectCareer('${careerTitle}')">
+                const card = document.createElement('div');
+                card.className = 'glass-card rounded p-3 career-select-card';
+                card.dataset.career = careerTitle;
+                card.innerHTML = `
                         <h6 class="fw-semibold mb-1">${careerTitle}</h6>
                         <small style="color: var(--text-secondary);">Click to view roadmap</small>
-                    </div>
                 `;
+                card.addEventListener('click', () => selectCareer(careerTitle, card));
+                col.appendChild(card);
                 grid.appendChild(col);
             });
         }
 
         // Select career and load roadmap
-        async function selectCareer(careerName) {
+        async function selectCareer(careerName, cardEl) {
             selectedCareer = careerName;
 
-            // Update UI to show selected
             document.querySelectorAll('.career-select-card').forEach(card => {
                 card.classList.remove('selected');
             });
-            event.target.closest('.career-select-card').classList.add('selected');
+            const card = cardEl || document.querySelector(`.career-select-card[data-career="${CSS.escape(careerName)}"]`);
+            if (card) card.classList.add('selected');
 
-            // Load roadmap
             await loadRoadmap(careerName);
         }
 
@@ -439,13 +460,13 @@
             const userSkills = userSkillsJSON ? JSON.parse(userSkillsJSON) : [];
 
             loadRoadmap(careerName, userSkills);
-
-            // Clean up
+            currentUserSkills = userSkills;
             sessionStorage.removeItem('userSkills');
         }
 
         // Load roadmap for selected career
         async function loadRoadmap(careerName, userSkills = []) {
+            currentUserSkills = userSkills;
             try {
                 const response = await fetch('/api/roadmap', {
                     method: 'POST',
@@ -474,6 +495,7 @@
 
         // Render roadmap timeline
         function renderRoadmap(data) {
+            currentRoadmapData = data;
             document.getElementById('roadmap-career-title').textContent = data.career;
             document.getElementById('roadmap-career-desc').textContent = data.description || 'Complete learning path with milestones and skills';
 
@@ -529,6 +551,44 @@
 
             document.getElementById('overall-progress').style.width = `${progress}%`;
             document.getElementById('overall-progress-text').textContent = `${Math.round(progress)}%`;
+
+            roadmapPetriCoords = SimUtils.buildRoadmapPetriSvg(data.phases, 'roadmapPetriSvg') || {};
+            document.getElementById('roadmap-petri-msg').textContent = 'Ready — click Play Simulation to animate phase progression.';
+        }
+
+        async function playRoadmapSimulation() {
+            if (!selectedCareer) {
+                alert('Please select a career first.');
+                return;
+            }
+            const msgEl = document.getElementById('roadmap-petri-msg');
+            msgEl.textContent = 'Running learning path simulation…';
+
+            try {
+                const res = await fetch('/api/roadmap-simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ career: selectedCareer, user_skills: currentUserSkills }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Simulation failed');
+
+                if (data.phases) {
+                    roadmapPetriCoords = SimUtils.buildRoadmapPetriSvg(data.phases, 'roadmapPetriSvg') || roadmapPetriCoords;
+                }
+
+                await SimUtils.animatePetriFromLog(data.log, {
+                    placePrefix: 'place-',
+                    transPrefix: 'trans-',
+                    tokenId: 'token',
+                    msgId: 'roadmap-petri-msg',
+                    placeCoords: roadmapPetriCoords,
+                    stepDelay: 900,
+                });
+                msgEl.textContent = 'Simulation complete — token reached your current learning phase.';
+            } catch (err) {
+                msgEl.textContent = 'Simulation error: ' + err.message;
+            }
         }
     </script>
 </body>

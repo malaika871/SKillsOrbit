@@ -1,0 +1,102 @@
+/* Shared live simulation styles */
+.sim-panel {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.sim-panel-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #c3c0ff;
+}
+
+.sim-msg {
+    font-size: 0.85rem;
+    color: #c7c4d8;
+    min-height: 1.4em;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.sim-progress-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.sim-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4f46e5, #06b6d4);
+    border-radius: 999px;
+    width: 0%;
+    transition: width 0.4s ease;
+}
+
+/* Petri net shared */
+.pn-place { fill: rgba(79, 70, 229, 0.15); stroke: rgba(195, 192, 255, 0.4); stroke-width: 2; transition: all 0.35s; }
+.pn-place.active { fill: rgba(79, 70, 229, 0.45); stroke: #c3c0ff; filter: drop-shadow(0 0 8px rgba(195, 192, 255, 0.5)); }
+.pn-place.done { fill: rgba(74, 222, 128, 0.2); stroke: #4ade80; }
+.pn-trans { fill: rgba(6, 182, 212, 0.2); stroke: rgba(6, 182, 212, 0.6); stroke-width: 1.5; transition: all 0.35s; }
+.pn-trans.active { fill: rgba(6, 182, 212, 0.5); stroke: #4cd7f6; }
+.pn-trans.done { fill: rgba(74, 222, 128, 0.25); stroke: #4ade80; }
+.pn-arrow { stroke: rgba(195, 192, 255, 0.25); stroke-width: 2; transition: stroke 0.3s; }
+.pn-arrow.lit { stroke: rgba(195, 192, 255, 0.7); }
+.pn-token-dot { fill: #4ade80; filter: drop-shadow(0 0 6px #4ade80); transition: cx 0.5s ease; }
+.pn-lbl { fill: #dfe3e7; font-size: 11px; text-anchor: middle; dominant-baseline: central; font-family: 'JetBrains Mono', monospace; }
+.pn-lbl-sm { fill: #c7c4d8; font-size: 9px; text-anchor: middle; font-family: 'Inter', sans-serif; }
+
+/* Pipeline chips */
+.pipeline-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.pipeline-chip {
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: rgba(79, 70, 229, 0.2);
+    border: 1px solid rgba(195, 192, 255, 0.3);
+    opacity: 0.35;
+    transition: all 0.35s;
+}
+.pipeline-chip.lit { opacity: 1; background: rgba(74, 222, 128, 0.15); border-color: #4ade80; color: #4ade80; }
+.pipeline-chip.pending { opacity: 0.5; border-color: rgba(248, 113, 113, 0.4); color: #f87171; }
+
+/* Journey timeline */
+.journey-steps { display: flex; flex-direction: column; gap: 0.5rem; }
+.journey-step {
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    opacity: 0.35;
+    transition: all 0.35s;
+}
+.journey-step.active { opacity: 1; border-color: rgba(76, 215, 246, 0.5); background: rgba(76, 215, 246, 0.08); }
+.journey-step.done { opacity: 0.85; border-color: rgba(74, 222, 128, 0.4); }
+
+/* Markov chain */
+.markov-states { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.markov-node {
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    opacity: 0.4;
+    transition: all 0.3s;
+}
+.markov-node.active { opacity: 1; border-color: #c3c0ff; background: rgba(79, 70, 229, 0.25); box-shadow: 0 0 12px rgba(79, 70, 229, 0.3); }
+.markov-node.done { opacity: 0.9; border-color: #4ade80; background: rgba(74, 222, 128, 0.12); }
+.markov-arrow { color: #c7c4d8; font-size: 1rem; opacity: 0.5; }
+
+/* Queue sim */
+.queue-bar-wrap { display: flex; gap: 4px; align-items: flex-end; height: 60px; margin: 0.75rem 0; }
+.queue-bar {
+    flex: 1;
+    background: linear-gradient(180deg, #4cd7f6, #4f46e5);
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.35s ease;
+}
+.queue-stat { font-size: 0.8rem; color: #c7c4d8; }

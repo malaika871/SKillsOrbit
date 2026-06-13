@@ -14,6 +14,7 @@
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link href="/static/nav.css" rel="stylesheet">
+    <link href="/static/simulations.css" rel="stylesheet">
 
     <style>
         :root {
@@ -522,7 +523,7 @@
             <div class="row align-items-center g-3">
                 <div class="col-md-6 text-center text-md-start">
                     <h5 class="fw-bold mb-2">SkillOrbit</h5>
-                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2025 SkillOrbit AI. All rights reserved.</p>
+                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2026 SkillOrbit AI. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <div class="d-flex gap-4 justify-content-center justify-content-md-end">
@@ -552,11 +553,34 @@
                         <p class="mb-0">Loading market trends and salary projections…</p>
                     </div>
                     <div id="simContent" class="d-none">
+                        <!-- Live Career Journey Simulation -->
+                        <div class="sim-panel mb-4">
+                            <div class="sim-panel-title">Career Journey Timeline (Live)</div>
+                            <div class="journey-steps" id="journey-steps"></div>
+                        </div>
+
+                        <!-- Job Market Queue Simulation -->
+                        <div class="sim-panel mb-4">
+                            <div class="sim-panel-title">Job Market Queue Simulation</div>
+                            <div class="sim-msg" id="queue-msg">Initializing applicant queue…</div>
+                            <div class="queue-bar-wrap" id="queue-bar-wrap">
+                                <div class="queue-bar" id="queue-bar" style="height:8%;"></div>
+                            </div>
+                            <div class="queue-stat" id="queue-summary"></div>
+                        </div>
+
+                        <!-- Markov Career Path -->
+                        <div class="sim-panel mb-4">
+                            <div class="sim-panel-title">Markov Chain — Career Progression</div>
+                            <div class="sim-msg mb-2" id="markov-msg">Simulating career state transitions…</div>
+                            <div class="markov-states" id="markov-states"></div>
+                        </div>
+
                         <div class="row g-3 mb-4" id="simStatsRow"></div>
                         <div class="row g-3 mb-4">
                             <div class="col-lg-7">
                                 <div class="sim-chart-box salary-box">
-                                    <div class="sim-chart-title"><span class="dot dot-cyan"></span>5-Year Salary Projection (USD)</div>
+                                    <div class="sim-chart-title"><span class="dot dot-cyan"></span>5-Year Salary Projection (PKR/month)</div>
                                     <div class="sim-chart-canvas-wrap salary-bg">
                                         <canvas id="salaryChart"></canvas>
                                     </div>
@@ -595,6 +619,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/simulations.js"></script>
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -636,7 +661,7 @@
         });
 
         function fmtSalary(n) {
-            return '$' + Math.round(n).toLocaleString();
+            return '₨' + Math.round(n).toLocaleString();
         }
 
         function destroySimCharts() {
@@ -946,19 +971,55 @@
             simModal.show();
 
             try {
-                const res = await fetch('/api/career-simulation', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ career: careerName, match_score: matchScore }),
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Simulation failed');
+                const [marketRes, journeyRes, queueRes, markovRes] = await Promise.all([
+                    fetch('/api/career-simulation', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ career: careerName, match_score: matchScore }),
+                    }),
+                    fetch('/api/career-journey-simulate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ career: careerName, match_score: matchScore }),
+                    }),
+                    fetch('/api/queue-simulate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            career: careerName,
+                            competition_level: currentMatches.find(m => m.career === careerName)?.competition_level || 5,
+                            demand_level: currentMatches.find(m => m.career === careerName)?.demand_level || 5,
+                        }),
+                    }),
+                    fetch('/api/markov-simulate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ career: careerName, match_score: matchScore, user_skills: currentUserSkills }),
+                    }),
+                ]);
+
+                const data = await marketRes.json();
+                const journey = await journeyRes.json();
+                const queue = await queueRes.json();
+                const markov = await markovRes.json();
+
+                if (!marketRes.ok) throw new Error(data.error || 'Simulation failed');
 
                 renderSimulationModal(data);
+                renderJourneySteps(journey.steps || []);
+                renderMarkovStates(markov);
+
                 document.getElementById('simLoading').classList.add('d-none');
                 document.getElementById('simContent').classList.remove('d-none');
 
-                // Charts must render after modal content is visible (fixed height)
+                await SimUtils.animateJourneySteps(journey.steps || [], { containerId: 'journey-steps', delay: 700 });
+                await SimUtils.animateQueue(queue.events || [], { barId: 'queue-bar', msgId: 'queue-msg', delay: 400 });
+                if (queue.summary) {
+                    document.getElementById('queue-summary').textContent =
+                        `Processed: ${queue.summary.total_processed} | Offers: ${queue.summary.total_offers} | Success rate: ${queue.summary.success_rate}%`;
+                }
+                await SimUtils.animateMarkovPath(markov.path_log || [], { containerId: 'markov-states', delay: 650 });
+
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => buildSimulationCharts(data));
                 });
@@ -968,13 +1029,34 @@
             }
         }
 
+        function renderJourneySteps(steps) {
+            const el = document.getElementById('journey-steps');
+            if (!el) return;
+            el.innerHTML = steps.map(s => `
+                <div class="journey-step">
+                    <strong>${s.year} — ${s.title}</strong>
+                    <div style="font-size:0.8rem;color:var(--text-secondary);">${s.description}</div>
+                    <div style="font-size:0.75rem;color:var(--secondary);margin-top:4px;">
+                        Salary mid: ₨${(s.salary_mid || 0).toLocaleString()} · Demand: ${s.demand_index || '—'}
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderMarkovStates(markov) {
+            const el = document.getElementById('markov-states');
+            if (!el) return;
+            el.innerHTML = (markov.states || []).map((s, i) =>
+                `<span class="markov-node" data-idx="${i}">${s}</span>${i < markov.states.length - 1 ? '<span class="markov-arrow">→</span>' : ''}`
+            ).join('');
+        }
+
         function renderSimulationModal(data) {
             const trendClass = TREND_CLASS[data.market_trend] || 'trend-stable';
             const outlook = data.metrics.market_outlook_score;
             const cur = data.current_salary;
 
             document.getElementById('simModalSubtitle').textContent =
-                `${data.career} · ${data.job_type} · ${data.match_score ?? '—'}% skill match`;
+                `${data.career} · ${data.job_type || 'Hybrid'} · ${data.match_score ?? '—'}% skill match`;
 
             document.getElementById('simStatsRow').innerHTML = `
                 <div class="col-6 col-md-3">
@@ -1091,10 +1173,11 @@
 
                 // Find matching and missing skills
                 const userSkillsLower = userSkills.map(s => s.toLowerCase());
-                const matchingSkills = match.required_skills.filter(skill =>
+                const reqSkills = match.required_skills || [];
+                const matchingSkills = reqSkills.filter(skill =>
                     userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
                 ).slice(0, 4);
-                const missingSkills = match.required_skills.filter(skill =>
+                const missingSkills = reqSkills.filter(skill =>
                     !userSkillsLower.some(us => skill.toLowerCase().includes(us.toLowerCase()) || us.toLowerCase().includes(skill.toLowerCase()))
                 ).slice(0, 4);
 
@@ -1281,6 +1364,14 @@
                             <p style="color: var(--text-secondary);">Calculating your detailed skill gap...</p>
                         </div>
 
+                        <!-- Live Skill Gap Pipeline -->
+                        <div id="skillGapPipelinePanel" class="sim-panel mb-4 d-none">
+                            <div class="sim-panel-title">Live Skill Gap Closure Pipeline</div>
+                            <div class="sim-msg" id="pipeline-msg">Starting pipeline…</div>
+                            <div class="sim-progress-track"><div class="sim-progress-fill" id="pipeline-bar"></div></div>
+                            <div class="pipeline-skills mt-2" id="pipeline-chips"></div>
+                        </div>
+
                         <!-- Results container (hidden initially) -->
                         <div id="skillGapResults" class="d-none">
                             <!-- Header Stats -->
@@ -1417,12 +1508,31 @@
                 // Store for export
                 window.currentSkillGapData = { gapData, prioritizedSkills, career: selectedMatch.career, userSkills: currentUserSkills };
 
-                // Hide loading, show results
                 document.getElementById('skillGapLoading').classList.add('d-none');
                 document.getElementById('skillGapResults').classList.remove('d-none');
-
-                // Render everything
                 renderEnhancedSkillGapResults(gapData, prioritizedSkills);
+
+                // Skill gap pipeline simulation (after results visible)
+                try {
+                    const pipeRes = await fetch('/api/skill-gap-simulate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_skills: currentUserSkills, career_match: selectedMatch }),
+                    });
+                    if (pipeRes.ok) {
+                        const pipeData = await pipeRes.json();
+                        const panel = document.getElementById('skillGapPipelinePanel');
+                        const chips = document.getElementById('pipeline-chips');
+                        panel.classList.remove('d-none');
+                        chips.innerHTML = (pipeData.skills_to_learn || []).map(s =>
+                            `<span class="pipeline-chip pending" data-skill="${s}">${s}</span>`
+                        ).join('');
+                        document.getElementById('pipeline-bar').style.width = pipeData.initial_match + '%';
+                        await SimUtils.animatePipeline(pipeData.steps || [], {
+                            msgId: 'pipeline-msg', barId: 'pipeline-bar', chipsId: 'pipeline-chips', delay: 550,
+                        });
+                    }
+                } catch (e) { console.warn('Pipeline sim skipped', e); }
 
             } catch (err) {
                 console.error(err);

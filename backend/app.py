@@ -19,7 +19,14 @@ from ML.skill_gap import get_detailed_skill_gap, prioritize_skills
 from ML.roadmap_generator import get_all_careers, generate_roadmap, get_roadmap_for_skill_level
 from ML.career_simulator import simulate_career
 from backend.resume_analyzer import SkillExtractor, PetriNet
-from ML.train_model import train
+from ML.live_simulations import (
+    simulate_roadmap_petri,
+    simulate_career_journey,
+    simulate_skill_gap_pipeline,
+    simulate_markov_career,
+    simulate_job_queue,
+    simulate_skill_extraction,
+)
 # Lazy-loaded extractor
 _extractor = None
 
@@ -188,15 +195,15 @@ def analyze_resume():
             "career": m["career"],
             "match_score": m["score"],
             "rank": i + 1,
-            "required_skills": m["required_skills"],
+            "required_skills": m.get("required_skills", []),
             "salary_min": m["salary_min"],
             "salary_max": m["salary_max"],
             "demand_level": m["demand_level"],
-            "job_type": m["job_type"],
+            "job_type": m.get("job_type", "Hybrid"),
             "market_trend": m["market_trend"],
             "salary_growth_rate": m["salary_growth_rate"],
             "automation_risk": m["automation_risk"],
-            "competition_level": m["competition_level"]
+            "competition_level": m.get("competition_level", 5),
         }
         for i, m in enumerate(raw_matches)
     ]
@@ -229,6 +236,93 @@ def petri_simulate():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/roadmap-simulate", methods=["POST"])
+def roadmap_simulate():
+    try:
+        data = request.get_json() or {}
+        career = data.get("career", "")
+        user_skills = data.get("user_skills", [])
+        if not career:
+            return jsonify({"error": "Career name is required"}), 400
+        result = simulate_roadmap_petri(career, user_skills)
+        if result.get("error"):
+            return jsonify(result), 404
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/career-journey-simulate", methods=["POST"])
+def career_journey_simulate():
+    try:
+        data = request.get_json() or {}
+        career = data.get("career", "")
+        match_score = data.get("match_score")
+        if not career:
+            return jsonify({"error": "Career name is required"}), 400
+        result = simulate_career_journey(career, match_score=match_score)
+        if result.get("error"):
+            return jsonify(result), 404
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/skill-gap-simulate", methods=["POST"])
+def skill_gap_simulate():
+    try:
+        data = request.get_json() or {}
+        user_skills = data.get("user_skills", [])
+        career_match = data.get("career_match", {})
+        if not user_skills or not career_match:
+            return jsonify({"error": "Missing required data"}), 400
+        return jsonify(simulate_skill_gap_pipeline(user_skills, career_match)), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/markov-simulate", methods=["POST"])
+def markov_simulate():
+    try:
+        data = request.get_json() or {}
+        career = data.get("career", "")
+        if not career:
+            return jsonify({"error": "Career name is required"}), 400
+        return jsonify(simulate_markov_career(
+            career,
+            match_score=data.get("match_score"),
+            user_skills=data.get("user_skills", []),
+        )), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/queue-simulate", methods=["POST"])
+def queue_simulate():
+    try:
+        data = request.get_json() or {}
+        career = data.get("career", "")
+        if not career:
+            return jsonify({"error": "Career name is required"}), 400
+        return jsonify(simulate_job_queue(
+            career,
+            competition_level=int(data.get("competition_level", 5)),
+            demand_level=int(data.get("demand_level", 5)),
+        )), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/skill-extraction-simulate", methods=["POST"])
+def skill_extraction_simulate():
+    try:
+        data = request.get_json() or {}
+        skills = data.get("skills_found", [])
+        return jsonify(simulate_skill_extraction(skills)), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/career-simulation", methods=["POST"])
 def career_simulation():
     """API endpoint for market trend and salary simulation for a career."""
@@ -251,6 +345,7 @@ def career_simulation():
 @app.route("/api/train-model",methods=["POST"])
 def train_model_endpoint():
     try:
+        from ML.train_model import train
         result=train()
         return jsonify(result),200
     except Exception as e:
