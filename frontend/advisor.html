@@ -445,6 +445,8 @@
             padding: 48px 20px;
             color: var(--text-secondary);
         }
+
+        #skillGapPipelinePanel { display: none !important; }
     </style>
 </head>
 <body>
@@ -1480,7 +1482,11 @@
                         career_match: selectedMatch
                     })
                 });
-                if (!gapRes.ok) throw new Error(`Skill gap API error ${gapRes.status}`);
+
+                if (!gapRes.ok) {
+                    const errBody = await gapRes.json().catch(() => ({}));
+                    throw new Error(errBody.error || 'Failed to get skill gap analysis');
+                }
                 const gapData = await gapRes.json();
 
                 // 2. Prioritize missing skills

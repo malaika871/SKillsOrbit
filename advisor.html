@@ -1,0 +1,12 @@
+                document.getElementById('skillGapLoading').classList.add('d-none');
+                document.getElementById('skillGapResults').classList.remove('d-none');
+                renderEnhancedSkillGapResults(gapData, prioritizedSkills);
+
+                // Skill gap pipeline removed — no additional pipeline fetch or animation.
+                
+            } catch (err) {
+                console.error(err);
+                alert(`Analysis failed: ${err.message}. Is the backend running?`);
+                closeSkillGapModal();
+            }
+        }
