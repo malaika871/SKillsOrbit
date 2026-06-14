@@ -444,21 +444,6 @@
             </div>
         </div>
 
-        <!-- NLP Skill Extraction Pipeline -->
-        <div class="sim-panel mb-4 fade-up" id="nlp-pipeline-panel" style="display:none;">
-            <div class="sim-panel-title">NLP Skill Extraction Pipeline (Live)</div>
-            <div class="sim-msg" id="nlp-pipeline-msg">Extracting skills from resume text…</div>
-            <div class="pipeline-skills" id="nlp-pipeline-chips"></div>
-        </div>
-
-        <!-- Skill Gap Closure Pipeline -->
-        <div class="sim-panel mb-4 fade-up" id="gap-pipeline-panel" style="display:none;">
-            <div class="sim-panel-title">Skill Gap Closure Pipeline (Live)</div>
-            <div class="sim-msg" id="gap-pipeline-msg">Simulating upskilling path…</div>
-            <div class="sim-progress-track"><div class="sim-progress-fill" id="gap-pipeline-bar"></div></div>
-            <div class="pipeline-skills mt-2" id="gap-pipeline-chips"></div>
-        </div>
-
         <!-- Row 1: Candidate info + Skills -->
         <div class="row g-4 mb-4">
             <div class="col-md-4">
@@ -838,61 +823,6 @@ function renderResults(data) {
     const sec = document.getElementById('results-section');
     sec.style.display = 'block';
     setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-
-    runPostResultSimulations(data);
-}
-
-async function runPostResultSimulations(data) {
-    const skills = data.resume_info?.skills_found || [];
-
-    /* NLP extraction replay */
-    try {
-        const res = await fetch('/api/skill-extraction-simulate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ skills_found: skills }),
-        });
-        const nlp = await res.json();
-        const panel = document.getElementById('nlp-pipeline-panel');
-        const chips = document.getElementById('nlp-pipeline-chips');
-        panel.style.display = 'block';
-        chips.innerHTML = skills.map(s => `<span class="pipeline-chip" data-skill="${s}">${s}</span>`).join('');
-
-        for (const step of nlp.steps || []) {
-            document.getElementById('nlp-pipeline-msg').textContent = step.description;
-            (step.skills_found || []).forEach(sk => {
-                const c = chips.querySelector(`[data-skill="${sk}"]`);
-                if (c) c.classList.add('lit');
-            });
-            await SimUtils.sleep(500);
-        }
-    } catch (e) { console.warn('NLP sim skipped', e); }
-
-    /* Skill gap pipeline for top match */
-    const top = (data.career_matches || [])[0];
-    if (top && skills.length) {
-        try {
-            const res = await fetch('/api/skill-gap-simulate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_skills: skills,
-                    career_match: { career: top.career, required_skills: top.required_skills || [], score: top.match_score },
-                }),
-            });
-            const pipe = await res.json();
-            const panel = document.getElementById('gap-pipeline-panel');
-            const chips = document.getElementById('gap-pipeline-chips');
-            panel.style.display = 'block';
-            chips.innerHTML = (pipe.skills_to_learn || []).map(s =>
-                `<span class="pipeline-chip pending" data-skill="${s}">${s}</span>`
-            ).join('');
-            document.getElementById('gap-pipeline-bar').style.width = (pipe.initial_match || 0) + '%';
-            await SimUtils.animatePipeline(pipe.steps || [], {
-                msgId: 'gap-pipeline-msg', barId: 'gap-pipeline-bar', chipsId: 'gap-pipeline-chips', delay: 550,
-            });
-        } catch (e) { console.warn('Gap pipeline skipped', e); }
-    }
 }
 
 /* ─────────────────────────────────────────

@@ -228,7 +228,50 @@
         .career-select-card {
             cursor: pointer;
             transition: all 0.3s ease;
+            width: 100%;
+            min-height: 118px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
+
+        .career-select-card h6 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.75rem;
+            line-height: 1.35;
+            margin-bottom: 0.35rem;
+        }
+
+        .career-section-grid > [class*="col-"] {
+            display: flex;
+        }
+
+        .career-section-block {
+            margin-bottom: 2rem;
+        }
+
+        .career-section-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .career-section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .career-section-title.cs { color: var(--primary); }
+        .career-section-title.se { color: var(--secondary); }
+        .career-section-title.it { color: var(--tertiary); }
+        .career-section-title.ai { color: var(--success); }
+        .career-section-title.ds { color: var(--warning); }
+        .career-section-title.other { color: var(--text-secondary); }
 
         .career-select-card:hover {
             transform: translateY(-4px);
@@ -299,9 +342,7 @@
         <!-- Career Selection -->
         <div id="career-selection" class="mb-5">
             <h3 class="h5 fw-semibold mb-4">Select a Career Path</h3>
-            <div class="row g-3" id="career-grid">
-                <!-- Career cards will be dynamically loaded here -->
-            </div>
+            <div id="career-sections-container"></div>
         </div>
 
         <!-- Roadmap Content -->
@@ -379,6 +420,16 @@
         let currentRoadmapData = null;
         let currentUserSkills = [];
         let roadmapPetriCoords = {};
+        let allCareersGrouped = {};
+
+        const CAREER_SECTIONS = [
+            { key: 'computer_science', title: 'Computer Science (CS)', cssClass: 'cs' },
+            { key: 'software_engineering', title: 'Software Engineering (SE)', cssClass: 'se' },
+            { key: 'information_technology', title: 'Information Technology (IT)', cssClass: 'it' },
+            { key: 'artificial_intelligence', title: 'Artificial Intelligence (AI)', cssClass: 'ai' },
+            { key: 'data_science', title: 'Data Science', cssClass: 'ds' },
+            { key: 'other', title: 'Other Career Paths', cssClass: 'other' },
+        ];
 
         // Load careers on page load
         window.addEventListener('load', async function() {
@@ -401,32 +452,55 @@
                 const response = await fetch('/api/careers');
                 if (!response.ok) throw new Error('Failed to load careers');
 
-                const careers = await response.json();
-                renderCareerGrid(careers);
+                allCareersGrouped = await response.json();
+                renderCareerGrid(allCareersGrouped);
             } catch (error) {
                 console.error('Error loading careers:', error);
                 alert('Failed to load careers. Please try again.');
             }
         }
 
-        // Render career selection grid
-        function renderCareerGrid(careers) {
-            const grid = document.getElementById('career-grid');
-            grid.innerHTML = '';
+        function createCareerCard(careerTitle) {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 col-lg-3';
+            const card = document.createElement('div');
+            card.className = 'glass-card rounded p-3 career-select-card';
+            if (selectedCareer === careerTitle) {
+                card.classList.add('selected');
+            }
+            card.dataset.career = careerTitle;
+            card.innerHTML = `
+                <h6 class="fw-semibold mb-1">${careerTitle}</h6>
+                <small style="color: var(--text-secondary);">Click to view roadmap</small>
+            `;
+            card.addEventListener('click', () => selectCareer(careerTitle, card));
+            col.appendChild(card);
+            return col;
+        }
 
-            careers.forEach(careerTitle => {
-                const col = document.createElement('div');
-                col.className = 'col-md-4 col-lg-3';
-                const card = document.createElement('div');
-                card.className = 'glass-card rounded p-3 career-select-card';
-                card.dataset.career = careerTitle;
-                card.innerHTML = `
-                        <h6 class="fw-semibold mb-1">${careerTitle}</h6>
-                        <small style="color: var(--text-secondary);">Click to view roadmap</small>
-                `;
-                card.addEventListener('click', () => selectCareer(careerTitle, card));
-                col.appendChild(card);
-                grid.appendChild(col);
+        function renderCareerGrid(groupedCareers) {
+            const container = document.getElementById('career-sections-container');
+            container.innerHTML = '';
+
+            CAREER_SECTIONS.forEach(section => {
+                const careers = groupedCareers[section.key] || [];
+                if (careers.length === 0) return;
+
+                const block = document.createElement('div');
+                block.className = 'career-section-block';
+
+                const heading = document.createElement('h4');
+                heading.className = `career-section-title ${section.cssClass}`;
+                heading.textContent = section.title;
+                block.appendChild(heading);
+
+                const grid = document.createElement('div');
+                grid.className = 'row g-3 career-section-grid';
+                careers.forEach(careerTitle => {
+                    grid.appendChild(createCareerCard(careerTitle));
+                });
+                block.appendChild(grid);
+                container.appendChild(block);
             });
         }
 

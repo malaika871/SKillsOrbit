@@ -194,14 +194,139 @@ ROADMAP_TEMPLATES = {
 }
 
 
-def get_all_careers():
-    """Return list of all O*NET career titles."""
+_PRIORITY_KEYWORDS = (
+    "computer science",
+    "software",
+    "data scien",
+    "data analyst",
+    "data engineer",
+    "artificial intelligence",
+    "machine learning",
+    "information technology",
+    "information security",
+    "information systems",
+    "computer system",
+    "computer network",
+    "computer program",
+    "web develop",
+    "database",
+    "computer and information",
+    "computer user support",
+    "computer research",
+    "computer hardware",
+    "computer occupation",
+    "cybersecurity",
+    "systems analyst",
+    "network and computer",
+    "software quality",
+    "geographic information systems",
+    "blockchain engineer",
+    "bioinformatics technician",
+)
+
+# O*NET SOC families for CS / SE / IT / AI / data roles (not all 15-xxxx math jobs)
+_PRIORITY_SOC_PREFIXES = (
+    "15-12",   # Computer occupations (developers, analysts, admins, etc.)
+    "15-2051", # Data Scientists
+    "15-1299", # Other computer occupations (e.g. information security engineers)
+)
+_PRIORITY_SOC_CODES = frozenset({"11-3021.00", "17-2061.00", "25-1021.00"})
+
+
+def _is_priority_tech_career(title, soc_code=""):
+    """True for CS, SE, IT, AI, and data-science related O*NET occupations."""
+    if soc_code:
+        if soc_code in _PRIORITY_SOC_CODES:
+            return True
+        if any(soc_code.startswith(prefix) for prefix in _PRIORITY_SOC_PREFIXES):
+            return True
+    title_lower = title.lower()
+    return any(keyword in title_lower for keyword in _PRIORITY_KEYWORDS)
+
+
+# Category rules — first match wins (most specific categories first)
+_CATEGORY_RULES = (
+    ("data_science", (
+        "data scien", "data warehous", "business intelligence", "clinical data",
+        "biostatistic",
+    )),
+    ("artificial_intelligence", (
+        "artificial intelligence", "machine learning", "bioinformatics",
+        "computer and information research",
+    )),
+    ("software_engineering", (
+        "software", "web develop", "web admin", "web and digital", "video game",
+        "programmer", "blockchain engineer", "software quality",
+        "computer systems engineer",
+    )),
+    ("information_technology", (
+        "information technology", "information systems", "information security",
+        "network and computer", "computer network", "database",
+        "computer user support", "computer systems analyst", "penetration test",
+        "digital forensics", "document management", "telecommunications",
+        "health informatics", "geographic information",
+        "computer and information systems manager",
+    )),
+    ("computer_science", (
+        "computer science", "computer hardware", "computer occupation",
+    )),
+)
+
+
+def _categorize_career(title, soc_code=""):
+    """Assign each career to CS, SE, IT, AI, data_science, or other."""
+    if not _is_priority_tech_career(title, soc_code):
+        return "other"
+
+    title_lower = title.lower()
+    for category, keywords in _CATEGORY_RULES:
+        if any(keyword in title_lower for keyword in keywords):
+            return category
+
+    if soc_code == "25-1021.00" or soc_code == "17-2061.00":
+        return "computer_science"
+    if soc_code and soc_code.startswith("15-2051"):
+        return "data_science"
+    if soc_code and soc_code.startswith("15-1221"):
+        return "artificial_intelligence"
+
+    return "information_technology"
+
+
+def get_careers_grouped():
+    """Return careers grouped by CS, SE, IT, AI, data science, and other."""
+    empty = {
+        "computer_science": [],
+        "software_engineering": [],
+        "information_technology": [],
+        "artificial_intelligence": [],
+        "data_science": [],
+        "other": [],
+    }
     try:
         _initialize_data()
-        return _careers_list
+        grouped = {key: [] for key in empty}
+        for _, row in _onet_df.iterrows():
+            title = row["career_title"]
+            soc = row["soc_code"]
+            category = _categorize_career(title, soc)
+            grouped[category].append(title)
+        for careers in grouped.values():
+            careers.sort(key=str.lower)
+        return grouped
     except Exception as e:
         logger.error(f"Error loading careers: {e}")
-        return []
+        return empty
+
+
+def get_all_careers():
+    """Return list of all O*NET career titles (tech careers first)."""
+    grouped = get_careers_grouped()
+    order = (
+        "computer_science", "software_engineering", "information_technology",
+        "artificial_intelligence", "data_science", "other",
+    )
+    return [title for key in order for title in grouped[key]]
 
 
 def _get_onet_skills_for_career(career_title, top_n=20):

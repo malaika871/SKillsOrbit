@@ -16,7 +16,7 @@ app.secret_key = "skillorbit_secret"
 # Import ML modules
 from ML.recommender import get_matches
 from ML.skill_gap import get_detailed_skill_gap, prioritize_skills
-from ML.roadmap_generator import get_all_careers, generate_roadmap, get_roadmap_for_skill_level
+from ML.roadmap_generator import get_all_careers, get_careers_grouped, generate_roadmap, get_roadmap_for_skill_level
 from ML.career_simulator import simulate_career
 from backend.resume_analyzer import SkillExtractor, PetriNet
 from ML.live_simulations import (
@@ -101,10 +101,9 @@ def roadmap():
 
 @app.route("/api/careers", methods=["GET"])
 def get_careers():
-    """API endpoint to get list of all available careers"""
+    """API endpoint to get list of all available careers (grouped: tech first, then others)"""
     try:
-        careers = get_all_careers()
-        return jsonify(careers), 200
+        return jsonify(get_careers_grouped()), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
