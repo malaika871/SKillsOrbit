@@ -342,14 +342,6 @@ def career_simulation():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/train-model",methods=["POST"])
-def train_model_endpoint():
-    try:
-        from ML.train_model import train
-        result=train()
-        return jsonify(result),200
-    except Exception as e:
-        return jsonify({"error":str(e)}),500
 
 if __name__ == "__main__":
     # Startup checks
