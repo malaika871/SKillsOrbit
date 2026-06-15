@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Test — SkillOrbit</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ─── Reset & Base ───────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:          #0f1117;
+      --surface:     #1a1d2e;
+      --card:        #22263a;
+      --accent:      #6c63ff;
+      --accent2:     #00d4aa;
+      --danger:      #ff4f6d;
+      --text:        #e2e8f0;
+      --muted:       #8892a4;
+      --radius:      12px;
+      --shadow:      0 4px 24px rgba(0,0,0,0.4);
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    /* ─── Nav ────────────────────────────────────────────────────────── */
+    nav { background: var(--surface); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .nav-brand { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+    .nav-links a { color: var(--muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ─── Layout ─────────────────────────────────────────────────────── */
+    main { max-width: 860px; margin: 2.5rem auto; padding: 0 1.5rem; }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .subtitle { color: var(--muted); margin-bottom: 2rem; }
+
+    /* ─── Cards ──────────────────────────────────────────────────────── */
+    .card { background: var(--card); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+
+    /* ─── Form controls ──────────────────────────────────────────────── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+    @media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+    label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    select, input[type=range] { width: 100%; background: var(--surface); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); padding: 0.65rem 1rem; font-size: 0.95rem; outline: none; appearance: none; }
+    select:focus { border-color: var(--accent); }
+    .slider-row { display: flex; align-items: center; gap: 0.8rem; }
+    input[type=range] { flex: 1; padding: 0; cursor: pointer; accent-color: var(--accent); }
+    .slider-val { font-weight: 700; font-size: 1.1rem; min-width: 1.8rem; text-align: center; }
+    .toggle-row { display: flex; align-items: center; gap: 0.7rem; margin-top: 0.4rem; }
+    .toggle-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+
+    /* ─── Buttons ────────────────────────────────────────────────────── */
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.75rem 1.8rem; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all .2s; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #5a52e0; transform: translateY(-1px); }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid rgba(255,255,255,0.12); }
+    .btn-secondary:hover { background: #2a2e45; }
+    .btn-success { background: var(--accent2); color: #0f1117; }
+    .btn-success:hover { background: #00b896; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 0.5rem 1.1rem; font-size: 0.85rem; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── Progress bar ───────────────────────────────────────────────── */
+    .progress-bar { background: var(--surface); border-radius: 999px; height: 6px; margin-bottom: 1.5rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 999px; transition: width .4s ease; }
+
+    /* ─── Timer ──────────────────────────────────────────────────────── */
+    .timer-wrap { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.4rem; }
+    .timer-circle { width: 52px; height: 52px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 700; border: 3px solid var(--accent); transition: border-color .3s; }
+    .timer-circle.warning { border-color: #f6ad55; color: #f6ad55; }
+    .timer-circle.danger  { border-color: var(--danger); color: var(--danger); animation: pulse .8s infinite; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    .timer-label { font-size: 0.82rem; color: var(--muted); }
+
+    /* ─── Question ───────────────────────────────────────────────────── */
+    .q-meta { display: flex; gap: 0.6rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .badge { font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.7rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-easy   { background: rgba(0,212,170,0.15); color: var(--accent2); }
+    .badge-medium { background: rgba(246,173,85,0.15); color: #f6ad55; }
+    .badge-hard   { background: rgba(255,79,109,0.15); color: var(--danger); }
+    .badge-skill  { background: rgba(108,99,255,0.15); color: var(--accent); }
+
+    .q-text { font-size: 1.1rem; line-height: 1.65; margin-bottom: 1.6rem; font-weight: 500; }
+
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .option-label { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1.2rem; border-radius: 10px; border: 2px solid rgba(255,255,255,0.08); background: var(--surface); cursor: pointer; transition: all .18s; font-size: 0.95rem; }
+    .option-label:hover { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+    .option-label input[type=radio] { display: none; }
+    .option-label.selected { border-color: var(--accent); background: rgba(108,99,255,0.15); }
+    .option-label.correct   { border-color: var(--accent2); background: rgba(0,212,170,0.12); }
+    .option-label.wrong     { border-color: var(--danger); background: rgba(255,79,109,0.10); }
+    .option-key { font-weight: 700; width: 1.6rem; text-align: center; color: var(--muted); flex-shrink: 0; }
+
+    /* ─── Nav buttons row ────────────────────────────────────────────── */
+    .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 1.8rem; }
+    .q-counter { color: var(--muted); font-size: 0.9rem; }
+
+    /* ─── Results ────────────────────────────────────────────────────── */
+    .score-hero { text-align: center; padding: 2rem 0 1.5rem; }
+    .score-circle { width: 130px; height: 130px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; }
+    .score-circle.pass { background: rgba(0,212,170,0.15); color: var(--accent2); border: 4px solid var(--accent2); }
+    .score-circle.fail { background: rgba(255,79,109,0.12); color: var(--danger); border: 4px solid var(--danger); }
+    .score-label { font-size: 1.1rem; color: var(--muted); }
+
+    .result-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 500px) { .result-grid { grid-template-columns: 1fr; } }
+    .stat-box { background: var(--surface); border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-num  { font-size: 1.6rem; font-weight: 800; }
+    .stat-lbl  { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+    .missed-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+    .missed-item { background: var(--surface); border-radius: 10px; padding: 1rem 1.2rem; border-left: 4px solid var(--danger); }
+    .missed-q    { font-size: 0.92rem; margin-bottom: 0.5rem; }
+    .missed-ans  { font-size: 0.82rem; color: var(--accent2); }
+    .missed-wrong{ font-size: 0.82rem; color: var(--danger); margin-top: 0.2rem; }
+
+    .result-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    /* ─── Chart ──────────────────────────────────────────────────────── */
+    #skillChart { max-height: 280px; }
+
+    /* ─── Leaderboard ────────────────────────────────────────────────── */
+    .lb-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .lb-table th { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
+    .lb-table td { padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .lb-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .rank-1 { color: #ffd700; font-weight: 800; }
+    .rank-2 { color: #c0c0c0; font-weight: 700; }
+    .rank-3 { color: #cd7f32; font-weight: 700; }
+
+    /* ─── Utilities ──────────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .flex-gap { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .loader { text-align: center; padding: 3rem; color: var(--muted); }
+    .alert { padding: 0.9rem 1.2rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem; }
+    .alert-warn { background: rgba(246,173,85,0.1); border: 1px solid rgba(246,173,85,0.3); color: #f6ad55; }
+    .alert-info { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.3); color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- ─── Nav ─────────────────────────────────────────────────────────────── -->
+<nav>
+  <span class="nav-brand">🪐 SkillOrbit</span>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/roadmap">Roadmap</a>
+    <a href="/skill-test" style="color:var(--accent)">Skill Test</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ─── PANEL 0: Setup ───────────────────────────────────────────────────── -->
+<section id="panelSetup">
+  <h1>🎯 Skill Test</h1>
+  <p class="subtitle">Test your knowledge after completing your learning roadmap.</p>
+
+  <div class="card">
+    <h2 style="margin-bottom:1.2rem;font-size:1.15rem;">Configure Your Test</h2>
+
+    <div class="form-grid">
+      <div>
+        <label for="selDifficulty">Difficulty</label>
+        <select id="selDifficulty">
+          <option value="all">All Levels</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      <div>
+        <label for="selSkill">Skill / Topic</label>
+        <select id="selSkill">
+          <option value="all">All Skills</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-bottom:1.2rem;">
+      <label>Number of Questions</label>
+      <div class="slider-row">
+        <input type="range" id="numQ" min="5" max="20" value="10" oninput="document.getElementById('numQVal').textContent=this.value">
+        <span class="slider-val" id="numQVal">10</span>
+      </div>
+    </div>
+
+    <div class="toggle-row" style="margin-bottom:1.5rem;">
+      <input type="checkbox" id="adaptiveMode">
+      <label for="adaptiveMode" style="margin:0;text-transform:none;font-size:0.9rem;cursor:pointer;">
+        🧠 Adaptive Mode — questions adjust to your ability
+      </label>
+    </div>
+
+    <button class="btn btn-primary" onclick="startTest()">▶ Start Test</button>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="card" id="leaderboardCard">
+    <h2 style="margin-bottom:1rem;font-size:1.1rem;">🏆 Leaderboard</h2>
+    <div id="leaderboardBody"><div class="loader">Loading…</div></div>
+  </div>
+</section>
+
+<!-- ─── PANEL 1: Test ────────────────────────────────────────────────────── -->
+<section id="panelTest" class="hidden">
+  <div class="card">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="timer-wrap">
+      <div class="timer-circle" id="timerCircle">30</div>
+      <div class="timer-label">seconds remaining</div>
+      <div style="flex:1;text-align:right;" class="q-counter" id="qCounter">Question 1 of 10</div>
+    </div>
+
+    <div class="q-meta" id="qMeta"></div>
+    <p class="q-text" id="qText"></p>
+    <div class="options" id="qOptions"></div>
+
+    <div class="nav-buttons mt-2">
+      <button class="btn btn-secondary btn-sm" id="btnPrev" onclick="prevQuestion()">← Previous</button>
+      <button class="btn btn-primary btn-sm" id="btnNext" onclick="nextQuestion()">Next →</button>
+      <button class="btn btn-success btn-sm hidden" id="btnSubmit" onclick="submitTest()">✓ Submit Test</button>
+    </div>
+  </div>
+
+  <button class="btn btn-secondary btn-sm" onclick="confirmAbandon()" style="margin-top:0.5rem;">✕ Abandon Test</button>
+</section>
+
+<!-- ─── PANEL 2: Results ─────────────────────────────────────────────────── -->
+<section id="panelResults" class="hidden">
+  <div class="card">
+    <div class="score-hero">
+      <div class="score-circle" id="scoreCircle">—</div>
+      <p class="score-label" id="scoreLabel">calculating…</p>
+    </div>
+    <div class="result-grid" id="resultGrid"></div>
+
+    <div id="skillReviewAlert" class="hidden"></div>
+
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="resetAll()">🔄 Try Again</button>
+      <button class="btn btn-secondary" id="btnRoadmap" onclick="goRoadmap()">🗺 Update Roadmap</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-bottom:1rem;font-size:1.1rem;">📊 Performance by Skill</h2>
+    <canvas id="skillChart"></canvas>
+  </div>
+
+  <div class="card" id="missedCard">
+    <h2 style="margin-bottom:1rem;font-size:1.1rem;">❌ Missed Questions</h2>
+    <ul class="missed-list" id="missedList"></ul>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ── State ──────────────────────────────────────────────────────────────── */
+let questions   = [];
+let answers     = {};   // { question_id: "A"|"B"|"C"|"D" }
+let currentIdx  = 0;
+let testId      = null;
+let timerInterval = null;
+let timeLeft    = 30;
+let skillChart  = null;
+let adaptive    = false;
+
+const OPTS = ["A","B","C","D"];
+
+/* ── Init ───────────────────────────────────────────────────────────────── */
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadSkills();
+  await loadLeaderboard();
+});
+
+async function loadSkills() {
+  try {
+    const r = await fetch("/api/test/skills");
+    const d = await r.json();
+    const sel = document.getElementById("selSkill");
+    d.skills.forEach(s => {
+      const o = document.createElement("option");
+      o.value = s; o.textContent = s;
+      sel.appendChild(o);
+    });
+  } catch(e) { console.warn("Skills load failed", e); }
+}
+
+async function loadLeaderboard() {
+  try {
+    const r = await fetch("/api/test/leaderboard?top=8");
+    const d = await r.json();
+    const body = document.getElementById("leaderboardBody");
+    if (!d.leaderboard || d.leaderboard.length === 0) {
+      body.innerHTML = "<p style='color:var(--muted);font-size:0.9rem;'>No results yet. Be the first!</p>";
+      return;
+    }
+    const medals = ["🥇","🥈","🥉"];
+    let html = `<table class="lb-table"><thead><tr><th>#</th><th>User</th><th>Best Score</th></tr></thead><tbody>`;
+    d.leaderboard.forEach((row, i) => {
+      const rankClass = i < 3 ? `rank-${i+1}` : "";
+      const icon = medals[i] || `${i+1}`;
+      html += `<tr><td class="${rankClass}">${icon}</td><td>${row.user_id}</td><td>${row.score}%</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    body.innerHTML = html;
+  } catch(e) { document.getElementById("leaderboardBody").innerHTML = "<p style='color:var(--muted)'>—</p>"; }
+}
+
+/* ── Start Test ─────────────────────────────────────────────────────────── */
+async function startTest() {
+  const difficulty  = document.getElementById("selDifficulty").value;
+  const skill       = document.getElementById("selSkill").value;
+  const numQ        = parseInt(document.getElementById("numQ").value);
+  adaptive          = document.getElementById("adaptiveMode").checked;
+
+  const payload = { difficulty, skill, num_questions: numQ, adaptive };
+
+  try {
+    const r = await fetch("/api/test/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const d = await r.json();
+    if (d.error) { alert("⚠ " + d.error); return; }
+
+    if (d.mode === "adaptive") {
+      // Adaptive: single question flow
+      adaptive = true;
+      questions = [d.question];
+      testId    = "adaptive";
+    } else {
+      questions = d.questions;
+      testId    = d.test_id;
+      adaptive  = false;
+    }
+
+    answers    = {};
+    currentIdx = 0;
+    show("panelTest");
+    hide("panelSetup");
+    hide("panelResults");
+    renderQuestion();
+  } catch(e) { alert("Failed to start test. Is the Flask server running?"); }
+}
+
+/* ── Render Question ────────────────────────────────────────────────────── */
+function renderQuestion() {
+  const q   = questions[currentIdx];
+  const tot = questions.length;
+
+  document.getElementById("progressFill").style.width = `${((currentIdx+1)/tot)*100}%`;
+  document.getElementById("qCounter").textContent     = `Question ${currentIdx+1} of ${tot}`;
+
+  // Badges
+  const diffClass = `badge-${q.difficulty || "medium"}`;
+  document.getElementById("qMeta").innerHTML =
+    `<span class="badge ${diffClass}">${q.difficulty||"?"}</span>
+     <span class="badge badge-skill">${q.skill||""}</span>`;
+
+  document.getElementById("qText").textContent = q.text;
+
+  // Options
+  const saved = answers[q.question_id];
+  const html  = OPTS.map((key, i) => {
+    const cls = saved === key ? "option-label selected" : "option-label";
+    return `<label class="${cls}" id="opt${key}" onclick="selectOption('${key}', this)">
+              <input type="radio" name="opt" value="${key}" ${saved===key?"checked":""}>
+              <span class="option-key">${key}</span>
+              <span>${q.options[i]}</span>
+            </label>`;
+  }).join("");
+  document.getElementById("qOptions").innerHTML = html;
+
+  // Nav buttons
+  document.getElementById("btnPrev").disabled = currentIdx === 0;
+  const isLast = currentIdx === tot - 1;
+  toggle("btnNext",   !isLast);
+  toggle("btnSubmit",  isLast);
+
+  startTimer();
+}
+
+function selectOption(key, el) {
+  const q = questions[currentIdx];
+  answers[q.question_id] = key;
+  OPTS.forEach(k => document.getElementById("opt"+k)?.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+/* ── Timer ──────────────────────────────────────────────────────────────── */
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = 30;
+  updateTimerUI();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+    if (timeLeft <= 0) { clearInterval(timerInterval); autoAdvance(); }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const el = document.getElementById("timerCircle");
+  el.textContent = timeLeft;
+  el.className   = "timer-circle" + (timeLeft <= 5 ? " danger" : timeLeft <= 10 ? " warning" : "");
+}
+
+function autoAdvance() {
+  if (currentIdx < questions.length - 1) nextQuestion();
+  else submitTest();
+}
+
+/* ── Navigation ─────────────────────────────────────────────────────────── */
+function nextQuestion() {
+  if (currentIdx < questions.length - 1) { currentIdx++; renderQuestion(); }
+}
+function prevQuestion() {
+  if (currentIdx > 0) { currentIdx--; renderQuestion(); }
+}
+
+/* ── Submit ─────────────────────────────────────────────────────────────── */
+async function submitTest() {
+  clearInterval(timerInterval);
+
+  const answersList = Object.entries(answers).map(([qid, sel]) =>
+    ({ question_id: parseInt(qid), selected: sel })
+  );
+
+  try {
+    const r = await fetch("/api/test/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ test_id: testId, answers: answersList }),
+    });
+    const d = await r.json();
+    showResults(d);
+  } catch(e) { alert("Submission failed. Please try again."); }
+}
+
+/* ── Results ────────────────────────────────────────────────────────────── */
+function showResults(data) {
+  hide("panelTest");
+  show("panelResults");
+
+  const score = data.score;
+  const pass  = score >= 70;
+  const circle = document.getElementById("scoreCircle");
+  circle.textContent  = score + "%";
+  circle.className    = "score-circle " + (pass ? "pass" : "fail");
+  document.getElementById("scoreLabel").textContent =
+    pass ? "✅ Great job! You passed." : "❌ Keep practicing — score below 70%";
+
+  document.getElementById("resultGrid").innerHTML = `
+    <div class="stat-box"><div class="stat-num" style="color:var(--accent2)">${data.correct_count}</div><div class="stat-lbl">Correct</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--danger)">${data.total_questions - data.correct_count}</div><div class="stat-lbl">Incorrect</div></div>
+    <div class="stat-box"><div class="stat-num">${data.total_questions}</div><div class="stat-lbl">Total</div></div>
+  `;
+
+  // Skill review alert
+  if (data.skills_needing_review && data.skills_needing_review.length > 0) {
+    const alertEl = document.getElementById("skillReviewAlert");
+    alertEl.className = "alert alert-warn";
+    alertEl.innerHTML = `⚠ Score below 70% for: <strong>${data.skills_needing_review.join(", ")}</strong>. 
+      Consider updating your roadmap. <button class="btn btn-secondary btn-sm" style="margin-left:0.8rem" onclick="updateSkillsAndRedirect('${data.skills_needing_review[0]}')">Suggest Roadmap Update</button>`;
+    alertEl.classList.remove("hidden");
+  }
+
+  // Chart
+  buildSkillChart(data.feedback);
+
+  // Missed questions
+  const missed   = data.feedback.filter(f => !f.correct);
+  const missedCard = document.getElementById("missedCard");
+  if (missed.length === 0) {
+    missedCard.innerHTML = "<p style='color:var(--accent2)'>🎉 Perfect score! No missed questions.</p>";
+  } else {
+    const listHTML = missed.map(f => {
+      const opts = f.options || {};
+      return `<li class="missed-item">
+        <div class="missed-q">${f.text || "Question #" + f.question_id}</div>
+        <div class="missed-ans">✅ Correct: ${f.correct_answer} — ${opts[f.correct_answer] || ""}</div>
+        <div class="missed-wrong">❌ Your answer: ${f.selected || "(no answer)"}</div>
+      </li>`;
+    }).join("");
+    document.getElementById("missedList").innerHTML = listHTML;
+  }
+
+  loadLeaderboard();
+}
+
+function buildSkillChart(feedback) {
+  const skillMap = {};
+  feedback.forEach(f => {
+    // Identify skill from questions array
+    const q = questions.find(q => q.question_id === f.question_id);
+    const sk = (q && q.skill) ? q.skill : "Unknown";
+    if (!skillMap[sk]) skillMap[sk] = { correct: 0, wrong: 0 };
+    if (f.correct) skillMap[sk].correct++; else skillMap[sk].wrong++;
+  });
+
+  const labels   = Object.keys(skillMap);
+  const correct  = labels.map(l => skillMap[l].correct);
+  const wrong    = labels.map(l => skillMap[l].wrong);
+
+  if (skillChart) skillChart.destroy();
+  const ctx = document.getElementById("skillChart").getContext("2d");
+  skillChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        { label: "Correct",   data: correct, backgroundColor: "rgba(0,212,170,0.7)",  borderRadius: 4 },
+        { label: "Incorrect", data: wrong,   backgroundColor: "rgba(255,79,109,0.7)", borderRadius: 4 },
+      ],
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { stacked: false, ticks: { color: "#8892a4" }, grid: { color: "rgba(255,255,255,0.04)" } },
+        y: { beginAtZero: true, ticks: { color: "#8892a4", stepSize: 1 }, grid: { color: "rgba(255,255,255,0.04)" } },
+      },
+      plugins: { legend: { labels: { color: "#e2e8f0" } } },
+    },
+  });
+}
+
+/* ── Skill Update & Roadmap ─────────────────────────────────────────────── */
+async function updateSkillsAndRedirect(skill) {
+  try {
+    await fetch("/api/update-user-skills", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skill, action: "needs_review" }),
+    });
+    window.location.href = "/roadmap";
+  } catch(e) { window.location.href = "/roadmap"; }
+}
+
+function goRoadmap() { window.location.href = "/roadmap"; }
+
+/* ── Utils ──────────────────────────────────────────────────────────────── */
+function resetAll() {
+  clearInterval(timerInterval);
+  questions = []; answers = {}; currentIdx = 0; testId = null;
+  show("panelSetup"); hide("panelTest"); hide("panelResults");
+  loadLeaderboard();
+}
+
+function confirmAbandon() {
+  if (confirm("Abandon this test? Progress will be lost.")) resetAll();
+}
+
+function show(id) { document.getElementById(id)?.classList.remove("hidden"); }
+function hide(id) { document.getElementById(id)?.classList.add("hidden"); }
+function toggle(id, show) { document.getElementById(id)?.[show ? "classList" : "classList"][show ? "remove" : "add"]("hidden"); }
+</script>
+</body>
+</html>
