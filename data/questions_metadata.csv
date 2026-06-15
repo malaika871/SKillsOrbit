@@ -64,3 +64,68 @@ question_id,difficulty,skill_tested,question_text,option_a,option_b,option_c,opt
 63,medium,Activation Functions,Softmax outputs always:,Sum to 0,Sum to 1,Are all positive but can sum to any value,Range between -1 and 1,B
 64,easy,Activation Functions,Which activation function is the DEFAULT choice for hidden layers in modern neural networks?,Sigmoid,Tanh,ReLU,Softmax,C
 65,medium,Activation Functions,"Tanh activation function is zero-centered, which means:",All outputs are zero,"Outputs are symmetric around 0, ranging from -1 to 1",The gradient is always zero,The function centers the input data at zero,B
+66,easy,"DSA - Arrays","What is the time complexity of accessing an element in an array by index?",O(n),O(log n),O(1),O(n²),C
+67,easy,"DSA - Arrays","Which operation is O(n) in a dynamic array?",Random access,Index-based read,"Append at end (amortized)","Insert at beginning",D
+68,medium,"DSA - Arrays","What is the best algorithm for finding the maximum subarray sum?","Bubble Sort","Kadane's Algorithm","Binary Search","Merge Sort",B
+69,medium,"DSA - Arrays","Two Sum problem — given a sorted array find two numbers summing to target. Best approach?","Brute force O(n²)","Two pointers O(n)","Binary search O(n log n)","Hashing O(n)",B
+70,hard,"DSA - Arrays","What is the time complexity of the Dutch National Flag algorithm for 3-way partitioning?",O(n²),O(n log n),O(n),O(1),C
+71,easy,"DSA - Linked Lists","What is the time complexity of inserting at the head of a singly linked list?",O(n),O(log n),O(1),O(n²),C
+72,easy,"DSA - Linked Lists","Which data structure is best for implementing a queue with O(1) enqueue and dequeue?",Array,Stack,"Doubly Linked List","Binary Tree",C
+73,medium,"DSA - Linked Lists","Floyd's cycle detection algorithm uses which technique?","Two stacks",Hashing,"Two pointers (slow and fast)","Recursion only",C
+74,medium,"DSA - Linked Lists","To reverse a singly linked list in O(n) time and O(1) space you use?","A stack",Recursion,"Three pointers (prev/curr/next)","Extra array",C
+75,hard,"DSA - Linked Lists","What is the time complexity of merging two sorted linked lists of size m and n?",O(m × n),O((m+n) log(m+n)),O(m + n),O(m log n),C
+76,easy,"DSA - Stacks & Queues","Which principle does a Stack follow?",FIFO,LIFO,"Random Access","Priority-based",B
+77,easy,"DSA - Stacks & Queues","Which data structure is used in BFS traversal of a graph?",Stack,Heap,Queue,"Linked List",C
+78,medium,"DSA - Stacks & Queues","The balanced parentheses problem is solved optimally using?","Two arrays","A queue","A stack","A hash map",C
+79,medium,"DSA - Stacks & Queues","What is the time complexity of getting the minimum element from a Min-Stack (special stack with getMin)?",O(n),O(log n),O(1),O(n log n),C
+80,hard,"DSA - Stacks & Queues","Largest rectangle in histogram — what is the optimal time complexity?",O(n²),O(n log n),O(n),O(log n),C
+81,easy,"DSA - Trees","What is the maximum number of nodes at level k in a binary tree (root is level 0)?",k,2k,2^k,k²,C
+82,easy,"DSA - Trees","Which traversal of a BST gives nodes in sorted order?",Preorder,Postorder,Inorder,"Level order",C
+83,medium,"DSA - Trees","What is the time complexity of searching in a balanced BST?",O(n),O(log n),O(1),O(n log n),B
+84,medium,"DSA - Trees","A complete binary tree with n nodes has height?",n,n/2,log₂(n),√n,C
+85,hard,"DSA - Trees","Which algorithm finds the Lowest Common Ancestor of two nodes in O(log n) for a BST?","DFS from root","Binary lifting","BST property comparison","Euler tour",C
+86,easy,"DSA - Sorting","What is the best-case time complexity of Quick Sort?",O(n²),O(n log n),O(n),O(log n),B
+87,easy,"DSA - Sorting","Which sorting algorithm is stable and has O(n log n) guaranteed complexity?","Quick Sort","Selection Sort","Merge Sort","Heap Sort",C
+88,medium,"DSA - Sorting","Counting Sort is efficient when?","Data has many duplicates","Keys are floating point","Key range k is small relative to n","Data is nearly sorted",C
+89,medium,"DSA - Sorting","What is the recurrence relation for Merge Sort?","T(n) = T(n-1) + O(n)","T(n) = 2T(n/2) + O(n)","T(n) = T(n/2) + O(1)","T(n) = T(n-1) + O(1)",B
+90,hard,"DSA - Sorting","Which sorting algorithm has O(n log n) average but O(n²) worst case and works in-place?","Merge Sort","Heap Sort","Quick Sort","Tim Sort",C
+91,easy,"DSA - Graphs","What does BFS use to track visited nodes?",Stack,"Priority Queue",Queue,Recursion,C
+92,easy,"DSA - Graphs","Dijkstra's algorithm finds?","The minimum spanning tree","Topological order","Shortest path from single source","All strongly connected components",C
+93,medium,"DSA - Graphs","Topological sort is only possible for?","Undirected graphs","Directed Acyclic Graphs (DAGs)","Weighted graphs","Complete graphs",B
+94,medium,"DSA - Graphs","What is the time complexity of Dijkstra with a min-heap?",O(V²),O(E log V),O(V log E),O(E + V),B
+95,hard,"DSA - Graphs","Which algorithm detects negative-weight cycles?",Dijkstra,BFS,"Bellman-Ford",Kruskal,C
+96,easy,"DSA - Dynamic Programming","What does memoization mean in DP?","Sorting subproblems","Storing results of subproblems to avoid recomputation","Using greedy choices","Dividing into independent subproblems",B
+97,easy,"DSA - Dynamic Programming","The Fibonacci series solved with DP has time complexity?",O(2^n),O(n²),O(n),O(log n),C
+98,medium,"DSA - Dynamic Programming","Which property must a problem have for DP to apply?","Greedy choice property","Optimal substructure and overlapping subproblems","All subproblems are independent","Data must be sorted",B
+99,medium,"DSA - Dynamic Programming","The 0/1 Knapsack problem DP solution has time complexity?",O(n log W),O(n × W),O(n²),O(2^n),B
+100,hard,"DSA - Dynamic Programming","Longest Common Subsequence (LCS) of two strings of length m and n has DP complexity?",O(m + n),O(m × n),O(m log n),O(2^(m+n)),B
+101,easy,"AI Concepts","What does AI stand for?","Automated Intelligence","Artificial Intelligence","Autonomous Integration","Algorithmic Interface",B
+102,easy,"AI Concepts","Which search algorithm is complete and optimal for unweighted graphs?","Depth First Search","Best First Search","Breadth First Search","Hill Climbing",C
+103,medium,"AI Concepts","What is the difference between supervised and unsupervised learning?","Supervised uses labels; unsupervised does not","Supervised is faster; unsupervised is slower","Supervised needs more data; unsupervised needs less","Supervised is for classification only",A
+104,medium,"AI Concepts","What is a heuristic function in A* search?","The actual path cost g(n)","An estimate of cost from node to goal h(n)","The total memory used","The branching factor",B
+105,hard,"AI Concepts","A minimax algorithm with alpha-beta pruning can reduce the search tree nodes from O(b^d) to?",O(b^d),O(b^(d/2)),O(d × b),O(log b^d),B
+106,easy,"AI Concepts","What is a knowledge base in an expert system?","A database of user profiles","A set of facts and rules used to reason","A neural network layer","A type of search algorithm",B
+107,medium,"AI Concepts","In reinforcement learning what does the agent maximize?","Loss function","Prediction error","Cumulative reward","Data entropy",C
+108,medium,"AI Concepts","What is the Turing Test designed to evaluate?","Computing speed","Problem-solving accuracy","Whether a machine can exhibit intelligent behavior","Memory capacity",C
+109,easy,"AI Concepts","Which type of learning uses labeled input-output pairs?","Reinforcement Learning","Unsupervised Learning","Semi-supervised Learning","Supervised Learning",D
+110,hard,"AI Concepts","What is the credit assignment problem in reinforcement learning?","Assigning credits to neurons","Determining which past actions caused a reward","Labeling training data","Selecting the right model",B
+111,easy,"AI Concepts - NLP","What does NLP stand for?","Neural Language Processing","Natural Language Processing","Numeric Logic Programming","Network Learning Protocol",B
+112,easy,"AI Concepts - NLP","Which model architecture revolutionized NLP in 2017?",RNN,LSTM,Transformer,CNN,C
+113,medium,"AI Concepts - NLP","What is tokenization in NLP?","Converting numbers to text","Splitting text into units (words/subwords)","Encrypting text data","Removing stopwords",B
+114,medium,"AI Concepts - NLP","What is word embedding?","One-hot encoding of words","A dense vector representation capturing semantic meaning","A bag-of-words model","A type of attention",B
+115,hard,"AI Concepts - NLP","In the Transformer self-attention mechanism Q K V stand for?","Query Key Value","Queue Kernel Vector","Quick Knowledge Vault","Quantize Key Validate",A
+116,easy,"Data Science","What is the first step in a typical data science workflow?","Model training","Feature engineering","Data collection and understanding",Deployment,C
+117,easy,"Data Science","What does EDA stand for?","Exploratory Data Analysis","Efficient Data Algorithm","Extended Data Architecture","Evaluation and Deployment Analysis",A
+118,medium,"Data Science","Which measure is robust to outliers when describing central tendency?",Mean,Variance,Median,"Standard Deviation",C
+119,medium,"Data Science","A dataset is right-skewed. Which is typically true?","Mean < Median < Mode","Mean = Median = Mode","Mode < Median < Mean","Median > Mean",C
+120,hard,"Data Science","Which statistical test checks if two categorical variables are independent?","T-test",ANOVA,"Chi-square test","Pearson correlation",C
+121,easy,"Data Science","Pearson correlation of 0 between two variables means?","Perfect positive correlation","Perfect negative correlation","No linear relationship","They are identical",C
+122,medium,"Data Science","What is the bias-variance tradeoff?","Choosing between precision and recall","Balancing underfitting (high bias) and overfitting (high variance)","Selecting the number of features","Adjusting the learning rate",B
+123,medium,"Data Science","Cross-validation is used to?","Speed up training","Select the best random seed","Estimate model generalization on unseen data","Reduce the dataset size",C
+124,easy,"Data Science","A confusion matrix for binary classification has how many cells?",2,4,8,"Depends on class count",B
+125,hard,"Data Science","Which technique handles class imbalance by generating synthetic minority samples?","Feature scaling",PCA,SMOTE,Dropout,C
+126,easy,"Data Science - SQL","Which SQL clause filters rows after grouping?",WHERE,HAVING,"ORDER BY","GROUP BY",B
+127,easy,"Data Science - SQL","What does SELECT DISTINCT do?","Returns all rows","Returns unique rows","Sorts the results","Filters nulls",B
+128,medium,"Data Science - SQL","What is the difference between INNER JOIN and LEFT JOIN?","INNER returns all rows; LEFT returns matched only","LEFT returns all left rows + matched right; INNER returns only matched","They are the same","INNER is slower",B
+129,medium,"Data Science - SQL","A window function ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC) gives?","Total salary per dept","Rank of employee within department by salary","Count of employees","Cumulative salary",B
+130,hard,"Data Science - SQL","What is a CTE (Common Table Expression) and when is it preferred?","A permanent table, used to store results","A temporary named result set defined with WITH, preferred for readability and recursion","A view that is cached permanently","A type of index",B

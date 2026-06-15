@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
     <link href="/static/nav.css" rel="stylesheet">
     <link href="/static/simulations.css" rel="stylesheet">
 
@@ -136,10 +138,21 @@
         }
 
         @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(10vw, 15vh) scale(1.1); }
-            66% { transform: translate(-5vw, 25vh) scale(0.9); }
-            100% { transform: translate(0, 0) scale(1); }
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(10vw, 15vh) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-5vw, 25vh) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
         }
 
         /* Navbar — see /static/nav.css */
@@ -256,6 +269,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Background Orbs -->
     <div class="orb orb-1"></div>
@@ -266,7 +280,8 @@
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand text-white fw-bold fs-5" href="/">SkillOrbit</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -275,271 +290,318 @@
                     <li class="nav-item"><a class="nav-link" href="/advisor">Advisor</a></li>
                     <li class="nav-item"><a class="nav-link" href="/resume-analyzer">Resume Analyzer</a></li>
                     <li class="nav-item"><a class="nav-link" href="/roadmap">Roadmap</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/skill-test">Skill Test</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <main class="page-main">
-    <!-- Hero Section -->
-    <header class="container text-center" style="padding-top: 160px; padding-bottom: 80px;">
-        <div class="reveal">
-            <span class="badge badge-custom rounded-pill px-4 py-2 mb-4">
-                <span class="material-symbols-outlined sm align-middle">auto_awesome</span>
-                AI-Powered Career Guidance
-            </span>
-        </div>
-
-        <h1 class="reveal display-3 fw-bold mb-4">
-            Discover Your Career<br class="d-none d-md-block">
-            Path with <span class="gradient-text">Intelligence</span>
-        </h1>
-
-        <p class="reveal lead text-secondary mx-auto mb-5" style="max-width: 700px; color: var(--text-secondary) !important;">
-            Analyze your skills, match with high-growth industries, and simulate your future professional
-            growth with our advanced neural career engine.
-        </p>
-
-        <div class="reveal d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
-            <a href="/advisor" class="btn btn-primary-gradient rounded-pill px-4 py-3 d-inline-flex align-items-center gap-2">
-                Try Career Advisor
-                <span class="material-symbols-outlined">trending_flat</span>
-            </a>
-            <a href="/resume-analyzer" class="btn btn-outline-custom rounded-pill px-4 py-3 d-inline-flex align-items-center gap-2">
-                Upload Resume
-                <span class="material-symbols-outlined">upload_file</span>
-            </a>
-        </div>
-
-        <div class="reveal mt-5">
-            <div class="glass-card p-2 dashboard-preview" style="max-width: 900px; margin: 0 auto;">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJvgqoNkUOgK1ojHlUz3GkH7jYzeOntMiAKibIcNX63gnQhQY93EQTnfyhTIzg3sDVRhhRQgTyVPv-cG2bZ8zV9BW4ukrB6aOCV6e_QabtZIEzfAXjkrj84RwumZK1LlBjSPwI-55ObmGvZ6pfS6gjhViIApRAgZD4KBq7ysWO1psKJqc46Jv0l3X2iVMyh8vIOHVmgRuRIBQXIsEn23Qu8fgh95ohKRkOTNxkjZVkDRtVNkizGJVKuhTWZxWJQDgfHrz7C0KhjjYR"
-                     alt="Dashboard Preview" class="img-fluid rounded" style="border-radius: 1.5rem;">
-            </div>
-        </div>
-    </header>
-
-    <!-- Stats Section -->
-    <section class="container py-5">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="reveal glass-card p-5 rounded text-center">
-                    <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--primary);" data-count="10000">0</div>
-                    <div class="text-uppercase fw-semibold" style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Careers Mapped</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="reveal glass-card p-5 rounded text-center">
-                    <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--secondary);" data-count="95">0</div>
-                    <div class="text-uppercase fw-semibold" style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Match Accuracy (%)</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="reveal glass-card p-5 rounded text-center">
-                    <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--tertiary);" data-count="500">0</div>
-                    <div class="text-uppercase fw-semibold" style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Skills Tracked</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="container py-5">
-        <div class="text-center mb-5">
-            <h2 class="reveal display-6 fw-semibold mb-3">Precision Tools for Modern Careers</h2>
-            <p class="reveal" style="color: var(--text-secondary);">Our AI suite covers every aspect of your professional journey.</p>
-        </div>
-
-        <div class="row g-4">
-            <!-- Feature 1 -->
-            <div class="col-md-4">
-                <div class="reveal glass-card p-4 rounded h-100">
-                    <div class="feature-icon icon-primary mb-4">
-                        <span class="material-symbols-outlined">psychology</span>
-                    </div>
-                    <h5 class="mb-3">Career Advisor</h5>
-                    <p style="color: var(--text-secondary);">Receive personalized suggestions based on your personality, values, and experience.</p>
-                </div>
+        <!-- Hero Section -->
+        <header class="container text-center" style="padding-top: 160px; padding-bottom: 80px;">
+            <div class="reveal">
+                <span class="badge badge-custom rounded-pill px-4 py-2 mb-4">
+                    <span class="material-symbols-outlined sm align-middle">auto_awesome</span>
+                    AI-Powered Career Guidance
+                </span>
             </div>
 
-            <!-- Feature 2 -->
-            <div class="col-md-4">
-                <div class="reveal glass-card p-4 rounded h-100">
-                    <div class="feature-icon icon-secondary mb-4">
-                        <span class="material-symbols-outlined">description</span>
-                    </div>
-                    <h5 class="mb-3">Resume Analyzer</h5>
-                    <p style="color: var(--text-secondary);">Instantly scan your CV for keywords and get AI-powered improvement suggestions.</p>
-                </div>
-            </div>
+            <h1 class="reveal display-3 fw-bold mb-4">
+                Discover Your Career<br class="d-none d-md-block">
+                Path with <span class="gradient-text">Intelligence</span>
+            </h1>
 
-            <!-- Feature 3 -->
-            <div class="col-md-4">
-                <div class="reveal glass-card p-4 rounded h-100">
-                    <div class="feature-icon icon-tertiary mb-4">
-                        <span class="material-symbols-outlined">analytics</span>
-                    </div>
-                    <h5 class="mb-3">Skill Gap Finder</h5>
-                    <p style="color: var(--text-secondary);">Identify exactly what technical or soft skills you need to reach the next level.</p>
-                </div>
-            </div>
-
-            <!-- Feature 4 -->
-            <div class="col-md-4">
-                <div class="reveal glass-card p-4 rounded h-100">
-                    <div class="feature-icon icon-primary mb-4">
-                        <span class="material-symbols-outlined">dashboard</span>
-                    </div>
-                    <h5 class="mb-3">Simulation Dashboard</h5>
-                    <p style="color: var(--text-secondary);">Visualize different career trajectories and their potential financial outcomes.</p>
-                </div>
-            </div>
-
-            <!-- Feature 5 -->
-            <div class="col-md-4">
-                <div class="reveal glass-card p-4 rounded h-100">
-                    <div class="feature-icon icon-secondary mb-4">
-                        <span class="material-symbols-outlined">route</span>
-                    </div>
-                    <h5 class="mb-3">Career Roadmap</h5>
-                    <p style="color: var(--text-secondary);">Step-by-step guides to transitioning into entirely new industries efficiently.</p>
-                </div>
-            </div>
-
-            <!-- Feature 6 -->
-            <div class="col-md-4">
-                <div class="reveal glass-card p-4 rounded h-100">
-                    <div class="feature-icon icon-tertiary mb-4">
-                        <span class="material-symbols-outlined">insights</span>
-                    </div>
-                    <h5 class="mb-3">Market Insights</h5>
-                    <p style="color: var(--text-secondary);">Real-time data on hiring trends, salary benchmarks, and emerging roles.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section class="container py-5">
-        <div class="text-center mb-5">
-            <h2 class="reveal display-6 fw-semibold mb-3">Your Journey to Success</h2>
-            <p class="reveal" style="color: var(--text-secondary);">Three simple steps to transform your professional life.</p>
-        </div>
-
-        <div class="position-relative">
-            <!-- Timeline Connector (Desktop only) -->
-            <div class="timeline-connector d-none d-md-block position-absolute w-100" style="top: 40px; left: 0;"></div>
-
-            <div class="row g-4 position-relative">
-                <!-- Step 1 -->
-                <div class="col-md-4">
-                    <div class="reveal text-center">
-                        <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
-                             style="border: 1px solid rgba(195, 192, 255, 0.5); color: var(--primary);">
-                            1
-                        </div>
-                        <h5 class="mb-3">Enter Skills</h5>
-                        <p style="color: var(--text-secondary);">Input your expertise or upload your existing resume for analysis.</p>
-                    </div>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="col-md-4">
-                    <div class="reveal text-center">
-                        <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
-                             style="border: 1px solid rgba(76, 215, 246, 0.5); color: var(--secondary);">
-                            2
-                        </div>
-                        <h5 class="mb-3">Get Matched</h5>
-                        <p style="color: var(--text-secondary);">Our AI identifies high-compatibility roles based on your unique profile.</p>
-                    </div>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="col-md-4">
-                    <div class="reveal text-center">
-                        <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
-                             style="border: 1px solid rgba(208, 188, 255, 0.5); color: var(--tertiary);">
-                            3
-                        </div>
-                        <h5 class="mb-3">Explore Your Path</h5>
-                        <p style="color: var(--text-secondary);">Simulate your growth and start your personalized learning roadmap.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Live Simulation Demo -->
-    <section class="container py-5">
-        <div class="reveal glass-card rounded p-4 p-md-5">
-            <div class="text-center mb-4">
-                <h2 class="h3 fw-bold mb-2">See How Analysis Works</h2>
-                <p style="color: var(--text-secondary); max-width: 560px; margin: 0 auto;">
-                    Watch our live Petri Net simulation — the same workflow engine that powers resume analysis.
-                </p>
-            </div>
-            <div style="overflow-x:auto;">
-                <svg id="homePetriDemo" viewBox="0 0 870 170" style="width:100%; min-width:580px; display:block;">
-                    <defs>
-                        <marker id="home-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                            <polygon points="0 0, 8 3, 0 6" fill="rgba(195,192,255,0.45)"/>
-                        </marker>
-                    </defs>
-                    <line class="pn-arrow" id="home-arrow-0" x1="93" y1="80" x2="114" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-1" x1="154" y1="80" x2="178" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-2" x1="234" y1="80" x2="254" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-3" x1="294" y1="80" x2="318" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-4" x1="374" y1="80" x2="394" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-5" x1="434" y1="80" x2="458" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-6" x1="514" y1="80" x2="534" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-7" x1="574" y1="80" x2="598" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-8" x1="654" y1="80" x2="674" y2="80" marker-end="url(#home-arrow)"/>
-                    <line class="pn-arrow" id="home-arrow-9" x1="714" y1="80" x2="766" y2="80" marker-end="url(#home-arrow)"/>
-                    <circle class="pn-place" id="home-place-P0" cx="66" cy="80" r="26"/><text class="pn-lbl" x="66" y="80">P0</text>
-                    <text class="pn-lbl-sm" x="66" y="118">Resume</text>
-                    <circle class="pn-place" id="home-place-P1" cx="206" cy="80" r="26"/><text class="pn-lbl" x="206" y="80">P1</text>
-                    <text class="pn-lbl-sm" x="206" y="118">Extract</text>
-                    <circle class="pn-place" id="home-place-P2" cx="346" cy="80" r="26"/><text class="pn-lbl" x="346" y="80">P2</text>
-                    <text class="pn-lbl-sm" x="346" y="118">Skills</text>
-                    <circle class="pn-place" id="home-place-P3" cx="486" cy="80" r="26"/><text class="pn-lbl" x="486" y="80">P3</text>
-                    <text class="pn-lbl-sm" x="486" y="118">Match</text>
-                    <circle class="pn-place" id="home-place-P4" cx="626" cy="80" r="26"/><text class="pn-lbl" x="626" y="80">P4</text>
-                    <text class="pn-lbl-sm" x="626" y="118">Gap</text>
-                    <circle class="pn-place" id="home-place-P5" cx="794" cy="80" r="26"/><text class="pn-lbl" x="794" y="80">P5</text>
-                    <text class="pn-lbl-sm" x="794" y="118">Report</text>
-                    <rect class="pn-trans" id="home-trans-T0" x="114" y="66" width="40" height="28" rx="4"/>
-                    <rect class="pn-trans" id="home-trans-T1" x="254" y="66" width="40" height="28" rx="4"/>
-                    <rect class="pn-trans" id="home-trans-T2" x="394" y="66" width="40" height="28" rx="4"/>
-                    <rect class="pn-trans" id="home-trans-T3" x="534" y="66" width="40" height="28" rx="4"/>
-                    <rect class="pn-trans" id="home-trans-T4" x="674" y="66" width="40" height="28" rx="4"/>
-                    <circle class="pn-token-dot" id="home-token" cx="66" cy="80" r="7"/>
-                </svg>
-            </div>
-            <div class="sim-msg text-center mt-3" id="home-petri-msg">Click Play Demo or scroll here to start</div>
-            <div class="text-center mt-3 d-flex gap-2 justify-content-center flex-wrap">
-                <button type="button" class="btn btn-primary-gradient rounded-pill px-4" id="btn-home-petri">Play Demo</button>
-                <a href="/resume-analyzer" class="btn btn-outline-custom rounded-pill px-4">Try With Your Resume</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Banner -->
-    <section class="container py-5">
-        <div class="reveal glass-card rounded p-5 text-center position-relative overflow-hidden">
-            <!-- Inner Glows -->
-            <div class="position-absolute top-0 end-0" style="width: 256px; height: 256px; background: rgba(195, 192, 255, 0.2); filter: blur(80px); transform: translate(50%, -50%);"></div>
-            <div class="position-absolute bottom-0 start-0" style="width: 256px; height: 256px; background: rgba(76, 215, 246, 0.2); filter: blur(80px); transform: translate(-50%, 50%);"></div>
-
-            <h2 class="display-5 fw-bold mb-4 position-relative">Ready to Find Your Perfect Career?</h2>
-            <p class="lead mx-auto mb-4 position-relative" style="max-width: 600px; color: var(--text-secondary);">
-                Join thousands of professionals who have optimized their career paths using SkillOrbit's AI engine.
+            <p class="reveal lead text-secondary mx-auto mb-5"
+                style="max-width: 700px; color: var(--text-secondary) !important;">
+                Analyze your skills, match with high-growth industries, and simulate your future professional
+                growth with our advanced neural career engine.
             </p>
-            <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="btn btn-primary-gradient rounded-pill px-5 py-3 position-relative">
-                Get Started Free
-            </button>
-        </div>
-    </section>
+
+            <div class="reveal d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
+                <a href="/advisor"
+                    class="btn btn-primary-gradient rounded-pill px-4 py-3 d-inline-flex align-items-center gap-2">
+                    Try Career Advisor
+                    <span class="material-symbols-outlined">trending_flat</span>
+                </a>
+                <a href="/resume-analyzer"
+                    class="btn btn-outline-custom rounded-pill px-4 py-3 d-inline-flex align-items-center gap-2">
+                    Upload Resume
+                    <span class="material-symbols-outlined">upload_file</span>
+                </a>
+            </div>
+
+            <div class="reveal mt-5">
+                <div class="glass-card p-2 dashboard-preview" style="max-width: 900px; margin: 0 auto;">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJvgqoNkUOgK1ojHlUz3GkH7jYzeOntMiAKibIcNX63gnQhQY93EQTnfyhTIzg3sDVRhhRQgTyVPv-cG2bZ8zV9BW4ukrB6aOCV6e_QabtZIEzfAXjkrj84RwumZK1LlBjSPwI-55ObmGvZ6pfS6gjhViIApRAgZD4KBq7ysWO1psKJqc46Jv0l3X2iVMyh8vIOHVmgRuRIBQXIsEn23Qu8fgh95ohKRkOTNxkjZVkDRtVNkizGJVKuhTWZxWJQDgfHrz7C0KhjjYR"
+                        alt="Dashboard Preview" class="img-fluid rounded" style="border-radius: 1.5rem;">
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Section -->
+        <section class="container py-5">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-5 rounded text-center">
+                        <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--primary);" data-count="10000">
+                            0</div>
+                        <div class="text-uppercase fw-semibold"
+                            style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Careers Mapped
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-5 rounded text-center">
+                        <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--secondary);" data-count="95">0
+                        </div>
+                        <div class="text-uppercase fw-semibold"
+                            style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Match Accuracy
+                            (%)</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-5 rounded text-center">
+                        <div class="display-4 fw-bold glow-cyan mb-2" style="color: var(--tertiary);" data-count="500">0
+                        </div>
+                        <div class="text-uppercase fw-semibold"
+                            style="font-size: 12px; letter-spacing: 0.1em; color: var(--text-secondary);">Skills Tracked
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="reveal display-6 fw-semibold mb-3">Precision Tools for Modern Careers</h2>
+                <p class="reveal" style="color: var(--text-secondary);">Our AI suite covers every aspect of your
+                    professional journey.</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Feature 1 -->
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-4 rounded h-100">
+                        <div class="feature-icon icon-primary mb-4">
+                            <span class="material-symbols-outlined">psychology</span>
+                        </div>
+                        <h5 class="mb-3">Career Advisor</h5>
+                        <p style="color: var(--text-secondary);">Receive personalized suggestions based on your
+                            personality, values, and experience.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-4 rounded h-100">
+                        <div class="feature-icon icon-secondary mb-4">
+                            <span class="material-symbols-outlined">description</span>
+                        </div>
+                        <h5 class="mb-3">Resume Analyzer</h5>
+                        <p style="color: var(--text-secondary);">Instantly scan your CV for keywords and get AI-powered
+                            improvement suggestions.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-4 rounded h-100">
+                        <div class="feature-icon icon-tertiary mb-4">
+                            <span class="material-symbols-outlined">analytics</span>
+                        </div>
+                        <h5 class="mb-3">Skill Gap Finder</h5>
+                        <p style="color: var(--text-secondary);">Identify exactly what technical or soft skills you need
+                            to reach the next level.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-4 rounded h-100">
+                        <div class="feature-icon icon-primary mb-4">
+                            <span class="material-symbols-outlined">dashboard</span>
+                        </div>
+                        <h5 class="mb-3">Simulation Dashboard</h5>
+                        <p style="color: var(--text-secondary);">Visualize different career trajectories and their
+                            potential financial outcomes.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-4 rounded h-100">
+                        <div class="feature-icon icon-secondary mb-4">
+                            <span class="material-symbols-outlined">route</span>
+                        </div>
+                        <h5 class="mb-3">Career Roadmap</h5>
+                        <p style="color: var(--text-secondary);">Step-by-step guides to transitioning into entirely new
+                            industries efficiently.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="col-md-4">
+                    <div class="reveal glass-card p-4 rounded h-100">
+                        <div class="feature-icon icon-tertiary mb-4">
+                            <span class="material-symbols-outlined">insights</span>
+                        </div>
+                        <h5 class="mb-3">Market Insights</h5>
+                        <p style="color: var(--text-secondary);">Real-time data on hiring trends, salary benchmarks, and
+                            emerging roles.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="reveal display-6 fw-semibold mb-3">Your Journey to Success</h2>
+                <p class="reveal" style="color: var(--text-secondary);">Three simple steps to transform your
+                    professional life.</p>
+            </div>
+
+            <div class="position-relative">
+                <!-- Timeline Connector (Desktop only) -->
+                <div class="timeline-connector d-none d-md-block position-absolute w-100" style="top: 40px; left: 0;">
+                </div>
+
+                <div class="row g-4 position-relative">
+                    <!-- Step 1 -->
+                    <div class="col-md-4">
+                        <div class="reveal text-center">
+                            <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
+                                style="border: 1px solid rgba(195, 192, 255, 0.5); color: var(--primary);">
+                                1
+                            </div>
+                            <h5 class="mb-3">Enter Skills</h5>
+                            <p style="color: var(--text-secondary);">Input your expertise or upload your existing resume
+                                for analysis.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="col-md-4">
+                        <div class="reveal text-center">
+                            <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
+                                style="border: 1px solid rgba(76, 215, 246, 0.5); color: var(--secondary);">
+                                2
+                            </div>
+                            <h5 class="mb-3">Get Matched</h5>
+                            <p style="color: var(--text-secondary);">Our AI identifies high-compatibility roles based on
+                                your unique profile.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="col-md-4">
+                        <div class="reveal text-center">
+                            <div class="step-circle glass-card rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4"
+                                style="border: 1px solid rgba(208, 188, 255, 0.5); color: var(--tertiary);">
+                                3
+                            </div>
+                            <h5 class="mb-3">Explore Your Path</h5>
+                            <p style="color: var(--text-secondary);">Simulate your growth and start your personalized
+                                learning roadmap.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Simulation Demo -->
+        <section class="container py-5">
+            <div class="reveal glass-card rounded p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <h2 class="h3 fw-bold mb-2">See How Analysis Works</h2>
+                    <p style="color: var(--text-secondary); max-width: 560px; margin: 0 auto;">
+                        Watch our live Petri Net simulation — the same workflow engine that powers resume analysis.
+                    </p>
+                </div>
+                <div style="overflow-x:auto;">
+                    <svg id="homePetriDemo" viewBox="0 0 870 170" style="width:100%; min-width:580px; display:block;">
+                        <defs>
+                            <marker id="home-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="rgba(195,192,255,0.45)" />
+                            </marker>
+                        </defs>
+                        <line class="pn-arrow" id="home-arrow-0" x1="93" y1="80" x2="114" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-1" x1="154" y1="80" x2="178" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-2" x1="234" y1="80" x2="254" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-3" x1="294" y1="80" x2="318" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-4" x1="374" y1="80" x2="394" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-5" x1="434" y1="80" x2="458" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-6" x1="514" y1="80" x2="534" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-7" x1="574" y1="80" x2="598" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-8" x1="654" y1="80" x2="674" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <line class="pn-arrow" id="home-arrow-9" x1="714" y1="80" x2="766" y2="80"
+                            marker-end="url(#home-arrow)" />
+                        <circle class="pn-place" id="home-place-P0" cx="66" cy="80" r="26" /><text class="pn-lbl" x="66"
+                            y="80">P0</text>
+                        <text class="pn-lbl-sm" x="66" y="118">Resume</text>
+                        <circle class="pn-place" id="home-place-P1" cx="206" cy="80" r="26" /><text class="pn-lbl"
+                            x="206" y="80">P1</text>
+                        <text class="pn-lbl-sm" x="206" y="118">Extract</text>
+                        <circle class="pn-place" id="home-place-P2" cx="346" cy="80" r="26" /><text class="pn-lbl"
+                            x="346" y="80">P2</text>
+                        <text class="pn-lbl-sm" x="346" y="118">Skills</text>
+                        <circle class="pn-place" id="home-place-P3" cx="486" cy="80" r="26" /><text class="pn-lbl"
+                            x="486" y="80">P3</text>
+                        <text class="pn-lbl-sm" x="486" y="118">Match</text>
+                        <circle class="pn-place" id="home-place-P4" cx="626" cy="80" r="26" /><text class="pn-lbl"
+                            x="626" y="80">P4</text>
+                        <text class="pn-lbl-sm" x="626" y="118">Gap</text>
+                        <circle class="pn-place" id="home-place-P5" cx="794" cy="80" r="26" /><text class="pn-lbl"
+                            x="794" y="80">P5</text>
+                        <text class="pn-lbl-sm" x="794" y="118">Report</text>
+                        <rect class="pn-trans" id="home-trans-T0" x="114" y="66" width="40" height="28" rx="4" />
+                        <rect class="pn-trans" id="home-trans-T1" x="254" y="66" width="40" height="28" rx="4" />
+                        <rect class="pn-trans" id="home-trans-T2" x="394" y="66" width="40" height="28" rx="4" />
+                        <rect class="pn-trans" id="home-trans-T3" x="534" y="66" width="40" height="28" rx="4" />
+                        <rect class="pn-trans" id="home-trans-T4" x="674" y="66" width="40" height="28" rx="4" />
+                        <circle class="pn-token-dot" id="home-token" cx="66" cy="80" r="7" />
+                    </svg>
+                </div>
+                <div class="sim-msg text-center mt-3" id="home-petri-msg">Click Play Demo or scroll here to start</div>
+                <div class="text-center mt-3 d-flex gap-2 justify-content-center flex-wrap">
+                    <button type="button" class="btn btn-primary-gradient rounded-pill px-4" id="btn-home-petri">Play
+                        Demo</button>
+                    <a href="/resume-analyzer" class="btn btn-outline-custom rounded-pill px-4">Try With Your Resume</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Banner -->
+        <section class="container py-5">
+            <div class="reveal glass-card rounded p-5 text-center position-relative overflow-hidden">
+                <!-- Inner Glows -->
+                <div class="position-absolute top-0 end-0"
+                    style="width: 256px; height: 256px; background: rgba(195, 192, 255, 0.2); filter: blur(80px); transform: translate(50%, -50%);">
+                </div>
+                <div class="position-absolute bottom-0 start-0"
+                    style="width: 256px; height: 256px; background: rgba(76, 215, 246, 0.2); filter: blur(80px); transform: translate(-50%, 50%);">
+                </div>
+
+                <h2 class="display-5 fw-bold mb-4 position-relative">Ready to Find Your Perfect Career?</h2>
+                <p class="lead mx-auto mb-4 position-relative" style="max-width: 600px; color: var(--text-secondary);">
+                    Join thousands of professionals who have optimized their career paths using SkillOrbit's AI engine.
+                </p>
+                <button onclick="window.scrollTo({top:0,behavior:'smooth'})"
+                    class="btn btn-primary-gradient rounded-pill px-5 py-3 position-relative">
+                    Get Started Free
+                </button>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
@@ -548,23 +610,31 @@
             <div class="row align-items-center g-3">
                 <div class="col-md-4 text-center text-md-start">
                     <h5 class="fw-bold mb-1 fs-6">SkillOrbit</h5>
-                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2026 SkillOrbit AI. All rights reserved.</p>
+                    <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">© 2026 SkillOrbit AI. All
+                        rights reserved.</p>
                 </div>
                 <div class="col-md-4 text-center">
                     <div class="d-flex gap-4 justify-content-center flex-wrap">
-                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Privacy Policy</a>
-                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Terms of Service</a>
-                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Contact Support</a>
+                        <a href="#"
+                            style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Privacy
+                            Policy</a>
+                        <a href="#" style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Terms
+                            of Service</a>
+                        <a href="#"
+                            style="font-size: 12px; color: var(--text-secondary); text-decoration: none;">Contact
+                            Support</a>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="d-flex gap-3 justify-content-center justify-content-md-end">
-                        <button class="glass-card border-0 rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 36px; height: 36px; color: var(--text-primary);">
+                        <button
+                            class="glass-card border-0 rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 36px; height: 36px; color: var(--text-primary);">
                             <span class="material-symbols-outlined" style="font-size: 18px;">public</span>
                         </button>
-                        <button class="glass-card border-0 rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 36px; height: 36px; color: var(--text-primary);">
+                        <button
+                            class="glass-card border-0 rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 36px; height: 36px; color: var(--text-primary);">
                             <span class="material-symbols-outlined" style="font-size: 18px;">groups</span>
                         </button>
                     </div>
@@ -683,4 +753,5 @@
         });
     </script>
 </body>
+
 </html>

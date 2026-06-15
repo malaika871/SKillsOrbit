@@ -23,10 +23,11 @@
     body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
 
     /* ─── Nav ────────────────────────────────────────────────────────── */
-    nav { background: var(--surface); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .nav-brand { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+    nav { background: var(--surface); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 100; }
+    .nav-brand { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; text-decoration: none; }
     .nav-links a { color: var(--muted); text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; transition: color .2s; }
     .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--accent); }
 
     /* ─── Layout ─────────────────────────────────────────────────────── */
     main { max-width: 860px; margin: 2.5rem auto; padding: 0 1.5rem; }
@@ -35,6 +36,15 @@
 
     /* ─── Cards ──────────────────────────────────────────────────────── */
     .card { background: var(--card); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+
+    /* ─── Subject Selector ───────────────────────────────────────────── */
+    .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.9rem; margin-bottom: 1.5rem; }
+    .subject-card { background: var(--surface); border: 2px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem 1.2rem; cursor: pointer; transition: all .18s; text-align: center; }
+    .subject-card:hover { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+    .subject-card.selected { border-color: var(--accent); background: rgba(108,99,255,0.15); }
+    .subject-card .subject-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+    .subject-card .subject-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .subject-card .subject-count { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
 
     /* ─── Form controls ──────────────────────────────────────────────── */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
@@ -60,7 +70,7 @@
     .btn-sm { padding: 0.5rem 1.1rem; font-size: 0.85rem; }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* ─── Progress bar ───────────────────────────────────────────────── */
+    /* ─── Progress bar (quiz only) ───────────────────────────────────── */
     .progress-bar { background: var(--surface); border-radius: 999px; height: 6px; margin-bottom: 1.5rem; overflow: hidden; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 999px; transition: width .4s ease; }
 
@@ -119,15 +129,6 @@
     /* ─── Chart ──────────────────────────────────────────────────────── */
     #skillChart { max-height: 280px; }
 
-    /* ─── Leaderboard ────────────────────────────────────────────────── */
-    .lb-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .lb-table th { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
-    .lb-table td { padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .lb-table tr:hover td { background: rgba(255,255,255,0.03); }
-    .rank-1 { color: #ffd700; font-weight: 800; }
-    .rank-2 { color: #c0c0c0; font-weight: 700; }
-    .rank-3 { color: #cd7f32; font-weight: 700; }
-
     /* ─── Utilities ──────────────────────────────────────────────────── */
     .hidden { display: none !important; }
     .text-center { text-align: center; }
@@ -138,17 +139,22 @@
     .alert { padding: 0.9rem 1.2rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem; }
     .alert-warn { background: rgba(246,173,85,0.1); border: 1px solid rgba(246,173,85,0.3); color: #f6ad55; }
     .alert-info { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.3); color: var(--accent); }
+
+    /* ─── Selected subject pill ──────────────────────────────────────── */
+    #selectedSubjectPill { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.4); border-radius: 999px; padding: 0.3rem 0.9rem; font-size: 0.82rem; color: var(--accent); margin-bottom: 1rem; }
   </style>
 </head>
 <body>
 
 <!-- ─── Nav ─────────────────────────────────────────────────────────────── -->
 <nav>
-  <span class="nav-brand">🪐 SkillOrbit</span>
+  <a class="nav-brand" href="/">🪐 SkillOrbit</a>
   <div class="nav-links">
     <a href="/">Home</a>
+    <a href="/advisor">Advisor</a>
+    <a href="/resume-analyzer">Resume</a>
     <a href="/roadmap">Roadmap</a>
-    <a href="/skill-test" style="color:var(--accent)">Skill Test</a>
+    <a href="/skill-test" class="active">Skill Test</a>
   </div>
 </nav>
 
@@ -157,10 +163,24 @@
 <!-- ─── PANEL 0: Setup ───────────────────────────────────────────────────── -->
 <section id="panelSetup">
   <h1>🎯 Skill Test</h1>
-  <p class="subtitle">Test your knowledge after completing your learning roadmap.</p>
+  <p class="subtitle">Choose a subject and assess your current knowledge level.</p>
 
   <div class="card">
-    <h2 style="margin-bottom:1.2rem;font-size:1.15rem;">Configure Your Test</h2>
+    <h2 style="margin-bottom:1.2rem;font-size:1.15rem;">① Choose a Subject</h2>
+
+    <div class="subject-grid" id="subjectGrid">
+      <!-- Populated by JS -->
+    </div>
+
+    <div id="selectedSubjectPill" class="hidden">
+      <span id="selectedSubjectIcon"></span>
+      <span id="selectedSubjectName"></span>
+      <button onclick="clearSubject()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1;padding:0;margin-left:0.3rem;">×</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-bottom:1.2rem;font-size:1.15rem;">② Configure Your Test</h2>
 
     <div class="form-grid">
       <div>
@@ -173,9 +193,9 @@
         </select>
       </div>
       <div>
-        <label for="selSkill">Skill / Topic</label>
+        <label for="selSkill">Topic (within subject)</label>
         <select id="selSkill">
-          <option value="all">All Skills</option>
+          <option value="all">All Topics</option>
         </select>
       </div>
     </div>
@@ -196,12 +216,6 @@
     </div>
 
     <button class="btn btn-primary" onclick="startTest()">▶ Start Test</button>
-  </div>
-
-  <!-- Leaderboard -->
-  <div class="card" id="leaderboardCard">
-    <h2 style="margin-bottom:1rem;font-size:1.1rem;">🏆 Leaderboard</h2>
-    <div id="leaderboardBody"><div class="loader">Loading…</div></div>
   </div>
 </section>
 
@@ -248,7 +262,7 @@
   </div>
 
   <div class="card">
-    <h2 style="margin-bottom:1rem;font-size:1.1rem;">📊 Performance by Skill</h2>
+    <h2 style="margin-bottom:1rem;font-size:1.1rem;">📊 Performance by Topic</h2>
     <canvas id="skillChart"></canvas>
   </div>
 
@@ -261,66 +275,133 @@
 </main>
 
 <script>
+/* ── Subject catalogue ──────────────────────────────────────────────────── */
+const SUBJECTS = [
+  {
+    id: "ml",
+    icon: "🤖",
+    name: "Machine Learning",
+    desc: "ML algorithms & concepts",
+    prefixes: ["Naive Bayes","Decision Trees","Encoding","Feature Scaling","Gradient Descent","KNN","Laplace Smoothing","Linear Regression","Logistic Regression","Neural Networks","Activation Functions"]
+  },
+  {
+    id: "dsa",
+    icon: "🧩",
+    name: "DSA",
+    desc: "Data Structures & Algorithms",
+    prefixes: ["DSA -"]
+  },
+  {
+    id: "ai",
+    icon: "🧠",
+    name: "AI Concepts",
+    desc: "Search, reasoning, agents, NLP",
+    prefixes: ["AI Concepts"]
+  },
+  {
+    id: "ds",
+    icon: "📊",
+    name: "Data Science",
+    desc: "Stats, EDA, SQL & analytics",
+    prefixes: ["Data Science"]
+  },
+];
+
 /* ── State ──────────────────────────────────────────────────────────────── */
-let questions   = [];
-let answers     = {};   // { question_id: "A"|"B"|"C"|"D" }
-let currentIdx  = 0;
-let testId      = null;
+let questions    = [];
+let answers      = {};
+let currentIdx   = 0;
+let testId       = null;
 let timerInterval = null;
-let timeLeft    = 30;
-let skillChart  = null;
-let adaptive    = false;
+let timeLeft     = 30;
+let skillChart   = null;
+let adaptive     = false;
+let selectedSubject = null;
+let allSkills    = [];
 
 const OPTS = ["A","B","C","D"];
 
 /* ── Init ───────────────────────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", async () => {
+  renderSubjectGrid();
   await loadSkills();
-  await loadLeaderboard();
 });
+
+function renderSubjectGrid() {
+  const grid = document.getElementById("subjectGrid");
+  grid.innerHTML = SUBJECTS.map(s => `
+    <div class="subject-card" id="subj-${s.id}" onclick="selectSubject('${s.id}')">
+      <div class="subject-icon">${s.icon}</div>
+      <div class="subject-name">${s.name}</div>
+      <div class="subject-count">${s.desc}</div>
+    </div>
+  `).join("");
+}
+
+function selectSubject(id) {
+  selectedSubject = SUBJECTS.find(s => s.id === id);
+  document.querySelectorAll(".subject-card").forEach(c => c.classList.remove("selected"));
+  document.getElementById("subj-" + id).classList.add("selected");
+
+  // Show pill
+  document.getElementById("selectedSubjectPill").classList.remove("hidden");
+  document.getElementById("selectedSubjectIcon").textContent = selectedSubject.icon;
+  document.getElementById("selectedSubjectName").textContent = selectedSubject.name;
+
+  // Filter topic dropdown
+  filterTopicDropdown();
+}
+
+function clearSubject() {
+  selectedSubject = null;
+  document.querySelectorAll(".subject-card").forEach(c => c.classList.remove("selected"));
+  document.getElementById("selectedSubjectPill").classList.add("hidden");
+  populateTopicDropdown(allSkills);
+}
+
+function filterTopicDropdown() {
+  if (!selectedSubject) { populateTopicDropdown(allSkills); return; }
+  const prefixes = selectedSubject.prefixes;
+  const filtered = allSkills.filter(sk => prefixes.some(p => sk.startsWith(p) || sk === p));
+  populateTopicDropdown(filtered);
+}
+
+function populateTopicDropdown(skills) {
+  const sel = document.getElementById("selSkill");
+  sel.innerHTML = `<option value="all">All Topics</option>`;
+  skills.forEach(s => {
+    const o = document.createElement("option");
+    o.value = s; o.textContent = s;
+    sel.appendChild(o);
+  });
+}
 
 async function loadSkills() {
   try {
     const r = await fetch("/api/test/skills");
     const d = await r.json();
-    const sel = document.getElementById("selSkill");
-    d.skills.forEach(s => {
-      const o = document.createElement("option");
-      o.value = s; o.textContent = s;
-      sel.appendChild(o);
-    });
+    allSkills = d.skills || [];
+    populateTopicDropdown(allSkills);
   } catch(e) { console.warn("Skills load failed", e); }
-}
-
-async function loadLeaderboard() {
-  try {
-    const r = await fetch("/api/test/leaderboard?top=8");
-    const d = await r.json();
-    const body = document.getElementById("leaderboardBody");
-    if (!d.leaderboard || d.leaderboard.length === 0) {
-      body.innerHTML = "<p style='color:var(--muted);font-size:0.9rem;'>No results yet. Be the first!</p>";
-      return;
-    }
-    const medals = ["🥇","🥈","🥉"];
-    let html = `<table class="lb-table"><thead><tr><th>#</th><th>User</th><th>Best Score</th></tr></thead><tbody>`;
-    d.leaderboard.forEach((row, i) => {
-      const rankClass = i < 3 ? `rank-${i+1}` : "";
-      const icon = medals[i] || `${i+1}`;
-      html += `<tr><td class="${rankClass}">${icon}</td><td>${row.user_id}</td><td>${row.score}%</td></tr>`;
-    });
-    html += `</tbody></table>`;
-    body.innerHTML = html;
-  } catch(e) { document.getElementById("leaderboardBody").innerHTML = "<p style='color:var(--muted)'>—</p>"; }
 }
 
 /* ── Start Test ─────────────────────────────────────────────────────────── */
 async function startTest() {
-  const difficulty  = document.getElementById("selDifficulty").value;
-  const skill       = document.getElementById("selSkill").value;
-  const numQ        = parseInt(document.getElementById("numQ").value);
-  adaptive          = document.getElementById("adaptiveMode").checked;
+  const difficulty = document.getElementById("selDifficulty").value;
+  const skill      = document.getElementById("selSkill").value;
+  const numQ       = parseInt(document.getElementById("numQ").value);
+  adaptive         = document.getElementById("adaptiveMode").checked;
 
-  const payload = { difficulty, skill, num_questions: numQ, adaptive };
+  // If a subject is selected but skill is "all", pass a subject filter hint via skill prefix
+  let skillParam = skill;
+  if (skill === "all" && selectedSubject) {
+    // Use first prefix as the base skill group hint — backend will match all topics in it
+    // We'll pass "all" but note the subject for display only; backend filters by topic dropdown
+    skillParam = "all";
+  }
+
+  const payload = { difficulty, skill: skillParam, num_questions: numQ, adaptive,
+                    subject_prefixes: selectedSubject ? selectedSubject.prefixes : null };
 
   try {
     const r = await fetch("/api/test/start", {
@@ -332,8 +413,7 @@ async function startTest() {
     if (d.error) { alert("⚠ " + d.error); return; }
 
     if (d.mode === "adaptive") {
-      // Adaptive: single question flow
-      adaptive = true;
+      adaptive  = true;
       questions = [d.question];
       testId    = "adaptive";
     } else {
@@ -359,7 +439,6 @@ function renderQuestion() {
   document.getElementById("progressFill").style.width = `${((currentIdx+1)/tot)*100}%`;
   document.getElementById("qCounter").textContent     = `Question ${currentIdx+1} of ${tot}`;
 
-  // Badges
   const diffClass = `badge-${q.difficulty || "medium"}`;
   document.getElementById("qMeta").innerHTML =
     `<span class="badge ${diffClass}">${q.difficulty||"?"}</span>
@@ -367,7 +446,6 @@ function renderQuestion() {
 
   document.getElementById("qText").textContent = q.text;
 
-  // Options
   const saved = answers[q.question_id];
   const html  = OPTS.map((key, i) => {
     const cls = saved === key ? "option-label selected" : "option-label";
@@ -379,7 +457,6 @@ function renderQuestion() {
   }).join("");
   document.getElementById("qOptions").innerHTML = html;
 
-  // Nav buttons
   document.getElementById("btnPrev").disabled = currentIdx === 0;
   const isLast = currentIdx === tot - 1;
   toggle("btnNext",   !isLast);
@@ -458,26 +535,24 @@ function showResults(data) {
   document.getElementById("scoreLabel").textContent =
     pass ? "✅ Great job! You passed." : "❌ Keep practicing — score below 70%";
 
+  const subjectLabel = selectedSubject ? ` in ${selectedSubject.name}` : "";
   document.getElementById("resultGrid").innerHTML = `
     <div class="stat-box"><div class="stat-num" style="color:var(--accent2)">${data.correct_count}</div><div class="stat-lbl">Correct</div></div>
     <div class="stat-box"><div class="stat-num" style="color:var(--danger)">${data.total_questions - data.correct_count}</div><div class="stat-lbl">Incorrect</div></div>
-    <div class="stat-box"><div class="stat-num">${data.total_questions}</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-box"><div class="stat-num">${data.total_questions}</div><div class="stat-lbl">Total${subjectLabel}</div></div>
   `;
 
-  // Skill review alert
   if (data.skills_needing_review && data.skills_needing_review.length > 0) {
     const alertEl = document.getElementById("skillReviewAlert");
     alertEl.className = "alert alert-warn";
-    alertEl.innerHTML = `⚠ Score below 70% for: <strong>${data.skills_needing_review.join(", ")}</strong>. 
+    alertEl.innerHTML = `⚠ Score below 70% for: <strong>${data.skills_needing_review.join(", ")}</strong>.
       Consider updating your roadmap. <button class="btn btn-secondary btn-sm" style="margin-left:0.8rem" onclick="updateSkillsAndRedirect('${data.skills_needing_review[0]}')">Suggest Roadmap Update</button>`;
     alertEl.classList.remove("hidden");
   }
 
-  // Chart
   buildSkillChart(data.feedback);
 
-  // Missed questions
-  const missed   = data.feedback.filter(f => !f.correct);
+  const missed    = data.feedback.filter(f => !f.correct);
   const missedCard = document.getElementById("missedCard");
   if (missed.length === 0) {
     missedCard.innerHTML = "<p style='color:var(--accent2)'>🎉 Perfect score! No missed questions.</p>";
@@ -492,23 +567,20 @@ function showResults(data) {
     }).join("");
     document.getElementById("missedList").innerHTML = listHTML;
   }
-
-  loadLeaderboard();
 }
 
 function buildSkillChart(feedback) {
   const skillMap = {};
   feedback.forEach(f => {
-    // Identify skill from questions array
-    const q = questions.find(q => q.question_id === f.question_id);
+    const q  = questions.find(q => q.question_id === f.question_id);
     const sk = (q && q.skill) ? q.skill : "Unknown";
     if (!skillMap[sk]) skillMap[sk] = { correct: 0, wrong: 0 };
     if (f.correct) skillMap[sk].correct++; else skillMap[sk].wrong++;
   });
 
-  const labels   = Object.keys(skillMap);
-  const correct  = labels.map(l => skillMap[l].correct);
-  const wrong    = labels.map(l => skillMap[l].wrong);
+  const labels  = Object.keys(skillMap);
+  const correct = labels.map(l => skillMap[l].correct);
+  const wrong   = labels.map(l => skillMap[l].wrong);
 
   if (skillChart) skillChart.destroy();
   const ctx = document.getElementById("skillChart").getContext("2d");
@@ -551,7 +623,6 @@ function resetAll() {
   clearInterval(timerInterval);
   questions = []; answers = {}; currentIdx = 0; testId = null;
   show("panelSetup"); hide("panelTest"); hide("panelResults");
-  loadLeaderboard();
 }
 
 function confirmAbandon() {
@@ -560,7 +631,7 @@ function confirmAbandon() {
 
 function show(id) { document.getElementById(id)?.classList.remove("hidden"); }
 function hide(id) { document.getElementById(id)?.classList.add("hidden"); }
-function toggle(id, show) { document.getElementById(id)?.[show ? "classList" : "classList"][show ? "remove" : "add"]("hidden"); }
+function toggle(id, vis) { document.getElementById(id)?.[vis ? "classList" : "classList"][vis ? "remove" : "add"]("hidden"); }
 </script>
 </body>
 </html>
