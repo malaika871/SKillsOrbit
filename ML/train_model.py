@@ -11,9 +11,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.feature_selection import VarianceThreshold
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
-BASE_DIR     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ONET_DIR     = os.path.join(BASE_DIR, "data", "onet")
-MODEL_DIR    = os.path.join(BASE_DIR, "models")
+from ML.config import ONET_DIR, MODEL_DIR
+
 MODEL_PATH   = os.path.join(MODEL_DIR, "career_model.pkl")
 MLB_PATH     = os.path.join(MODEL_DIR, "mlb.pkl")
 METRICS_PATH = os.path.join(MODEL_DIR, "metrics.json")

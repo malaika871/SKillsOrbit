@@ -16,7 +16,7 @@ app.secret_key = "skillorbit_secret"
 # Import ML modules
 from ML.recommender import get_matches
 from ML.skill_gap import get_detailed_skill_gap, prioritize_skills
-from ML.roadmap_generator import get_all_careers, generate_roadmap, get_roadmap_for_skill_level
+from ML.roadmap_generator import get_all_careers, get_careers_grouped, generate_roadmap, get_roadmap_for_skill_level
 from ML.career_simulator import simulate_career
 from backend.resume_analyzer import SkillExtractor, PetriNet
 from ML.live_simulations import (
@@ -102,8 +102,7 @@ def skill_gap_analysis():
 @app.route("/api/careers", methods=["GET"])
 def get_careers():
     try:
-        careers = get_all_careers()
-        return jsonify(careers), 200
+        return jsonify(get_careers_grouped()), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -310,6 +309,7 @@ def career_simulation():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/api/train-model", methods=["POST"])
 def train_model_endpoint():
     try:
@@ -470,8 +470,6 @@ def api_predict_difficulty():
     return jsonify({"predicted_difficulty": label, "question_text": text})
 
 
-# ── Entry point ────────────────────────────────────────────────────────────────
-
 if __name__ == "__main__":
     print("Starting SkillOrbit...")
     try:
@@ -481,4 +479,4 @@ if __name__ == "__main__":
         print(f"Missing dependency: {e}")
         print("Run: pip install -r requirements.txt")
         sys.exit(1)
-    app.run(debug=True)
+app.run(debug=True)

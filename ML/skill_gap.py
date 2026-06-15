@@ -1,3 +1,30 @@
+def compute_match_percentage(user_skills_lower, required_skills_lower):
+    """
+    Shared function: exact matches count as 1.0, partial as 0.65.
+    Used by both recommender (for card score) and skill gap analysis (for modal %).
+    Returns (score 0-99, exact_count, partial_count)
+    """
+    MIN_LEN = 3
+    exact = set(user_skills_lower) & set(required_skills_lower)
+    partial = set()
+    for us in user_skills_lower:
+        if len(us) < MIN_LEN:
+            continue
+        for req in required_skills_lower:
+            if len(req) < MIN_LEN:
+                continue
+            if (us in req or req in us) and req not in exact:
+                partial.add(req)
+
+    total = len(required_skills_lower)
+    if not total:
+        return 0.0, 0, 0
+
+    matched = len(exact) + len(partial) * 0.65
+    score = (matched / total) * 100
+    return round(min(99.0, score), 1), len(exact), len(partial)
+
+
 def get_detailed_skill_gap(user_skills_list, career_match):
     """
     Get detailed skill gap analysis for a specific career match.
@@ -32,21 +59,19 @@ def get_detailed_skill_gap(user_skills_list, career_match):
                 if req_skill not in exact_matches:
                     partial_matches.add(req_skill)
 
-    # Calculate match percentage (cap at 100)
+    # Use shared formula (same as recommender card score)
+    match_percentage, _, _ = compute_match_percentage(
+        list(user_skills_lower), list(required_skills_lower)
+    )
     total_required = len(required_skills_lower)
     matched_count = len(exact_matches) + len(partial_matches)
-    if matched_count > total_required:
-        matched_count = total_required
-    match_percentage = (matched_count / total_required * 100) if total_required > 0 else 0
-    if match_percentage > 100:
-        match_percentage = 100
 
     return {
         "career": career_match.get('career', ''),
         "exact_matches": list(exact_matches),
         "partial_matches": list(partial_matches),
         "missing_skills": list(missing_skills - partial_matches),
-        "match_percentage": round(match_percentage, 1),
+        "match_percentage": match_percentage,
         "total_required": total_required,
         "matched_count": matched_count
     }

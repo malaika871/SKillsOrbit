@@ -445,6 +445,8 @@
             padding: 48px 20px;
             color: var(--text-secondary);
         }
+
+        #skillGapPipelinePanel { display: none !important; }
     </style>
 </head>
 <body>
@@ -557,16 +559,6 @@
                         <div class="sim-panel mb-4">
                             <div class="sim-panel-title">Career Journey Timeline (Live)</div>
                             <div class="journey-steps" id="journey-steps"></div>
-                        </div>
-
-                        <!-- Job Market Queue Simulation -->
-                        <div class="sim-panel mb-4">
-                            <div class="sim-panel-title">Job Market Queue Simulation</div>
-                            <div class="sim-msg" id="queue-msg">Initializing applicant queue…</div>
-                            <div class="queue-bar-wrap" id="queue-bar-wrap">
-                                <div class="queue-bar" id="queue-bar" style="height:8%;"></div>
-                            </div>
-                            <div class="queue-stat" id="queue-summary"></div>
                         </div>
 
                         <!-- Markov Career Path -->
@@ -971,7 +963,7 @@
             simModal.show();
 
             try {
-                const [marketRes, journeyRes, queueRes, markovRes] = await Promise.all([
+                const [marketRes, journeyRes, markovRes] = await Promise.all([
                     fetch('/api/career-simulation', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -982,15 +974,6 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ career: careerName, match_score: matchScore }),
                     }),
-                    fetch('/api/queue-simulate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            career: careerName,
-                            competition_level: currentMatches.find(m => m.career === careerName)?.competition_level || 5,
-                            demand_level: currentMatches.find(m => m.career === careerName)?.demand_level || 5,
-                        }),
-                    }),
                     fetch('/api/markov-simulate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1000,7 +983,6 @@
 
                 const data = await marketRes.json();
                 const journey = await journeyRes.json();
-                const queue = await queueRes.json();
                 const markov = await markovRes.json();
 
                 if (!marketRes.ok) throw new Error(data.error || 'Simulation failed');
@@ -1013,11 +995,6 @@
                 document.getElementById('simContent').classList.remove('d-none');
 
                 await SimUtils.animateJourneySteps(journey.steps || [], { containerId: 'journey-steps', delay: 700 });
-                await SimUtils.animateQueue(queue.events || [], { barId: 'queue-bar', msgId: 'queue-msg', delay: 400 });
-                if (queue.summary) {
-                    document.getElementById('queue-summary').textContent =
-                        `Processed: ${queue.summary.total_processed} | Offers: ${queue.summary.total_offers} | Success rate: ${queue.summary.success_rate}%`;
-                }
                 await SimUtils.animateMarkovPath(markov.path_log || [], { containerId: 'markov-states', delay: 650 });
 
                 requestAnimationFrame(() => {
@@ -1480,7 +1457,11 @@
                         career_match: selectedMatch
                     })
                 });
-                if (!gapRes.ok) throw new Error(`Skill gap API error ${gapRes.status}`);
+
+                if (!gapRes.ok) {
+                    const errBody = await gapRes.json().catch(() => ({}));
+                    throw new Error(errBody.error || 'Failed to get skill gap analysis');
+                }
                 const gapData = await gapRes.json();
 
                 // 2. Prioritize missing skills

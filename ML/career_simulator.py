@@ -1,79 +1,21 @@
-import os
 import logging
 import numpy as np
 import pandas as pd
 
+from ML.config import ONET_DIR
+from ML.shared import (
+    get_pakistan_salary,
+    get_automation_risk,
+    infer_job_type,
+    get_market_trend,
+    get_salary_growth_rate,
+)
+
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ONET_DIR = os.path.join(BASE_DIR, "data", "onet")
-
 TREND_DEMAND_DELTA = {
     "Rising": 1.8, "Moderate": 0.8, "Stable": 0.2, "Declining": -1.2,
-}
-DEFAULT_GROWTH_BY_TREND = {
-    "Rising": 6.5, "Moderate": 5.0, "Stable": 3.0, "Declining": 1.5,
-}
-
-# Pakistan salary map (PKR/month) — same as recommender.py
-PAKISTAN_SALARY_MAP = {
-    "software developer":     (80000,  350000, 5),
-    "software engineer":      (80000,  350000, 5),
-    "data scientist":         (100000, 420000, 5),
-    "machine learning":       (120000, 450000, 5),
-    "artificial intelligence":(120000, 450000, 5),
-    "web developer":          (60000,  250000, 4),
-    "frontend":               (60000,  220000, 4),
-    "backend":                (70000,  280000, 4),
-    "full stack":             (80000,  320000, 5),
-    "mobile developer":       (70000,  300000, 4),
-    "devops":                 (90000,  380000, 5),
-    "cloud":                  (90000,  400000, 5),
-    "cybersecurity":          (80000,  350000, 4),
-    "network":                (50000,  200000, 3),
-    "database":               (60000,  220000, 3),
-    "data analyst":           (70000,  250000, 4),
-    "business analyst":       (65000,  230000, 4),
-    "project manager":        (90000,  350000, 4),
-    "product manager":        (100000, 400000, 4),
-    "graphic designer":       (40000,  150000, 3),
-    "ui":                     (60000,  220000, 4),
-    "ux":                     (60000,  220000, 4),
-    "accountant":             (40000,  150000, 3),
-    "financial":              (60000,  250000, 3),
-    "doctor":                 (80000,  500000, 5),
-    "physician":              (80000,  500000, 5),
-    "surgeon":                (150000, 800000, 5),
-    "nurse":                  (35000,  100000, 4),
-    "pharmacist":             (50000,  180000, 4),
-    "dentist":                (70000,  350000, 4),
-    "teacher":                (30000,  80000,  3),
-    "professor":              (60000,  200000, 3),
-    "lawyer":                 (60000,  350000, 3),
-    "civil engineer":         (60000,  250000, 4),
-    "mechanical engineer":    (60000,  230000, 3),
-    "electrical engineer":    (65000,  250000, 4),
-    "architect":              (60000,  250000, 3),
-    "marketing":              (45000,  200000, 3),
-    "human resource":         (45000,  160000, 3),
-    "supply chain":           (50000,  200000, 3),
-    "manager":                (70000,  300000, 4),
-    "analyst":                (60000,  220000, 4),
-    "engineer":               (60000,  250000, 4),
-    "consultant":             (70000,  300000, 4),
-    "researcher":             (50000,  200000, 3),
-    "technician":             (35000,  120000, 3),
-    "default":                (40000,  150000, 3),
-}
-
-AUTOMATION_RISK_MAP = {
-    "data entry": 85, "cashier": 80, "telemarketer": 90,
-    "accountant": 60, "driver": 65, "software": 10,
-    "data scientist": 15, "machine learning": 10, "doctor": 15,
-    "surgeon": 10, "nurse": 20, "teacher": 25, "lawyer": 30,
-    "psychologist": 20, "designer": 35, "researcher": 20,
-    "manager": 25, "engineer": 30, "default": 40,
 }
 
 _onet_df = None
@@ -83,6 +25,7 @@ def _load_onet():
     global _onet_df
     if _onet_df is not None:
         return
+    import os
     occ_path = os.path.join(ONET_DIR, "Occupation Data.txt")
     if os.path.exists(occ_path):
         _onet_df = pd.read_csv(occ_path, sep="\t", dtype=str)
@@ -96,38 +39,12 @@ def _load_onet():
         _onet_df = pd.DataFrame(columns=["soc_code", "career_title", "description"])
 
 
-def _get_pakistan_salary(career_title):
-    title_lower = career_title.lower()
-    for keyword, (sal_min, sal_max, demand) in PAKISTAN_SALARY_MAP.items():
-        if keyword in title_lower:
-            return sal_min, sal_max, demand
-    return PAKISTAN_SALARY_MAP["default"]
-
-
-def _get_automation_risk(career_title):
-    title_lower = career_title.lower()
-    for keyword, risk in AUTOMATION_RISK_MAP.items():
-        if keyword in title_lower:
-            return risk
-    return AUTOMATION_RISK_MAP["default"]
-
-
 def _infer_market_trend(demand_level):
+    """Infer trend from demand level (1-5 scale) — used only as final fallback."""
     if demand_level >= 5:   return "Rising"
     if demand_level >= 4:   return "Moderate"
     if demand_level >= 3:   return "Stable"
     return "Declining"
-
-
-def _infer_job_type(career_title):
-    title_lower = career_title.lower()
-    if any(k in title_lower for k in ("remote", "online", "virtual")):
-        return "Remote"
-    if any(k in title_lower for k in ("software", "developer", "data", "web", "computer", "analyst")):
-        return "Hybrid"
-    if any(k in title_lower for k in ("nurse", "doctor", "teacher", "construction", "manufacturing")):
-        return "On-site"
-    return "Hybrid"
 
 
 def _project_salary(salary_min, salary_max, growth_rate, years=5):
@@ -160,16 +77,16 @@ def _project_demand(demand_level, market_trend, years=5):
 
 
 def _market_factors(demand_level, automation_risk, salary_growth_rate, market_trend):
-    demand          = min(100, demand_level * 20)
+    demand           = min(100, demand_level * 20)
     salary_potential = min(100, (salary_growth_rate / 8.0) * 100)
-    job_security    = min(100, max(0, 100 - automation_risk))
-    growth_outlook  = {"Rising": 90, "Moderate": 70, "Stable": 50, "Declining": 25}.get(market_trend, 50)
+    job_security     = min(100, max(0, 100 - automation_risk))
+    growth_outlook   = {"Rising": 90, "Moderate": 70, "Stable": 50, "Declining": 25}.get(market_trend, 50)
     return {
         "demand":           round(demand, 1),
         "salary_potential": round(salary_potential, 1),
         "job_security":     round(job_security, 1),
         "growth_outlook":   growth_outlook,
-        "competition_ease": 60.0,   # neutral default without CSV data
+        "competition_ease": 60.0,
     }
 
 
@@ -204,20 +121,30 @@ def _build_insights(career_name, market_trend, salary_growth_rate,
 
 
 def simulate_career(career_name: str, match_score=None, years: int = 5):
+    """
+    Simulate a 5-year career projection.
+
+    Salary data is read from careers.csv via shared.get_pakistan_salary(),
+    which is the SAME source used by recommender.py for career cards.
+    This ensures career card salary == simulation modal salary.
+    """
     _load_onet()
 
-    salary_min, salary_max, demand_level = _get_pakistan_salary(career_name)
-    automation_risk = _get_automation_risk(career_name)
-    market_trend    = _infer_market_trend(demand_level)
-    salary_growth   = DEFAULT_GROWTH_BY_TREND[market_trend]
-    factors         = _market_factors(demand_level, automation_risk, salary_growth, market_trend)
-    outlook         = _market_outlook_score(factors, market_trend)
+    # ── Single source of truth via shared.py ─────────────────────────────────
+    salary_min, salary_max, demand_level = get_pakistan_salary(career_name)
+    automation_risk = get_automation_risk(career_name)
+    market_trend    = get_market_trend(career_name)
+    salary_growth   = get_salary_growth_rate(career_name)
+    job_type        = infer_job_type(career_name)
+
+    factors  = _market_factors(demand_level, automation_risk, salary_growth, market_trend)
+    outlook  = _market_outlook_score(factors, market_trend)
 
     return {
         "career":             career_name,
         "currency":           "PKR",
         "salary_period":      "monthly",
-        "job_type":           _infer_job_type(career_name),
+        "job_type":           job_type,
         "match_score":        match_score,
         "market_trend":       market_trend,
         "salary_growth_rate": salary_growth,

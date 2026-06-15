@@ -71,36 +71,9 @@ _NAME_HDR     = re.compile(                                            # section
 )
 
 # Flat lowercase set of all taxonomy terms for O(1) look-up
-_TAXONOMY_SET: set[str] = {s.lower() for s in (
-    # keep in sync with SKILL_TAXONOMY — duplicated here so the set is
-    # available before the class is instantiated
-    "python","java","javascript","typescript","c","c++","c#","r","go","rust",
-    "swift","kotlin","php","ruby","scala","matlab","perl","bash","powershell",
-    "haskell","dart","lua","html","css","react","angular","vue.js","node.js",
-    "express.js","django","flask","spring","bootstrap","jquery","next.js",
-    "nuxt.js","redux","graphql","rest api","websockets","webpack","sass",
-    "tailwind css","fastapi","laravel","rails","streamlit","machine learning",
-    "deep learning","neural networks","nlp","computer vision","tensorflow",
-    "pytorch","keras","scikit-learn","pandas","numpy","matplotlib","seaborn",
-    "tableau","power bi","statistics","probability","data visualization",
-    "feature engineering","model deployment","jupyter","nltk","opencv",
-    "xgboost","lightgbm","data mining","time series","a/b testing","spark",
-    "hadoop","airflow","etl","data engineering","mlops","sql","mysql",
-    "postgresql","mongodb","redis","sqlite","oracle","cassandra","dynamodb",
-    "elasticsearch","firebase","neo4j","nosql","aws","azure","gcp","docker",
-    "kubernetes","ci/cd","jenkins","github actions","terraform","ansible",
-    "linux","git","github","gitlab","nginx","heroku","vercel","devops",
-    "microservices","cybersecurity","network security","penetration testing",
-    "owasp","cryptography","firewalls","siem","ethical hacking","android",
-    "ios","react native","flutter","tcp/ip","http/https","load balancing",
-    "api gateway","kafka","rabbitmq","distributed systems","rest","excel",
-    "jira","confluence","postman","figma","adobe xd","communication",
-    "leadership","teamwork","problem solving","critical thinking",
-    "project management","time management","agile","scrum","kanban",
-    "blockchain","iot","unity","unreal engine","embedded systems","arduino",
-    "raspberry pi","quantitative analysis","financial modeling","seo",
-    "digital marketing","bioinformatics",
-)}
+# Flat lowercase set of all taxonomy terms for O(1) look-up.
+# Derived from SKILL_TAXONOMY — no manual duplication needed.
+_TAXONOMY_SET: set[str] = {s.lower() for s in SKILL_TAXONOMY}
 
 
 class SkillExtractor:

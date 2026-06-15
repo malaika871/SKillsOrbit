@@ -4,11 +4,19 @@ import joblib
 import numpy as np
 import pandas as pd
 
-BASE_DIR      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH    = os.path.join(BASE_DIR, "models", "career_model.pkl")
-MLB_PATH      = os.path.join(BASE_DIR, "models", "mlb.pkl")
-SELECTOR_PATH = os.path.join(BASE_DIR, "models", "selector.pkl")
-ONET_DIR      = os.path.join(BASE_DIR, "data", "onet")
+from ML.config import BASE_DIR, ONET_DIR, MODEL_DIR
+from ML.shared import (
+    PAKISTAN_SALARY_MAP,
+    AUTOMATION_RISK_MAP,
+    get_pakistan_salary   as _get_pakistan_salary,
+    get_automation_risk   as _get_automation_risk,
+    infer_job_type        as _infer_job_type,
+)
+from ML.skill_gap import compute_match_percentage
+
+MODEL_PATH    = os.path.join(MODEL_DIR, "career_model.pkl")
+MLB_PATH      = os.path.join(MODEL_DIR, "mlb.pkl")
+SELECTOR_PATH = os.path.join(MODEL_DIR, "selector.pkl")
 CAREERS_CSV   = os.path.join(BASE_DIR, "data", "careers.csv")
 
 _model    = None
@@ -58,107 +66,7 @@ _SKILL_ALIASES = {
     "numpy": "tech_python",
 }
 
-# ─── Pakistan Salary Map (source: Rozee.pk / Glassdoor Pakistan 2024) ────────
-PAKISTAN_SALARY_MAP = {
-    "software developer":    (80000,  350000, 5),
-    "software engineer":     (80000,  350000, 5),
-    "data scientist":        (100000, 420000, 5),
-    "machine learning":      (120000, 450000, 5),
-    "artificial intelligence":(120000,450000, 5),
-    "web developer":         (60000,  250000, 4),
-    "frontend":              (60000,  220000, 4),
-    "backend":               (70000,  280000, 4),
-    "full stack":            (80000,  320000, 5),
-    "mobile developer":      (70000,  300000, 4),
-    "android":               (70000,  280000, 4),
-    "ios":                   (70000,  280000, 4),
-    "devops":                (90000,  380000, 5),
-    "cloud":                 (90000,  400000, 5),
-    "cybersecurity":         (80000,  350000, 4),
-    "network":               (50000,  200000, 3),
-    "database":              (60000,  220000, 3),
-    "data analyst":          (70000,  250000, 4),
-    "business analyst":      (65000,  230000, 4),
-    "systems analyst":       (65000,  230000, 3),
-    "project manager":       (90000,  350000, 4),
-    "product manager":       (100000, 400000, 4),
-    "it manager":            (100000, 380000, 4),
-    "graphic designer":      (40000,  150000, 3),
-    "ui":                    (60000,  220000, 4),
-    "ux":                    (60000,  220000, 4),
-    "accountant":            (40000,  150000, 3),
-    "auditor":               (50000,  180000, 3),
-    "financial":             (60000,  250000, 3),
-    "banker":                (50000,  200000, 3),
-    "economist":             (60000,  220000, 3),
-    "doctor":                (80000,  500000, 5),
-    "physician":             (80000,  500000, 5),
-    "surgeon":               (150000, 800000, 5),
-    "nurse":                 (35000,  100000, 4),
-    "pharmacist":            (50000,  180000, 4),
-    "dentist":               (70000,  350000, 4),
-    "teacher":               (30000,  80000,  3),
-    "professor":             (60000,  200000, 3),
-    "lecturer":              (50000,  150000, 3),
-    "lawyer":                (60000,  350000, 3),
-    "legal":                 (50000,  250000, 3),
-    "civil engineer":        (60000,  250000, 4),
-    "mechanical engineer":   (60000,  230000, 3),
-    "electrical engineer":   (65000,  250000, 4),
-    "chemical engineer":     (60000,  230000, 3),
-    "architect":             (60000,  250000, 3),
-    "construction":          (50000,  200000, 3),
-    "marketing":             (45000,  200000, 3),
-    "sales":                 (40000,  180000, 3),
-    "content":               (35000,  120000, 3),
-    "social media":          (35000,  130000, 3),
-    "human resource":        (45000,  160000, 3),
-    "recruitment":           (40000,  140000, 3),
-    "supply chain":          (50000,  200000, 3),
-    "logistics":             (45000,  180000, 3),
-    "journalist":            (35000,  120000, 2),
-    "writer":                (30000,  120000, 2),
-    "psychologist":          (50000,  200000, 3),
-    "counselor":             (40000,  150000, 3),
-    "manager":               (70000,  300000, 4),
-    "analyst":               (60000,  220000, 4),
-    "engineer":              (60000,  250000, 4),
-    "consultant":            (70000,  300000, 4),
-    "researcher":            (50000,  200000, 3),
-    "scientist":             (60000,  250000, 3),
-    "technician":            (35000,  120000, 3),
-    "administrator":         (40000,  150000, 3),
-    "default":               (40000,  150000, 3),
-}
 
-# ─── Automation risk by broad category (0-100) ───────────────────────────────
-AUTOMATION_RISK_MAP = {
-    "data entry":        85, "cashier":         80, "telemarketer":    90,
-    "accountant":        60, "bookkeeper":       70, "driver":          65,
-    "software":          10, "data scientist":   15, "machine learning": 10,
-    "doctor":            15, "surgeon":          10, "nurse":           20,
-    "teacher":           25, "lawyer":           30, "psychologist":    20,
-    "designer":          35, "architect":        35, "researcher":      20,
-    "manager":           25, "consultant":       30, "engineer":        30,
-    "default":           40,
-}
-
-
-def _get_pakistan_salary(career_title):
-    title_lower = career_title.lower()
-    # Try specific matches first (longer phrases), then broad keywords
-    for keyword, (sal_min, sal_max, demand) in PAKISTAN_SALARY_MAP.items():
-        if keyword in title_lower:
-            return sal_min, sal_max, demand
-    return PAKISTAN_SALARY_MAP["default"]
-
-
-def _get_automation_risk(career_title):
-    title_lower = career_title.lower()
-    for keyword, risk in AUTOMATION_RISK_MAP.items():
-        if keyword in title_lower:
-            return risk
-    return AUTOMATION_RISK_MAP["default"]
 
 
 def _build_skill_lookup(mlb):
@@ -246,28 +154,12 @@ def _parse_required_skills(skills_value):
 def _skills_overlap_score(user_skills, required_skills):
     """Score how well user skills match a career's required skills (0-99)."""
     user_lower = {s.strip().lower() for s in user_skills if s.strip()}
-    req_lower = [s.strip().lower() for s in required_skills if s.strip()]
+    req_lower = {s.strip().lower() for s in required_skills if s.strip()}
     if not req_lower or not user_lower:
         return 0.0
 
-    exact = 0
-    partial = 0
-    for req in req_lower:
-        if req in user_lower:
-            exact += 1
-            continue
-        if any(
-            us in req or req in us
-            for us in user_lower
-            if len(us) >= 3 and len(req) >= 3
-        ):
-            partial += 1
-
-    matched = exact + partial * 0.65
-    score = (matched / len(req_lower)) * 100
-    if exact:
-        score = max(score, 30 + exact * 10)
-    return round(min(99.0, score), 1)
+    score, _, _ = compute_match_percentage(user_lower, req_lower)
+    return score
 
 
 def _load_career_skills():
@@ -314,17 +206,6 @@ def _load_career_skills():
 def _get_required_skills(career_name):
     cache = _load_career_skills()
     return cache.get(career_name, [])
-
-
-def _infer_job_type(career_title):
-    title_lower = career_title.lower()
-    if any(k in title_lower for k in ("remote", "online", "virtual")):
-        return "Remote"
-    if any(k in title_lower for k in ("software", "developer", "data", "web", "computer", "analyst")):
-        return "Hybrid"
-    if any(k in title_lower for k in ("nurse", "doctor", "teacher", "construction", "manufacturing")):
-        return "On-site"
-    return "Hybrid"
 
 
 def _competition_from_demand(demand_level):
