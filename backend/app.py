@@ -479,4 +479,8 @@ if __name__ == "__main__":
         print(f"Missing dependency: {e}")
         print("Run: pip install -r requirements.txt")
         sys.exit(1)
-app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=True
+    )
